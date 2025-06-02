@@ -244,8 +244,13 @@ void VulkanPipeline::CreateGraphicsPipeline()
 	}
 }
 
-void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, const std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
+void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
 {
+	if (meshes.size() > 3)
+	{
+		std::cout << "Hmmm" << std::endl;
+	}
+
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -357,6 +362,34 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 				ImGui::TreePop();
 			}
 			i++;
+		}
+
+		if (ImGui::Button("Create mesh"))
+		{
+			MeshInfo meshInfo;
+			meshInfo.vertices =
+			{
+				{{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f}},	// Bottom left
+				{{ 0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},	// Bottom right
+				{{ 0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},	// Top right
+				{{-0.5f,  0.5f,  0.0f}, {0.0f, 1.0f}}	// Top left
+			};
+			meshInfo.indices =
+			{
+				0, 1, 2,
+				2, 3, 0
+			};
+			meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
+			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
+			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
+
+			//std::shared_ptr<Mesh> mesh = std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo);
+
+			//meshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
+
+			//meshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
+
+			std::cout << "Create mesh" << std::endl;
 		}
 
 		// Pop temporary frame padding

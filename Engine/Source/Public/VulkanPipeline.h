@@ -22,7 +22,7 @@ namespace VulkanRenderer
 
 		void SetImGuiOverlay(VulkanImGuiOverlay* overlay);
 
-		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, const std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera);
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera);
 
 		VkDescriptorSetLayout GetCameraDescriptorSetLayout() const;
 		VkDescriptorSetLayout GetMeshDescriptorSetLayout() const;
