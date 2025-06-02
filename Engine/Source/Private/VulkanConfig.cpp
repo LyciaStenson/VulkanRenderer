@@ -6,8 +6,6 @@
 
 namespace VulkanConfig
 {
-	int MAX_FRAMES_IN_FLIGHT = 2;
-
 #ifdef NDEBUG
 	bool enableValidationLayers = false;
 #else
