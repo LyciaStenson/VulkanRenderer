@@ -171,10 +171,12 @@ VkSurfaceFormatKHR VulkanSwapChain::ChooseSwapSurfaceFormat(const std::vector<Vk
 
 VkPresentModeKHR VulkanSwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
-	for (const auto& mode : availablePresentModes)
+	for (const auto& availablePresentMode : availablePresentModes)
 	{
-		if (mode == VK_PRESENT_MODE_MAILBOX_KHR)
-			return mode;
+		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			return availablePresentMode;
+		}
 	}
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
