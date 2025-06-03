@@ -49,10 +49,9 @@ void VulkanTexture::CreateTextureImage(const std::string& path)
 
 	VulkanBuffer stagingBuffer(device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-	void* data;
-	vkMapMemory(device->GetLogical(), stagingBuffer.GetMemory(), 0, imageSize, 0, &data);
+	void* data = stagingBuffer.Map();
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(device->GetLogical(), stagingBuffer.GetMemory());
+	stagingBuffer.Unmap();
 
 	stbi_image_free(pixels);
 

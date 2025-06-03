@@ -1,6 +1,7 @@
 #pragma once
 
 #include <volk.h>
+#include <vk_mem_alloc.h>
 
 namespace VulkanRenderer
 {
@@ -13,12 +14,16 @@ namespace VulkanRenderer
 		~VulkanBuffer();
 
 		VkBuffer Get() const;
-		VkDeviceMemory GetMemory() const;
+		VmaAllocation GetAllocation() const;
+
+		void* Map();
+		void Unmap();
 
 	private:
 		VkBuffer buffer = VK_NULL_HANDLE;
-		VkDeviceMemory memory = VK_NULL_HANDLE;
 		VkDeviceSize size = 0;
+
+		VmaAllocation allocation = VK_NULL_HANDLE;
 
 		VulkanDevice* device;
 

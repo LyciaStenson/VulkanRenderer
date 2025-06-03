@@ -17,8 +17,7 @@ namespace VulkanRenderer
 		~VulkanUniformBuffer();
 
 		VkBuffer Get() const;
-		VkDeviceMemory GetMemory() const;
-
+		
 		void* GetMappedData() const;
 
 	private:
@@ -28,6 +27,6 @@ namespace VulkanRenderer
 
 		void* mappedData = nullptr;
 
-		void AllocateMemory(VkDeviceSize size, VkMemoryPropertyFlags propertyFlags);
+		void AllocateMemory(VkDeviceSize size);
 	};
 }
