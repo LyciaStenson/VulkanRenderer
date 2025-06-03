@@ -18,6 +18,7 @@ project "Engine"
 		"Source/Public",
 		"Vendor/vulkan-headers/include",
 		"Vendor/volk",
+		"Vendor/vma",
 		"Vendor/glfw/include",
 		"Vendor/glm",
 		"Vendor/stb",
