@@ -33,6 +33,11 @@ VulkanPipeline::~VulkanPipeline()
 	vkDestroyDescriptorSetLayout(device->GetLogical(), meshDescriptorSetLayout, nullptr);
 }
 
+void VulkanPipeline::SetDescriptorPool(VkDescriptorPool pool)
+{
+	descriptorPool = pool;
+}
+
 void VulkanPipeline::SetImGuiOverlay(VulkanImGuiOverlay* overlay)
 {
 	imGuiOverlay = overlay;
@@ -382,10 +387,10 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
 			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
 			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
+			
+			meshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
 
-			//std::shared_ptr<Mesh> mesh = std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo);
-
-			//meshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
+			meshes[meshes.size() - 1]->CreateDescriptorSets(descriptorPool);
 
 			//meshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
 
