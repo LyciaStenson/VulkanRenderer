@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include <volk.h>
+#include <vk_mem_alloc.h>
 
 #include <VulkanHelpers.h>
 
@@ -25,6 +26,8 @@ namespace VulkanRenderer
 		VkDevice GetLogical() const;
 		VkPhysicalDevice GetPhysical() const;
 
+		VmaAllocator GetAllocator() const;
+
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		VkQueue graphicsQueue;
@@ -33,16 +36,20 @@ namespace VulkanRenderer
 		uint32_t graphicsQueueFamily;
 
 	private:
-		VkDevice logicaldevice;
+		VkDevice logicalDevice;
 		VkPhysicalDevice physicalDevice;
 
 		VkInstance instance;
 		VkSurfaceKHR surface;
 
+		VmaAllocator allocator;
+
 		VkCommandPool commandPool;
 
 		void SelectPhysicalDevice();
 		void CreateLogicalDevice();
+
+		void CreateAllocator();
 
 		void CreateCommandPool();
 		void CreateCommandBuffers();

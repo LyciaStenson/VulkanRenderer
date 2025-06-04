@@ -7,6 +7,7 @@ project "Engine"
 	objdir ("%{wks.location}/out/obj/" .. outputdir .. "/%{prj.name}")
 
 	defines { "VK_NO_PROTOTYPES" }
+	defines { "VMA_DYNAMIC_VULKAN_FUNCTIONS" }
 	defines { "GLFW_INCLUDE_VULKAN" }
 
 	files {
@@ -18,6 +19,7 @@ project "Engine"
 		"Source/Public",
 		"Vendor/vulkan-headers/include",
 		"Vendor/volk",
+		"Vendor/vma",
 		"Vendor/glfw/include",
 		"Vendor/glm",
 		"Vendor/stb",

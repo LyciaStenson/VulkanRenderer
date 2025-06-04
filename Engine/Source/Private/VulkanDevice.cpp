@@ -13,14 +13,17 @@ namespace VulkanRenderer
 	{
 		SelectPhysicalDevice();
 		CreateLogicalDevice();
+		CreateAllocator();
 		CreateCommandPool();
 		CreateCommandBuffers();
 	}
 
 	VulkanDevice::~VulkanDevice()
 	{
-		vkDestroyCommandPool(logicaldevice, commandPool, nullptr);
-		vkDestroyDevice(logicaldevice, nullptr);
+		vmaDestroyAllocator(allocator);
+
+		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+		vkDestroyDevice(logicalDevice, nullptr);
 	}
 
 	void VulkanDevice::SelectPhysicalDevice()
@@ -93,14 +96,32 @@ namespace VulkanRenderer
 			createInfo.enabledLayerCount = 0;
 		}
 
-		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicaldevice) != VK_SUCCESS)
+		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
 		{
 			std::cerr << "Failed to create logical device" << std::endl;
 		}
 
 		graphicsQueueFamily = indices.graphicsFamily.value();
-		vkGetDeviceQueue(logicaldevice, graphicsQueueFamily, 0, &graphicsQueue);
-		vkGetDeviceQueue(logicaldevice, indices.presentFamily.value(), 0, &presentQueue);
+		vkGetDeviceQueue(logicalDevice, graphicsQueueFamily, 0, &graphicsQueue);
+		vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
+	}
+
+	void VulkanDevice::CreateAllocator()
+	{
+		VmaVulkanFunctions vulkanFunctions{};
+		vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+		vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+		
+		VmaAllocatorCreateInfo allocatorInfo{};
+		allocatorInfo.physicalDevice = physicalDevice;
+		allocatorInfo.device = logicalDevice;
+		allocatorInfo.instance = instance;
+		allocatorInfo.pVulkanFunctions = &vulkanFunctions;
+
+		if (vmaCreateAllocator(&allocatorInfo, &allocator) != VK_SUCCESS)
+		{
+			std::cerr << "Failed to create Vulkan Memory Allocator" << std::endl;
+		}
 	}
 
 	void VulkanDevice::CreateCommandPool()
@@ -112,7 +133,7 @@ namespace VulkanRenderer
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-		if (vkCreateCommandPool(logicaldevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
 		{
 			std::cerr << "Failed to create command pool" << std::endl;
 		}
@@ -128,7 +149,7 @@ namespace VulkanRenderer
 		allocateInfo.commandPool = commandPool;
 		allocateInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-		if (vkAllocateCommandBuffers(logicaldevice, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(logicalDevice, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
 		{
 			std::cerr << "Failed to allocate command buffers" << std::endl;
 		}
@@ -158,7 +179,7 @@ namespace VulkanRenderer
 		allocateInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(logicaldevice, &allocateInfo, &commandBuffer);
+		vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &commandBuffer);
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -181,16 +202,21 @@ namespace VulkanRenderer
 		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(graphicsQueue);
 
-		vkFreeCommandBuffers(logicaldevice, commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
 	}
 
 	VkDevice VulkanDevice::GetLogical() const
 	{
-		return logicaldevice;
+		return logicalDevice;
 	}
 
 	VkPhysicalDevice VulkanDevice::GetPhysical() const
 	{
 		return physicalDevice;
+	}
+
+	VmaAllocator VulkanDevice::GetAllocator() const
+	{
+		return allocator;
 	}
 }

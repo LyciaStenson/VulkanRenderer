@@ -22,6 +22,7 @@ project "App"
 		"%{wks.location}/Engine/Source/Public",
 		"%{wks.location}/Engine/Vendor/vulkan-headers/include",
 		"%{wks.location}/Engine/Vendor/volk",
+		"%{wks.location}/Engine/Vendor/vma",
 		"%{wks.location}/Engine/Vendor/glfw/include",
 		"%{wks.location}/Engine/Vendor/glm",
 		"%{wks.location}/Engine/Vendor/stb",

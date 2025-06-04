@@ -10,14 +10,14 @@ VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, VkDeviceSize size
 	: device(device)
 {
 	buffer = new VulkanBuffer(device, size, usageFlags, propertyFlags);
-	AllocateMemory(size, propertyFlags);
+	AllocateMemory(size);
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer()
 {
 	if (mappedData)
-		vkUnmapMemory(device->GetLogical(), buffer->GetMemory());
-
+		vmaUnmapMemory(device->GetAllocator(), buffer->GetAllocation());
+	
 	delete buffer;
 }
 
@@ -26,21 +26,16 @@ VkBuffer VulkanUniformBuffer::Get() const
 	return buffer->Get();
 }
 
-VkDeviceMemory VulkanUniformBuffer::GetMemory() const
-{
-	return buffer->GetMemory();
-}
-
 void* VulkanUniformBuffer::GetMappedData() const
 {
 	return mappedData;
 }
 
-void VulkanUniformBuffer::AllocateMemory(VkDeviceSize size, VkMemoryPropertyFlags propertyFlags)
+void VulkanUniformBuffer::AllocateMemory(VkDeviceSize size)
 {
 	if (mappedData == nullptr)
 	{
-		if (vkMapMemory(device->GetLogical(), buffer->GetMemory(), 0, size, 0, &mappedData))
+		if (vmaMapMemory(device->GetAllocator(), buffer->GetAllocation(), &mappedData) != VK_SUCCESS)
 		{
 			std::cerr << "Failed to map uniform buffer memory" << std::endl;
 		}

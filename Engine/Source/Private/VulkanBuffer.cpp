@@ -16,9 +16,13 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, VkDeviceSize size, VkBufferUsag
 VulkanBuffer::~VulkanBuffer()
 {
 	if (buffer != VK_NULL_HANDLE)
-		vkDestroyBuffer(device->GetLogical(), buffer, nullptr);
-	if (memory != VK_NULL_HANDLE)
-		vkFreeMemory(device->GetLogical(), memory, nullptr);
+	{
+		VmaAllocator allocator = device->GetAllocator();
+		vmaDestroyBuffer(allocator, buffer, allocation);
+		//vkDestroyBuffer(device->GetLogical(), buffer, nullptr);
+	}
+	//if (memory != VK_NULL_HANDLE)
+		//vkFreeMemory(device->GetLogical(), memory, nullptr);
 }
 
 VkBuffer VulkanBuffer::Get() const
@@ -26,14 +30,31 @@ VkBuffer VulkanBuffer::Get() const
 	return buffer;
 }
 
-VkDeviceMemory VulkanBuffer::GetMemory() const
+VmaAllocation VulkanBuffer::GetAllocation() const
 {
-	return memory;
+	return allocation;
+}
+
+void* VulkanBuffer::Map()
+{
+	void* mappedData;
+
+	if (vmaMapMemory(device->GetAllocator(), allocation, &mappedData) != VK_SUCCESS)
+	{
+		std::cerr << "Faile to map VulkanBuffer memory" << std::endl;
+	}
+
+	return mappedData;
+}
+
+void VulkanBuffer::Unmap()
+{
+	vmaUnmapMemory(device->GetAllocator(), allocation);
 }
 
 void VulkanBuffer::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags)
 {
-	VkDevice logicalDevice = device->GetLogical();
+	VmaAllocator allocator = device->GetAllocator();
 
 	VkBufferCreateInfo bufferInfo{};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -41,25 +62,23 @@ void VulkanBuffer::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyF
 	bufferInfo.usage = usageFlags;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+	VmaAllocationCreateInfo allocationInfo{};
+	allocationInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+
+	if (propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+	{
+		if (propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+			allocationInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		else
+			allocationInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+	}
+	else
+	{
+		allocationInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	}
+
+	if (vmaCreateBuffer(allocator, &bufferInfo, &allocationInfo, &buffer, &allocation, nullptr) != VK_SUCCESS)
 	{
 		std::cerr << "Failed to create buffer" << std::endl;
-		return;
 	}
-
-	VkMemoryRequirements memoryRequirements;
-	vkGetBufferMemoryRequirements(logicalDevice, buffer, &memoryRequirements);
-
-	VkMemoryAllocateInfo allocateInfo{};
-	allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocateInfo.allocationSize = memoryRequirements.size;
-	allocateInfo.memoryTypeIndex = device->FindMemoryType(memoryRequirements.memoryTypeBits, propertyFlags);
-
-	if (vkAllocateMemory(logicalDevice, &allocateInfo, nullptr, &memory) != VK_SUCCESS)
-	{
-		std::cerr << "Failed to allocate buffer memory" << std::endl;
-		return;
-	}
-
-	vkBindBufferMemory(logicalDevice, buffer, memory, 0);
 }
