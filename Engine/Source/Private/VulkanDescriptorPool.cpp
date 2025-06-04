@@ -26,24 +26,22 @@ VkDescriptorPool VulkanDescriptorPool::Get() const
 
 void VulkanDescriptorPool::CreateDescriptorPool(size_t meshCount)
 {
-	std::array<VkDescriptorPoolSize, 4> poolSizes{};
+	constexpr uint32_t SET_COUNT = 2;
+	constexpr uint32_t SAMPLER_COUNT = 2;
+
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT);
 
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT) * 2;
-
-	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT) * 2;
-
-	poolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[3].descriptorCount = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT) * 2;
-
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT * SAMPLER_COUNT * SET_COUNT);
+	
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT * 2);
+	poolInfo.maxSets = static_cast<uint32_t>(meshCount * VulkanConfig::MAX_FRAMES_IN_FLIGHT * SET_COUNT);
 
 	if (vkCreateDescriptorPool(device->GetLogical(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 	{
