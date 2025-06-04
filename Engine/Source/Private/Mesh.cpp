@@ -13,8 +13,8 @@
 
 using namespace VulkanRenderer;
 
-Mesh::Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshInfo& info)
-	: device(device), descriptorSetLayout(descriptorSetLayout)
+Mesh::Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const std::string& name, const MeshInfo& info)
+	: device(device), descriptorSetLayout(descriptorSetLayout), name(name)
 {
 	baseColorTexture = new VulkanTexture(device, info.baseColorPath);
 	roughnessTexture = new VulkanTexture(device, info.roughnessPath);
@@ -36,6 +36,11 @@ Mesh::~Mesh()
 size_t Mesh::GetIndicesSize() const
 {
 	return indicesSize;
+}
+
+const std::string& Mesh::GetName() const
+{
+	return name;
 }
 
 void Mesh::CreateDescriptorSets(VkDescriptorPool descriptorPool)
@@ -120,8 +125,6 @@ void Mesh::CreateDescriptorSets(VkDescriptorPool descriptorPool)
 
 void Mesh::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
-	//VkDevice logicalDevice = device->GetLogical();
-
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
 	VulkanBuffer stagingBuffer(device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

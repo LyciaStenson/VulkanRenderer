@@ -30,7 +30,7 @@ namespace VulkanRenderer
 	class Mesh
 	{
 	public:
-		Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshInfo& info);
+		Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const std::string& name, const MeshInfo& info);
 		~Mesh();
 
 		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
@@ -38,6 +38,8 @@ namespace VulkanRenderer
 		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
 
 		size_t GetIndicesSize() const;
+
+		const std::string& GetName() const;
 
 		VulkanBuffer* vertexBuffer;
 		VulkanBuffer* indexBuffer;
@@ -58,6 +60,8 @@ namespace VulkanRenderer
 		VkDescriptorSetLayout descriptorSetLayout;
 
 		size_t indicesSize;
+
+		std::string name;
 
 		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffer(const std::vector<uint16_t>& indices);

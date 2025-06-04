@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include <vector>
 #include <memory>
 
@@ -46,12 +47,14 @@ namespace VulkanRenderer
 
 		std::vector<std::unique_ptr<Mesh>> opaqueMeshes;
 		std::vector<std::unique_ptr<Mesh>> transparentMeshes;
+		
+		std::unordered_set<std::string> meshNames;
 
 		int currentFrame = 0;
 		
 		void DrawFrame();
 		void RecreateSwapChain();
 
-		void AddMesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshInfo& info);
+		void AddMesh(const std::string& name, const MeshInfo& info);
 	};
 }

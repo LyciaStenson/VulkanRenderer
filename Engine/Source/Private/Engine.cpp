@@ -53,7 +53,7 @@ Engine::Engine()
 	meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
 	meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
 	meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
-
+	
 	// Reuse vertices and indices
 	MeshInfo meshInfo2;
 	meshInfo2.vertices = meshInfo.vertices;
@@ -61,7 +61,7 @@ Engine::Engine()
 	meshInfo2.baseColorPath = "Assets/Textures/RedRock05_2K_BaseColor.png";
 	meshInfo2.roughnessPath = "Assets/Textures/RedRock05_2K_Roughness.png";
 	meshInfo2.metallicPath = "Assets/Textures/RedRock05_2K_Metallic.png";
-
+	
 	MeshInfo meshInfo3;
 	meshInfo3.vertices = meshInfo.vertices;
 	meshInfo3.indices = meshInfo.indices;
@@ -70,14 +70,17 @@ Engine::Engine()
 	meshInfo3.metallicPath = "Assets/Textures/Glass_Vintage_001_metallic.png";
 	meshInfo3.enableTransparency = true;
 	
-	AddMesh(device.get(), pipeline->GetMeshDescriptorSetLayout(), meshInfo);
-	AddMesh(device.get(), pipeline->GetMeshDescriptorSetLayout(), meshInfo2);
-	AddMesh(device.get(), pipeline->GetMeshDescriptorSetLayout(), meshInfo3);
+	AddMesh("Brown Rock", meshInfo);
+	AddMesh("Red Rock", meshInfo2);
+
+	AddMesh("Glass", meshInfo3);
+	AddMesh("Glass", meshInfo3);
 	
 	opaqueMeshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
 	opaqueMeshes[1]->transform.position = {1.0f, 0.0f, -2.0f};
 	
 	transparentMeshes[0]->transform.position = {0.0f, 0.0f, -3.5f};
+	//transparentMeshes[1]->transform.position = {0.0f, 1.0f, -4.0f};
 
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
@@ -217,10 +220,19 @@ void Engine::RecreateSwapChain()
 	sync->CreateSyncObjects();
 }
 
-void Engine::AddMesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshInfo& info)
+void Engine::AddMesh(const std::string& name, const MeshInfo& info)
 {
+	std::string candidateName = name;
+	int counter = 1;
+	while (meshNames.count(candidateName))
+	{
+		candidateName = name + std::to_string(counter);
+		counter++;
+	}
+	meshNames.insert(candidateName);
+	
 	if (info.enableTransparency)
-		transparentMeshes.push_back(std::make_unique<Mesh>(device, pipeline->GetMeshDescriptorSetLayout(), info));
+		transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), pipeline->GetMeshDescriptorSetLayout(), candidateName, info));
 	else
-		opaqueMeshes.push_back(std::make_unique<Mesh>(device, pipeline->GetMeshDescriptorSetLayout(), info));
+		opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), pipeline->GetMeshDescriptorSetLayout(), candidateName, info));
 }

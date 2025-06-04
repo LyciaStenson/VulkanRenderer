@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <array>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 
@@ -311,9 +312,24 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 		// Draw the mesh
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
 	}
+
+	std::vector<Mesh*> sortedTransparentMeshes;
+	sortedTransparentMeshes.reserve(transparentMeshes.size());
+	for (const auto& mesh : transparentMeshes)
+	{
+		sortedTransparentMeshes.push_back(mesh.get());
+	}
+
+	std::sort(sortedTransparentMeshes.begin(), sortedTransparentMeshes.end(),
+		[&](Mesh* a, Mesh* b)
+		{
+			float distA = glm::length(camera->transform.position - a->transform.position);
+			float distB = glm::length(camera->transform.position - b->transform.position);
+			return distA > distB;
+		});
 	
 	// Render meshes with transparency
-	for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
+	for (Mesh* mesh : sortedTransparentMeshes)
 	{
 		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
 		VkDeviceSize offsets[] = {0};
@@ -359,11 +375,9 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			ImGui::TreePop();
 		}
 		
-		int i = 1;
 		for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
 		{
-			std::string name = "Mesh " + std::to_string(i);
-			if (ImGui::TreeNode(name.c_str()))
+			if (ImGui::TreeNode(mesh->GetName().c_str()))
 			{
 				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
@@ -379,12 +393,11 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 
 				ImGui::TreePop();
 			}
-			i++;
 		}
+		
 		for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
 		{
-			std::string name = "Mesh " + std::to_string(i);
-			if (ImGui::TreeNode(name.c_str()))
+			if (ImGui::TreeNode(mesh->GetName().c_str()))
 			{
 				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
@@ -400,7 +413,6 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 
 				ImGui::TreePop();
 			}
-			i++;
 		}
 
 		if (ImGui::Button("Create mesh"))
@@ -422,10 +434,10 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
 			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
 			
-			opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
-			opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
+			//opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
+			//opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
 			
-			opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
+			//opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
 		}
 
 		// Pop temporary frame padding
