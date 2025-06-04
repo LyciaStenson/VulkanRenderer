@@ -6,217 +6,216 @@
 
 #include <VulkanConfig.h>
 
-namespace VulkanRenderer
+using namespace VulkanRenderer;
+
+VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface)
+	: instance(instance), surface(surface)
 {
-	VulkanDevice::VulkanDevice(VkInstance instance, VkSurfaceKHR surface)
-		: instance(instance), surface(surface)
+	SelectPhysicalDevice();
+	CreateLogicalDevice();
+	CreateAllocator();
+	CreateCommandPool();
+	CreateCommandBuffers();
+}
+
+VulkanDevice::~VulkanDevice()
+{
+	vmaDestroyAllocator(allocator);
+
+	vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
+	vkDestroyDevice(logicalDevice, nullptr);
+}
+
+void VulkanDevice::SelectPhysicalDevice()
+{
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+	if (deviceCount == 0)
 	{
-		SelectPhysicalDevice();
-		CreateLogicalDevice();
-		CreateAllocator();
-		CreateCommandPool();
-		CreateCommandBuffers();
+		std::cerr << "Failed to select physical device: No devices found" << std::endl;
 	}
 
-	VulkanDevice::~VulkanDevice()
-	{
-		vmaDestroyAllocator(allocator);
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
-		vkDestroyDevice(logicalDevice, nullptr);
+	std::multimap<int, VkPhysicalDevice> candidates;
+
+	for (const auto& device : devices)
+	{
+		int score = RateDeviceSuitability(device, surface);
+		candidates.insert(std::make_pair(score, device));
 	}
 
-	void VulkanDevice::SelectPhysicalDevice()
+	if (candidates.rbegin()->first > 0)
 	{
-		uint32_t deviceCount = 0;
-		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+		physicalDevice = candidates.rbegin()->second;
+	}
+	else
+	{
+		std::cerr << "Failed to select physical device: No suitable device found" << std::endl;
+	}
+}
 
-		if (deviceCount == 0)
-		{
-			std::cerr << "Failed to select physical device: No devices found" << std::endl;
-		}
+void VulkanDevice::CreateLogicalDevice()
+{
+	QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
 
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
-		std::multimap<int, VkPhysicalDevice> candidates;
-
-		for (const auto& device : devices)
-		{
-			int score = RateDeviceSuitability(device, surface);
-			candidates.insert(std::make_pair(score, device));
-		}
-
-		if (candidates.rbegin()->first > 0)
-		{
-			physicalDevice = candidates.rbegin()->second;
-		}
-		else
-		{
-			std::cerr << "Failed to select physical device: No suitable device found" << std::endl;
-		}
+	float queuePriority = 1.0f;
+	for (uint32_t queueFamily : uniqueQueueFamilies)
+	{
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
-	void VulkanDevice::CreateLogicalDevice()
+	VkPhysicalDeviceFeatures deviceFeatures{};
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+	VkDeviceCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
+	createInfo.pEnabledFeatures = &deviceFeatures;
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(VulkanConfig::deviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = VulkanConfig::deviceExtensions.data();
+
+	if (VulkanConfig::enableValidationLayers)
 	{
-		QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
-
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
-		float queuePriority = 1.0f;
-		for (uint32_t queueFamily : uniqueQueueFamilies)
-		{
-			VkDeviceQueueCreateInfo queueCreateInfo{};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriority;
-			queueCreateInfos.push_back(queueCreateInfo);
-		}
-
-		VkPhysicalDeviceFeatures deviceFeatures{};
-		deviceFeatures.samplerAnisotropy = VK_TRUE;
-
-		VkDeviceCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		createInfo.pQueueCreateInfos = queueCreateInfos.data();
-		createInfo.pEnabledFeatures = &deviceFeatures;
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(VulkanConfig::deviceExtensions.size());
-		createInfo.ppEnabledExtensionNames = VulkanConfig::deviceExtensions.data();
-
-		if (VulkanConfig::enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanConfig::validationLayers.size());
-			createInfo.ppEnabledLayerNames = VulkanConfig::validationLayers.data();
-		}
-		else
-		{
-			createInfo.enabledLayerCount = 0;
-		}
-
-		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
-		{
-			std::cerr << "Failed to create logical device" << std::endl;
-		}
-
-		graphicsQueueFamily = indices.graphicsFamily.value();
-		vkGetDeviceQueue(logicalDevice, graphicsQueueFamily, 0, &graphicsQueue);
-		vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
+		createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanConfig::validationLayers.size());
+		createInfo.ppEnabledLayerNames = VulkanConfig::validationLayers.data();
+	}
+	else
+	{
+		createInfo.enabledLayerCount = 0;
 	}
 
-	void VulkanDevice::CreateAllocator()
+	if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
 	{
-		VmaVulkanFunctions vulkanFunctions{};
-		vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
-		vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
-		
-		VmaAllocatorCreateInfo allocatorInfo{};
-		allocatorInfo.physicalDevice = physicalDevice;
-		allocatorInfo.device = logicalDevice;
-		allocatorInfo.instance = instance;
-		allocatorInfo.pVulkanFunctions = &vulkanFunctions;
-
-		if (vmaCreateAllocator(&allocatorInfo, &allocator) != VK_SUCCESS)
-		{
-			std::cerr << "Failed to create Vulkan Memory Allocator" << std::endl;
-		}
+		std::cerr << "Failed to create logical device" << std::endl;
 	}
 
-	void VulkanDevice::CreateCommandPool()
+	graphicsQueueFamily = indices.graphicsFamily.value();
+	vkGetDeviceQueue(logicalDevice, graphicsQueueFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
+}
+
+void VulkanDevice::CreateAllocator()
+{
+	VmaVulkanFunctions vulkanFunctions{};
+	vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+	vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+
+	VmaAllocatorCreateInfo allocatorInfo{};
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = logicalDevice;
+	allocatorInfo.instance = instance;
+	allocatorInfo.pVulkanFunctions = &vulkanFunctions;
+
+	if (vmaCreateAllocator(&allocatorInfo, &allocator) != VK_SUCCESS)
 	{
-		QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice, surface);
+		std::cerr << "Failed to create Vulkan Memory Allocator" << std::endl;
+	}
+}
 
-		VkCommandPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+void VulkanDevice::CreateCommandPool()
+{
+	QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice, surface);
 
-		if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-		{
-			std::cerr << "Failed to create command pool" << std::endl;
-		}
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+	if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+	{
+		std::cerr << "Failed to create command pool" << std::endl;
+	}
+}
+
+void VulkanDevice::CreateCommandBuffers()
+{
+	commandBuffers.resize(VulkanConfig::MAX_FRAMES_IN_FLIGHT);
+
+	VkCommandBufferAllocateInfo allocateInfo{};
+	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocateInfo.commandPool = commandPool;
+	allocateInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(logicalDevice, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
+	{
+		std::cerr << "Failed to allocate command buffers" << std::endl;
+	}
+}
+
+uint32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags)
+{
+	VkPhysicalDeviceMemoryProperties memoryProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+	for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+	{
+		if (typeFilter & (1 << i) && (memoryProperties.memoryTypes[i].propertyFlags & propertyFlags) == propertyFlags)
+			return i;
 	}
 
-	void VulkanDevice::CreateCommandBuffers()
-	{
-		commandBuffers.resize(VulkanConfig::MAX_FRAMES_IN_FLIGHT);
+	std::cerr << "Failed to find a suitable memory type" << std::endl;
+	return -1;
+}
 
-		VkCommandBufferAllocateInfo allocateInfo{};
-		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocateInfo.commandPool = commandPool;
-		allocateInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+VkCommandBuffer VulkanDevice::BeginSingleTimeCommands() const
+{
+	VkCommandBufferAllocateInfo allocateInfo{};
+	allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocateInfo.commandPool = commandPool;
+	allocateInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(logicalDevice, &allocateInfo, commandBuffers.data()) != VK_SUCCESS)
-		{
-			std::cerr << "Failed to allocate command buffers" << std::endl;
-		}
-	}
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &commandBuffer);
 
-	uint32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags)
-	{
-		VkPhysicalDeviceMemoryProperties memoryProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
-		{
-			if (typeFilter & (1 << i) && (memoryProperties.memoryTypes[i].propertyFlags & propertyFlags) == propertyFlags)
-				return i;
-		}
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-		std::cerr << "Failed to find a suitable memory type" << std::endl;
-		return -1;
-	}
+	return commandBuffer;
+}
 
-	VkCommandBuffer VulkanDevice::BeginSingleTimeCommands() const
-	{
-		VkCommandBufferAllocateInfo allocateInfo{};
-		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocateInfo.commandPool = commandPool;
-		allocateInfo.commandBufferCount = 1;
+void VulkanDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
+{
+	vkEndCommandBuffer(commandBuffer);
 
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &commandBuffer);
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
 
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(graphicsQueue);
 
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+}
 
-		return commandBuffer;
-	}
+VkDevice VulkanDevice::GetLogical() const
+{
+	return logicalDevice;
+}
 
-	void VulkanDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
-	{
-		vkEndCommandBuffer(commandBuffer);
+VkPhysicalDevice VulkanDevice::GetPhysical() const
+{
+	return physicalDevice;
+}
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue);
-
-		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
-	}
-
-	VkDevice VulkanDevice::GetLogical() const
-	{
-		return logicalDevice;
-	}
-
-	VkPhysicalDevice VulkanDevice::GetPhysical() const
-	{
-		return physicalDevice;
-	}
-
-	VmaAllocator VulkanDevice::GetAllocator() const
-	{
-		return allocator;
-	}
+VmaAllocator VulkanDevice::GetAllocator() const
+{
+	return allocator;
 }

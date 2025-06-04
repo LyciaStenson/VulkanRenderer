@@ -44,11 +44,14 @@ namespace VulkanRenderer
 		
 		std::unique_ptr<Camera> camera;
 
-		std::vector<std::unique_ptr<Mesh>> meshes;
+		std::vector<std::unique_ptr<Mesh>> opaqueMeshes;
+		std::vector<std::unique_ptr<Mesh>> transparentMeshes;
 
 		int currentFrame = 0;
 		
 		void DrawFrame();
 		void RecreateSwapChain();
+
+		void AddMesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshInfo& info);
 	};
 }

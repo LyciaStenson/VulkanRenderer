@@ -249,7 +249,7 @@ void VulkanPipeline::CreateGraphicsPipeline()
 	}
 }
 
-void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
+void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& opaqueMeshes, std::vector<std::unique_ptr<Mesh>>& transparentMeshes, Camera* camera)
 {
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -294,20 +294,38 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 	scissor.extent = swapChain->extent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	
-	// Render each mesh
-	for (const std::unique_ptr<Mesh>& mesh : meshes)
+	// Render opaque meshes
+	for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
 	{
-		VkBuffer vertexBuffers[] = { mesh->vertexBuffer->Get() };
-		VkDeviceSize offsets[] = { 0 };
+		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
+		VkDeviceSize offsets[] = {0};
 		
 		// Bind vertex and index buffers of mesh
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
-		
+
 		// Bind camera (view & proj matrices) and mesh (model matrix) descriptor sets
 		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], mesh->descriptorSets[currentFrame]};
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
-		
+
+		// Draw the mesh
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
+	}
+	
+	// Render meshes with transparency
+	for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
+	{
+		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
+		VkDeviceSize offsets[] = {0};
+
+		// Bind vertex and index buffers of mesh
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
+
+		// Bind camera (view & proj matrices) and mesh (model matrix + textures) descriptor sets
+		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], mesh->descriptorSets[currentFrame]};
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+
 		// Draw the mesh
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
 	}
@@ -342,7 +360,28 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 		}
 		
 		int i = 1;
-		for (const std::unique_ptr<Mesh>& mesh : meshes)
+		for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
+		{
+			std::string name = "Mesh " + std::to_string(i);
+			if (ImGui::TreeNode(name.c_str()))
+			{
+				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				// Translate quaternion rotation to euler angles in degrees for intuitive editing
+				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
+				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+				{
+					// Translate back to radians and quaternion for internal memory
+					glm::vec3 radians = glm::radians(eulerAngles);
+					mesh->transform.rotation = glm::quat(radians);
+				}
+				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				ImGui::TreePop();
+			}
+			i++;
+		}
+		for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
 		{
 			std::string name = "Mesh " + std::to_string(i);
 			if (ImGui::TreeNode(name.c_str()))
@@ -383,10 +422,10 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
 			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
 			
-			meshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
-			meshes.back()->CreateDescriptorSets(descriptorPool);
+			opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
+			opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
 			
-			meshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
+			opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
 		}
 
 		// Pop temporary frame padding

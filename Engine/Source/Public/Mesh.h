@@ -24,6 +24,7 @@ namespace VulkanRenderer
 		std::string baseColorPath;
 		std::string roughnessPath;
 		std::string metallicPath;
+		bool enableTransparency = false;
 	};
 	
 	class Mesh
