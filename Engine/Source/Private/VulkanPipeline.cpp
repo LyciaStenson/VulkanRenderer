@@ -387,8 +387,6 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			meshes.back()->CreateDescriptorSets(descriptorPool);
 			
 			meshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
-
-			std::cout << "Create mesh" << std::endl;
 		}
 
 		// Pop temporary frame padding
