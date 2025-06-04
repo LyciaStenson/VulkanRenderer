@@ -251,11 +251,6 @@ void VulkanPipeline::CreateGraphicsPipeline()
 
 void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
 {
-	if (meshes.size() > 3)
-	{
-		std::cout << "Hmmm" << std::endl;
-	}
-
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -389,10 +384,9 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
 			
 			meshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
-
-			meshes[meshes.size() - 1]->CreateDescriptorSets(descriptorPool);
-
-			//meshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
+			meshes.back()->CreateDescriptorSets(descriptorPool);
+			
+			meshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
 
 			std::cout << "Create mesh" << std::endl;
 		}

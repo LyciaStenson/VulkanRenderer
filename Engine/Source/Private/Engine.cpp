@@ -77,7 +77,8 @@ namespace VulkanRenderer
 		meshes[1]->transform.position = { 1.0f, 0.0f, -2.0f};
 		meshes[2]->transform.position = { 0.0f, 0.0f, -3.5f};
 
-		descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), meshes.size());
+		descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
+		
 		pipeline->SetDescriptorPool(descriptorPool->Get());
 
 		camera->CreateDescriptorSets(descriptorPool->Get());
