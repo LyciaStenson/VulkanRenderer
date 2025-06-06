@@ -170,9 +170,9 @@ void Engine::DrawFrame()
 			return distA > distB;
 		});
 	
-	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshes, camera.get());
 	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshes, camera.get());
-
+	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshes, camera.get());
+	
 	// If Dear ImGui overlay exists, draw UI representing objects in the scene
 	if (imGuiOverlay)
 	{
