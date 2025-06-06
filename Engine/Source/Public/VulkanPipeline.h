@@ -10,6 +10,7 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanSwapChain;
 	class VulkanRenderPass;
+	class VulkanDescriptorSetLayoutManager;
 	class Mesh;
 	class Camera;
 	class VulkanImGuiOverlay;
@@ -17,7 +18,7 @@ namespace VulkanRenderer
 	class VulkanPipeline
 	{
 	public:
-		VulkanPipeline(VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass);
+		VulkanPipeline(VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager);
 		~VulkanPipeline();
 
 		void SetDescriptorPool(VkDescriptorPool pool);
@@ -25,20 +26,12 @@ namespace VulkanRenderer
 
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, std::vector<std::unique_ptr<Mesh>>& transparentMeshes, Camera* camera);
 
-		VkDescriptorSetLayout GetCameraDescriptorSetLayout() const;
-		VkDescriptorSetLayout GetMeshDescriptorSetLayout() const;
-
 	private:
-		void CreateCameraDescriptorSetLayout();
-		void CreateMeshDescriptorSetLayout();
-		void CreateGraphicsPipeline();
+		void CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* layoutManager);
 
 		VkPipeline pipeline;
 		VkPipelineLayout pipelineLayout;
-
-		VkDescriptorSetLayout cameraDescriptorSetLayout;
-		VkDescriptorSetLayout meshDescriptorSetLayout;
-
+		
 		VkDescriptorPool descriptorPool;
 
 		VulkanSwapChain* swapChain;

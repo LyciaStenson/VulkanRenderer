@@ -16,6 +16,7 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanSwapChain;
 	class VulkanRenderPass;
+	class VulkanDescriptorSetLayoutManager;
 	class VulkanPipeline;
 	class VulkanDescriptorPool;
 	class VulkanSync;
@@ -37,7 +38,9 @@ namespace VulkanRenderer
 		std::unique_ptr<VulkanDevice> device;
 		std::unique_ptr<VulkanSwapChain> swapChain;
 		std::unique_ptr<VulkanRenderPass> renderPass;
-		std::unique_ptr<VulkanPipeline> pipeline;
+		std::unique_ptr<VulkanDescriptorSetLayoutManager> descriptorSetLayoutManager;
+		std::unique_ptr<VulkanPipeline> opaquePipeline;
+		std::unique_ptr<VulkanPipeline> transparentPipeline;
 		std::unique_ptr<VulkanDescriptorPool> descriptorPool;
 		std::unique_ptr<VulkanSync> sync;
 

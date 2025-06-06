@@ -10,6 +10,7 @@
 #include <VulkanInstance.h>
 #include <VulkanSwapChain.h>
 #include <VulkanRenderPass.h>
+#include <VulkanDescriptorSetLayoutManager.h>
 #include <VulkanPipeline.h>
 #include <VulkanDescriptorPool.h>
 #include <VulkanSync.h>
@@ -31,9 +32,10 @@ Engine::Engine()
 	swapChain = std::make_unique<VulkanSwapChain>(device.get(), instance->GetSurface(), glfwWindow->Get());
 	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain->imageFormat);
 	swapChain->CreateFramebuffers(renderPass->Get());
-	pipeline = std::make_unique<VulkanPipeline>(device.get(), swapChain.get(), renderPass.get());
+	descriptorSetLayoutManager = std::make_unique<VulkanDescriptorSetLayoutManager>(device.get());
+	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), swapChain.get(), renderPass.get(), descriptorSetLayoutManager.get());
 
-	camera = std::make_unique<Camera>(device.get(), pipeline->GetCameraDescriptorSetLayout());
+	camera = std::make_unique<Camera>(device.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout());
 	camera->transform.position = {0.0f, 0.0f, 0.0f};
 
 	// MeshInfo holds the vertices, indices, and texture paths to be passed to Mesh constructor
@@ -80,11 +82,11 @@ Engine::Engine()
 	opaqueMeshes[1]->transform.position = {1.0f, 0.0f, -2.0f};
 	
 	transparentMeshes[0]->transform.position = {0.0f, 0.0f, -3.5f};
-	//transparentMeshes[1]->transform.position = {0.0f, 1.0f, -4.0f};
+	transparentMeshes[1]->transform.position = {0.0f, 1.0f, -4.0f};
 
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
-	pipeline->SetDescriptorPool(descriptorPool->Get());
+	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
 
 	camera->CreateDescriptorSets(descriptorPool->Get());
 
@@ -101,7 +103,7 @@ Engine::Engine()
 
 	GLFWwindow* window = glfwWindow->Get();
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
-	pipeline->SetImGuiOverlay(imGuiOverlay.get());
+	opaquePipeline->SetImGuiOverlay(imGuiOverlay.get());
 }
 
 Engine::~Engine()
@@ -148,7 +150,7 @@ void Engine::DrawFrame()
 		mesh->UpdateUniformBuffer(currentFrame, swapChain->extent);
 	}
 
-	pipeline->RecordCommandBuffer(device->commandBuffers[currentFrame], imageIndex, currentFrame, opaqueMeshes, transparentMeshes, camera.get());
+	opaquePipeline->RecordCommandBuffer(device->commandBuffers[currentFrame], imageIndex, currentFrame, opaqueMeshes, transparentMeshes, camera.get());
 
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);
 
@@ -232,7 +234,7 @@ void Engine::AddMesh(const std::string& name, const MeshInfo& info)
 	meshNames.insert(candidateName);
 	
 	if (info.enableTransparency)
-		transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), pipeline->GetMeshDescriptorSetLayout(), candidateName, info));
+		transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
 	else
-		opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), pipeline->GetMeshDescriptorSetLayout(), candidateName, info));
+		opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
 }
