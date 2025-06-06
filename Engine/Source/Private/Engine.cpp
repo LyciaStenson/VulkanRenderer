@@ -1,6 +1,7 @@
 #include <Engine.h>
 
 #include <iostream>
+#include <algorithm>
 
 #include <volk.h>
 
@@ -30,10 +31,11 @@ Engine::Engine()
 	instance = std::make_unique<VulkanInstance>(glfwWindow->Get());
 	device = std::make_unique<VulkanDevice>(instance->Get(), instance->GetSurface());
 	swapChain = std::make_unique<VulkanSwapChain>(device.get(), instance->GetSurface(), glfwWindow->Get());
-	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain->imageFormat);
+	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain.get());
 	swapChain->CreateFramebuffers(renderPass->Get());
 	descriptorSetLayoutManager = std::make_unique<VulkanDescriptorSetLayoutManager>(device.get());
-	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), swapChain.get(), renderPass.get(), descriptorSetLayoutManager.get());
+	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Opaque);
+	transparentPipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Transparent);
 
 	camera = std::make_unique<Camera>(device.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout());
 	camera->transform.position = {0.0f, 0.0f, 0.0f};
@@ -87,6 +89,7 @@ Engine::Engine()
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
 	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
+	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
 
 	camera->CreateDescriptorSets(descriptorPool->Get());
 
@@ -150,7 +153,130 @@ void Engine::DrawFrame()
 		mesh->UpdateUniformBuffer(currentFrame, swapChain->extent);
 	}
 
-	opaquePipeline->RecordCommandBuffer(device->commandBuffers[currentFrame], imageIndex, currentFrame, opaqueMeshes, transparentMeshes, camera.get());
+	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
+	
+	std::vector<Mesh*> sortedTransparentMeshes;
+	sortedTransparentMeshes.reserve(transparentMeshes.size());
+	for (const auto& mesh : transparentMeshes)
+	{
+		sortedTransparentMeshes.push_back(mesh.get());
+	}
+
+	std::sort(sortedTransparentMeshes.begin(), sortedTransparentMeshes.end(),
+		[&](Mesh* a, Mesh* b)
+		{
+			float distA = glm::length(camera->transform.position - a->transform.position);
+			float distB = glm::length(camera->transform.position - b->transform.position);
+			return distA > distB;
+		});
+	
+	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshes, camera.get());
+	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshes, camera.get());
+
+	// If Dear ImGui overlay exists, draw UI representing objects in the scene
+	if (imGuiOverlay)
+	{
+		imGuiOverlay->NewFrame();
+
+		// Begin scene UI window
+		ImGui::Begin("Scene");
+
+		// Reduce frame padding for drag UI boxes
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 2.0f));
+
+		if (ImGui::TreeNode("Camera"))
+		{
+			ImGui::DragFloat3("Position", &camera->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+			// Translate quaternion rotation to euler angles in degrees for intuitive editing
+			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(camera->transform.rotation));
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+			{
+				// Translate back to radians and quaternion for internal memory
+				glm::vec3 radians = glm::radians(eulerAngles);
+				camera->transform.rotation = glm::quat(radians);
+			}
+
+			ImGui::DragFloat("FOV", &camera->fov, 0.1f, 1.0f, 179.0f, "%.1f");
+
+			ImGui::TreePop();
+		}
+
+		for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
+		{
+			if (ImGui::TreeNode(mesh->GetName().c_str()))
+			{
+				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				// Translate quaternion rotation to euler angles in degrees for intuitive editing
+				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
+				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+				{
+					// Translate back to radians and quaternion for internal memory
+					glm::vec3 radians = glm::radians(eulerAngles);
+					mesh->transform.rotation = glm::quat(radians);
+				}
+				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				ImGui::TreePop();
+			}
+		}
+
+		for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
+		{
+			if (ImGui::TreeNode(mesh->GetName().c_str()))
+			{
+				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				// Translate quaternion rotation to euler angles in degrees for intuitive editing
+				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
+				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+				{
+					// Translate back to radians and quaternion for internal memory
+					glm::vec3 radians = glm::radians(eulerAngles);
+					mesh->transform.rotation = glm::quat(radians);
+				}
+				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+				ImGui::TreePop();
+			}
+		}
+
+		if (ImGui::Button("Create mesh"))
+		{
+			MeshInfo meshInfo;
+			meshInfo.vertices =
+			{
+				{{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f}},	// Bottom left
+				{{ 0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},	// Bottom right
+				{{ 0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},	// Top right
+				{{-0.5f,  0.5f,  0.0f}, {0.0f, 1.0f}}	// Top left
+			};
+			meshInfo.indices =
+			{
+				0, 1, 2,
+				2, 3, 0
+			};
+			meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
+			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
+			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
+
+			//opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
+			//opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
+
+			//opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
+		}
+
+		// Pop temporary frame padding
+		ImGui::PopStyleVar();
+
+		// End scene UI window
+		ImGui::End();
+
+		imGuiOverlay->Draw(device->commandBuffers[currentFrame]);
+	}
+
+	renderPass->End(device->commandBuffers[currentFrame]);
 
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);
 

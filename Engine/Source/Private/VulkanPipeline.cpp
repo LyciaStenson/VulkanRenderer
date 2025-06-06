@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <array>
-#include <algorithm>
 
 #include <glm/glm.hpp>
 
@@ -18,8 +17,8 @@
 
 using namespace VulkanRenderer;
 
-VulkanPipeline::VulkanPipeline(VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager)
-	: device(device), swapChain(swapChain), renderPass(renderPass)
+VulkanPipeline::VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager, PipelineType type)
+	: device(device), renderPass(renderPass), type(type)
 {
 	CreateGraphicsPipeline(layoutManager);
 }
@@ -107,7 +106,6 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	VkPipelineDepthStencilStateCreateInfo depthStencilInfo{};
 	depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depthStencilInfo.depthTestEnable = VK_TRUE;
-	depthStencilInfo.depthWriteEnable = VK_TRUE;
 	depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
 	depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
 	depthStencilInfo.minDepthBounds = 0.0f;
@@ -116,15 +114,32 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	depthStencilInfo.front = {};
 	depthStencilInfo.back = {};
 
+	if (type == PipelineType::Opaque)
+	{
+		depthStencilInfo.depthWriteEnable = VK_TRUE;
+	}
+	else if (type == PipelineType::Transparent)
+	{
+		depthStencilInfo.depthWriteEnable = VK_FALSE;
+	}
+
 	VkPipelineColorBlendAttachmentState colorBlendAttachmentState{};
 	colorBlendAttachmentState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachmentState.blendEnable = VK_TRUE;
-	colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-	colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-	colorBlendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-	colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-	colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-	colorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
+
+	if (type == PipelineType::Opaque)
+	{
+		colorBlendAttachmentState.blendEnable = VK_FALSE;
+	}
+	else if (type == PipelineType::Transparent)
+	{
+		colorBlendAttachmentState.blendEnable = VK_TRUE;
+		colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
+	}
 
 	VkPipelineColorBlendStateCreateInfo colorBlendStateInfo{};
 	colorBlendStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -174,57 +189,16 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	}
 }
 
-void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& opaqueMeshes, std::vector<std::unique_ptr<Mesh>>& transparentMeshes, Camera* camera)
+void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
 {
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	beginInfo.pInheritanceInfo = nullptr;
-	
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-	{
-		std::cerr << "Failed to begin recording command buffer" << std::endl;
-		return;
-	}
-	
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = renderPass->Get();
-	renderPassInfo.framebuffer = swapChain->framebuffers[imageIndex];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChain->extent;
-
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { { 0.0f, 0.0f, 0.0f } };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
-	
-	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(swapChain->extent.width);
-	viewport.height = static_cast<float>(swapChain->extent.height);
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-	
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = swapChain->extent;
-	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-	
 	// Render opaque meshes
-	for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
+	for (const std::unique_ptr<Mesh>& mesh : meshes)
 	{
 		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
 		VkDeviceSize offsets[] = {0};
-		
+
 		// Bind vertex and index buffers of mesh
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
@@ -235,148 +209,5 @@ void VulkanPipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t
 
 		// Draw the mesh
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
-	}
-
-	std::vector<Mesh*> sortedTransparentMeshes;
-	sortedTransparentMeshes.reserve(transparentMeshes.size());
-	for (const auto& mesh : transparentMeshes)
-	{
-		sortedTransparentMeshes.push_back(mesh.get());
-	}
-
-	std::sort(sortedTransparentMeshes.begin(), sortedTransparentMeshes.end(),
-		[&](Mesh* a, Mesh* b)
-		{
-			float distA = glm::length(camera->transform.position - a->transform.position);
-			float distB = glm::length(camera->transform.position - b->transform.position);
-			return distA > distB;
-		});
-	
-	// Render meshes with transparency
-	for (Mesh* mesh : sortedTransparentMeshes)
-	{
-		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
-		VkDeviceSize offsets[] = {0};
-
-		// Bind vertex and index buffers of mesh
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
-
-		// Bind camera (view & proj matrices) and mesh (model matrix + textures) descriptor sets
-		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], mesh->descriptorSets[currentFrame]};
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
-
-		// Draw the mesh
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
-	}
-	
-	// If Dear ImGui overlay exists, draw UI representing objects in the scene
-	if (imGuiOverlay)
-	{
-		imGuiOverlay->NewFrame();
-		
-		// Begin scene UI window
-		ImGui::Begin("Scene");
-
-		// Reduce frame padding for drag UI boxes
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 2.0f));
-
-		if (ImGui::TreeNode("Camera"))
-		{
-			ImGui::DragFloat3("Position", &camera->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-			// Translate quaternion rotation to euler angles in degrees for intuitive editing
-			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(camera->transform.rotation));
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-			{
-				// Translate back to radians and quaternion for internal memory
-				glm::vec3 radians = glm::radians(eulerAngles);
-				camera->transform.rotation = glm::quat(radians);
-			}
-			
-			ImGui::DragFloat("FOV", &camera->fov, 0.1f, 1.0f, 179.0f, "%.1f");
-
-			ImGui::TreePop();
-		}
-		
-		for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
-		{
-			if (ImGui::TreeNode(mesh->GetName().c_str()))
-			{
-				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
-				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-				{
-					// Translate back to radians and quaternion for internal memory
-					glm::vec3 radians = glm::radians(eulerAngles);
-					mesh->transform.rotation = glm::quat(radians);
-				}
-				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				ImGui::TreePop();
-			}
-		}
-		
-		for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
-		{
-			if (ImGui::TreeNode(mesh->GetName().c_str()))
-			{
-				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
-				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-				{
-					// Translate back to radians and quaternion for internal memory
-					glm::vec3 radians = glm::radians(eulerAngles);
-					mesh->transform.rotation = glm::quat(radians);
-				}
-				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				ImGui::TreePop();
-			}
-		}
-
-		if (ImGui::Button("Create mesh"))
-		{
-			MeshInfo meshInfo;
-			meshInfo.vertices =
-			{
-				{{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f}},	// Bottom left
-				{{ 0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},	// Bottom right
-				{{ 0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},	// Top right
-				{{-0.5f,  0.5f,  0.0f}, {0.0f, 1.0f}}	// Top left
-			};
-			meshInfo.indices =
-			{
-				0, 1, 2,
-				2, 3, 0
-			};
-			meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
-			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
-			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
-			
-			//opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
-			//opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
-			
-			//opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
-		}
-
-		// Pop temporary frame padding
-		ImGui::PopStyleVar();
-
-		// End scene UI window
-		ImGui::End();
-
-		imGuiOverlay->Draw(commandBuffer);
-	}
-	
-	vkCmdEndRenderPass(commandBuffer);
-
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-	{
-		std::cerr << "Failed to record command buffer" << std::endl;
 	}
 }
