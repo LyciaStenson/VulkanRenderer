@@ -14,7 +14,7 @@
 using namespace VulkanRenderer;
 
 Mesh::Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const std::string& name, const MeshInfo& info)
-	: device(device), descriptorSetLayout(descriptorSetLayout), name(name)
+	: device(device), descriptorSetLayout(descriptorSetLayout), name(name), transparencyEnabled(info.enableTransparency)
 {
 	baseColorTexture = new VulkanTexture(device, info.baseColorPath);
 	roughnessTexture = new VulkanTexture(device, info.roughnessPath);
