@@ -58,6 +58,6 @@ namespace VulkanRenderer
 		void DrawFrame();
 		void RecreateSwapChain();
 
-		void AddMesh(const std::string& name, const MeshInfo& info);
+		void CreateMesh(const std::string& name, const MeshInfo& info);
 	};
 }

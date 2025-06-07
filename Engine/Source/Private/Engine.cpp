@@ -74,11 +74,11 @@ Engine::Engine()
 	meshInfo3.metallicPath = "Assets/Textures/Glass_Vintage_001_metallic.png";
 	meshInfo3.enableTransparency = true;
 	
-	AddMesh("Brown Rock", meshInfo);
-	AddMesh("Red Rock", meshInfo2);
+	CreateMesh("Brown Rock", meshInfo);
+	CreateMesh("Red Rock", meshInfo2);
 
-	AddMesh("Glass", meshInfo3);
-	AddMesh("Glass", meshInfo3);
+	CreateMesh("Glass", meshInfo3);
+	CreateMesh("Glass", meshInfo3);
 	
 	opaqueMeshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
 	opaqueMeshes[1]->transform.position = {1.0f, 0.0f, -2.0f};
@@ -348,7 +348,7 @@ void Engine::RecreateSwapChain()
 	sync->CreateSyncObjects();
 }
 
-void Engine::AddMesh(const std::string& name, const MeshInfo& info)
+void Engine::CreateMesh(const std::string& name, const MeshInfo& info)
 {
 	std::string candidateName = name;
 	int counter = 1;
