@@ -10,10 +10,10 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanRenderPass;
 	class VulkanDescriptorSetLayoutManager;
+	class MeshInstance;
 	class Mesh;
 	class Camera;
-	class VulkanImGuiOverlay;
-
+	
 	enum class PipelineType
 	{
 		Opaque,
@@ -27,9 +27,8 @@ namespace VulkanRenderer
 		~VulkanPipeline();
 
 		void SetDescriptorPool(VkDescriptorPool pool);
-		void SetImGuiOverlay(VulkanImGuiOverlay* overlay);
-
-		void Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera);
+		
+		void Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<std::unique_ptr<MeshInstance>>& mesheInstances, Camera* camera);
 
 	private:
 		void CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* layoutManager);
@@ -42,9 +41,7 @@ namespace VulkanRenderer
 		PipelineType type;
 		
 		VulkanRenderPass* renderPass;
-
-		VulkanImGuiOverlay* imGuiOverlay;
-
+		
 		VulkanDevice* device;
 	};
 }

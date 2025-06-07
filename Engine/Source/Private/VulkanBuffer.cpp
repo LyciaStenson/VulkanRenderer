@@ -19,10 +19,7 @@ VulkanBuffer::~VulkanBuffer()
 	{
 		VmaAllocator allocator = device->GetAllocator();
 		vmaDestroyBuffer(allocator, buffer, allocation);
-		//vkDestroyBuffer(device->GetLogical(), buffer, nullptr);
 	}
-	//if (memory != VK_NULL_HANDLE)
-		//vkFreeMemory(device->GetLogical(), memory, nullptr);
 }
 
 VkBuffer VulkanBuffer::Get() const
@@ -41,7 +38,7 @@ void* VulkanBuffer::Map()
 
 	if (vmaMapMemory(device->GetAllocator(), allocation, &mappedData) != VK_SUCCESS)
 	{
-		std::cerr << "Faile to map VulkanBuffer memory" << std::endl;
+		std::cerr << "Failed to map VulkanBuffer memory" << std::endl;
 	}
 
 	return mappedData;
@@ -63,20 +60,19 @@ void VulkanBuffer::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyF
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	VmaAllocationCreateInfo allocationInfo{};
-	allocationInfo.usage = VMA_MEMORY_USAGE_UNKNOWN;
+	allocationInfo.usage = VMA_MEMORY_USAGE_AUTO;
+	allocationInfo.flags = 0;
 
 	if (propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 	{
-		if (propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-			allocationInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-		else
-			allocationInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-	}
-	else
-	{
-		allocationInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-	}
+		allocationInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
+		if (!(propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+		{
+			allocationInfo.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		}
+	}
+	
 	if (vmaCreateBuffer(allocator, &bufferInfo, &allocationInfo, &buffer, &allocation, nullptr) != VK_SUCCESS)
 	{
 		std::cerr << "Failed to create buffer" << std::endl;

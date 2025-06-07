@@ -7,13 +7,13 @@
 
 #include <Shader.h>
 #include <Vertex.h>
+#include <MeshInstance.h>
 #include <Mesh.h>
 #include <Camera.h>
 #include <VulkanDevice.h>
 #include <VulkanSwapChain.h>
 #include <VulkanRenderPass.h>
 #include <VulkanDescriptorSetLayoutManager.h>
-#include <VulkanImGuiOverlay.h>
 
 using namespace VulkanRenderer;
 
@@ -32,11 +32,6 @@ VulkanPipeline::~VulkanPipeline()
 void VulkanPipeline::SetDescriptorPool(VkDescriptorPool pool)
 {
 	descriptorPool = pool;
-}
-
-void VulkanPipeline::SetImGuiOverlay(VulkanImGuiOverlay* overlay)
-{
-	imGuiOverlay = overlay;
 }
 
 void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* layoutManager)
@@ -189,13 +184,15 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	}
 }
 
-void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, std::vector<std::unique_ptr<Mesh>>& meshes, Camera* camera)
+void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<std::unique_ptr<MeshInstance>>& meshInstances, Camera* camera)
 {
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 	// Render opaque meshes
-	for (const std::unique_ptr<Mesh>& mesh : meshes)
+	for (const auto& meshInstance : meshInstances)
 	{
+		std::shared_ptr<const Mesh> mesh = meshInstance->GetMesh();
+		
 		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
 		VkDeviceSize offsets[] = {0};
 
@@ -204,7 +201,7 @@ void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame
 		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
 
 		// Bind camera (view & proj matrices) and mesh (model matrix) descriptor sets
-		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], mesh->descriptorSets[currentFrame]};
+		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], meshInstance->GetDescriptorSets()[currentFrame]};
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
 		// Draw the mesh

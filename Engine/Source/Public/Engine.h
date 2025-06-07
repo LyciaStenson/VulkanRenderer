@@ -20,6 +20,8 @@ namespace VulkanRenderer
 	class VulkanPipeline;
 	class VulkanDescriptorPool;
 	class VulkanSync;
+	class MeshManager;
+	class MeshInstance;
 	class VulkanImGuiOverlay;
 
 	class Engine
@@ -48,11 +50,8 @@ namespace VulkanRenderer
 		
 		std::unique_ptr<Camera> camera;
 
-		std::vector<std::unique_ptr<Mesh>> opaqueMeshes;
-		std::vector<std::unique_ptr<Mesh>> transparentMeshes;
+		std::unique_ptr<MeshManager> meshManager;
 		
-		std::unordered_set<std::string> meshNames;
-
 		int currentFrame = 0;
 		
 		void DrawFrame();

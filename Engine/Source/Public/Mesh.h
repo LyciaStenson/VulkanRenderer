@@ -10,7 +10,6 @@
 
 #include <Vertex.h>
 #include <VulkanUniformBuffer.h>
-#include <Transform.h>
 
 namespace VulkanRenderer
 {
@@ -32,21 +31,20 @@ namespace VulkanRenderer
 	public:
 		Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const std::string& name, const MeshInfo& info);
 		~Mesh();
-
-		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
-
-		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
-
-		size_t GetIndicesSize() const;
-
+		
+		const size_t GetIndicesSize() const;
 		const std::string& GetName() const;
+
+		VkDescriptorImageInfo GetBaseColorDescriptorInfo() const;
+		VkDescriptorImageInfo GetRoughnessDescriptorInfo() const;
+		VkDescriptorImageInfo GetMetallicDescriptorInfo() const;
+
+		VkDescriptorSetLayout GetDescriptorSetLayout() const;
+		
+		bool GetTransparencyEnabled() const;
 
 		VulkanBuffer* vertexBuffer;
 		VulkanBuffer* indexBuffer;
-
-		std::vector<VkDescriptorSet> descriptorSets;
-
-		Transform transform;
 
 	private:
 		VulkanDevice* device;
@@ -54,10 +52,10 @@ namespace VulkanRenderer
 		VulkanTexture* baseColorTexture;
 		VulkanTexture* roughnessTexture;
 		VulkanTexture* metallicTexture;
-
-		std::vector<VulkanUniformBuffer> uniformBuffers;
-
+		
 		VkDescriptorSetLayout descriptorSetLayout;
+
+		bool transparencyEnabled = false;
 
 		size_t indicesSize;
 
@@ -65,6 +63,5 @@ namespace VulkanRenderer
 
 		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffer(const std::vector<uint16_t>& indices);
-		void CreateUniformBuffers();
 	};
 }

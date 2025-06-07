@@ -15,7 +15,10 @@
 #include <VulkanPipeline.h>
 #include <VulkanDescriptorPool.h>
 #include <VulkanSync.h>
+#include <MeshManager.h>
+#include <MeshInstance.h>
 #include <Vertex.h>
+#include <Transform.h>
 #include <VulkanImGuiOverlay.h>
 
 using namespace VulkanRenderer;
@@ -37,9 +40,23 @@ Engine::Engine()
 	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Opaque);
 	transparentPipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Transparent);
 
+	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
+
+	meshManager = std::make_unique<MeshManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorPool->Get());
+
+	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
+	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
+
 	camera = std::make_unique<Camera>(device.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout());
 	camera->transform.position = {0.0f, 0.0f, 0.0f};
 
+	camera->CreateDescriptorSets(descriptorPool->Get());
+	
+	sync = std::make_unique<VulkanSync>(device->GetLogical());
+
+	GLFWwindow* window = glfwWindow->Get();
+	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
+	
 	// MeshInfo holds the vertices, indices, and texture paths to be passed to Mesh constructor
 	MeshInfo meshInfo;
 	meshInfo.vertices =
@@ -74,39 +91,21 @@ Engine::Engine()
 	meshInfo3.metallicPath = "Assets/Textures/Glass_Vintage_001_metallic.png";
 	meshInfo3.enableTransparency = true;
 	
-	CreateMesh("Brown Rock", meshInfo);
-	CreateMesh("Red Rock", meshInfo2);
-
-	CreateMesh("Glass", meshInfo3);
-	CreateMesh("Glass", meshInfo3);
+	meshManager->LoadMesh("Brown Rock", meshInfo);
+	meshManager->LoadMesh("Red Rock", meshInfo2);
+	meshManager->LoadMesh("Glass", meshInfo3);
 	
-	opaqueMeshes[0]->transform.position = {-1.0f, 0.0f, -2.0f};
-	opaqueMeshes[1]->transform.position = {1.0f, 0.0f, -2.0f};
+	Transform brownRockTransform{glm::vec3(-1.0f, 0.0f, -2.0f)};
+	meshManager->CreateInstance("Brown Rock", brownRockTransform);
 	
-	transparentMeshes[0]->transform.position = {0.0f, 0.0f, -3.5f};
-	transparentMeshes[1]->transform.position = {0.0f, 1.0f, -4.0f};
-
-	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
-
-	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
-	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
-
-	camera->CreateDescriptorSets(descriptorPool->Get());
-
-	for (std::unique_ptr<Mesh>& mesh : opaqueMeshes)
-	{
-		mesh->CreateDescriptorSets(descriptorPool->Get());
-	}
-	for (std::unique_ptr<Mesh>& mesh : transparentMeshes)
-	{
-		mesh->CreateDescriptorSets(descriptorPool->Get());
-	}
-
-	sync = std::make_unique<VulkanSync>(device->GetLogical());
-
-	GLFWwindow* window = glfwWindow->Get();
-	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
-	opaquePipeline->SetImGuiOverlay(imGuiOverlay.get());
+	Transform redRockTransform{glm::vec3(1.0f, 0.0f, -2.0f)};
+	meshManager->CreateInstance("Red Rock", redRockTransform);
+	
+	Transform glassTransform{glm::vec3(0.0f, 0.0f, -3.5f)};
+	meshManager->CreateInstance("Glass", glassTransform);
+	
+	Transform glass2Transform{glm::vec3(0.0f, 1.0f, -4.0f)};
+	meshManager->CreateInstance("Glass", glass2Transform);
 }
 
 Engine::~Engine()
@@ -143,35 +142,27 @@ void Engine::DrawFrame()
 	}
 
 	camera->UpdateUniformBuffer(currentFrame, swapChain->extent);
-
-	for (std::unique_ptr<Mesh>& mesh : opaqueMeshes)
-	{
-		mesh->UpdateUniformBuffer(currentFrame, swapChain->extent);
-	}
-	for (std::unique_ptr<Mesh>& mesh : transparentMeshes)
-	{
-		mesh->UpdateUniformBuffer(currentFrame, swapChain->extent);
-	}
+	meshManager->UpdateUniformBuffers(currentFrame, swapChain->extent);
 
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
 	
-	std::vector<Mesh*> sortedTransparentMeshes;
-	sortedTransparentMeshes.reserve(transparentMeshes.size());
-	for (const auto& mesh : transparentMeshes)
+	std::vector<MeshInstance*> sortedTransparentInstances;
+	sortedTransparentInstances.reserve(meshManager->GetTransparentMeshes().size());
+	for (const auto& mesh : meshManager->GetTransparentMeshes())
 	{
-		sortedTransparentMeshes.push_back(mesh.get());
+		sortedTransparentInstances.push_back(mesh.get());
 	}
 
-	std::sort(sortedTransparentMeshes.begin(), sortedTransparentMeshes.end(),
-		[&](Mesh* a, Mesh* b)
+	std::sort(sortedTransparentInstances.begin(), sortedTransparentInstances.end(),
+		[&](MeshInstance* a, MeshInstance* b)
 		{
 			float distA = glm::length(camera->transform.position - a->transform.position);
 			float distB = glm::length(camera->transform.position - b->transform.position);
 			return distA > distB;
 		});
 	
-	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshes, camera.get());
-	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshes, camera.get());
+	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, meshManager->GetOpaqueMeshes(), camera.get());
+	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, meshManager->GetTransparentMeshes(), camera.get());
 	
 	// If Dear ImGui overlay exists, draw UI representing objects in the scene
 	if (imGuiOverlay)
@@ -202,41 +193,41 @@ void Engine::DrawFrame()
 			ImGui::TreePop();
 		}
 
-		for (const std::unique_ptr<Mesh>& mesh : opaqueMeshes)
+		for (const auto& meshInstance : meshManager->GetOpaqueMeshes())
 		{
-			if (ImGui::TreeNode(mesh->GetName().c_str()))
+			if (ImGui::TreeNode(meshInstance->GetName().c_str()))
 			{
-				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat3("Position", &meshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
 				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
+				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(meshInstance->transform.rotation));
 				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
 				{
 					// Translate back to radians and quaternion for internal memory
 					glm::vec3 radians = glm::radians(eulerAngles);
-					mesh->transform.rotation = glm::quat(radians);
+					meshInstance->transform.rotation = glm::quat(radians);
 				}
-				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat3("Scale", &meshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
 				ImGui::TreePop();
 			}
 		}
 
-		for (const std::unique_ptr<Mesh>& mesh : transparentMeshes)
+		for (const auto& meshInstance : meshManager->GetTransparentMeshes())
 		{
-			if (ImGui::TreeNode(mesh->GetName().c_str()))
+			if (ImGui::TreeNode(meshInstance->GetName().c_str()))
 			{
-				ImGui::DragFloat3("Position", &mesh->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat3("Position", &meshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
 				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(mesh->transform.rotation));
+				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(meshInstance->transform.rotation));
 				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
 				{
 					// Translate back to radians and quaternion for internal memory
 					glm::vec3 radians = glm::radians(eulerAngles);
-					mesh->transform.rotation = glm::quat(radians);
+					meshInstance->transform.rotation = glm::quat(radians);
 				}
-				ImGui::DragFloat3("Scale", &mesh->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat3("Scale", &meshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
 				ImGui::TreePop();
 			}
@@ -350,17 +341,17 @@ void Engine::RecreateSwapChain()
 
 void Engine::CreateMesh(const std::string& name, const MeshInfo& info)
 {
-	std::string candidateName = name;
-	int counter = 1;
-	while (meshNames.count(candidateName))
-	{
-		candidateName = name + std::to_string(counter);
-		counter++;
-	}
-	meshNames.insert(candidateName);
+	//std::string candidateName = name;
+	//int counter = 1;
+	//while (meshNames.count(candidateName))
+	//{
+		//candidateName = name + std::to_string(counter);
+		//counter++;
+	//}
+	//meshNames.insert(candidateName);
 	
-	if (info.enableTransparency)
-		transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
-	else
-		opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
+	//if (info.enableTransparency)
+		//transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
+	//else
+		//opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
 }
