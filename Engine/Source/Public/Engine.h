@@ -49,10 +49,10 @@ namespace VulkanRenderer
 
 		std::unique_ptr<VulkanImGuiOverlay> imGuiOverlay;
 		
-		std::unique_ptr<Camera> camera;
-
 		std::unique_ptr<Scene> scene;
 		std::unique_ptr<MeshManager> meshManager;
+
+		Camera* mainCamera = nullptr;
 		
 		int currentFrame = 0;
 		

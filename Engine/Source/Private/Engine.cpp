@@ -47,18 +47,17 @@ Engine::Engine()
 
 	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
 	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
-
-	camera = std::make_unique<Camera>(device.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout());
-	camera->transform.position = {0.0f, 0.0f, 0.0f};
-
-	camera->CreateDescriptorSets(descriptorPool->Get());
 	
 	sync = std::make_unique<VulkanSync>(device->GetLogical());
 
 	GLFWwindow* window = glfwWindow->Get();
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
-	scene = std::make_unique<Scene>(device.get(), meshManager.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorPool->Get());
+	scene = std::make_unique<Scene>(device.get(), meshManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
+
+	Transform cameraTransform;
+	cameraTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	mainCamera = scene->CreateCamera("Camera", cameraTransform);
 
 	// MeshInfo holds the vertices, indices, and texture paths to be passed to Mesh constructor
 	MeshInfo meshInfo;
@@ -153,8 +152,7 @@ void Engine::DrawFrame()
 		std::cerr << "Failed to acquire swap chain image" << std::endl;
 		return;
 	}
-
-	camera->UpdateUniformBuffer(currentFrame, swapChain->extent);
+	
 	scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
 
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
@@ -176,13 +174,13 @@ void Engine::DrawFrame()
 	std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
 		[&](MeshInstance* a, MeshInstance* b)
 		{
-			float distA = glm::length(camera->transform.position - a->transform.position);
-			float distB = glm::length(camera->transform.position - b->transform.position);
+			float distA = glm::length(mainCamera->transform.position - a->transform.position);
+			float distB = glm::length(mainCamera->transform.position - b->transform.position);
 			return distA > distB;
 		});
 	
-	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, camera.get());
-	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, camera.get());
+	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, mainCamera);
+	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, mainCamera);
 	
 	// If Dear ImGui overlay exists, draw UI representing objects in the scene
 	if (imGuiOverlay)

@@ -7,17 +7,18 @@
 
 #include <volk.h>
 
-#include <VulkanUniformBuffer.h>
+#include <SceneObject.h>
 #include <Transform.h>
+#include <VulkanUniformBuffer.h>
 
 namespace VulkanRenderer
 {
 	class VulkanDevice;
 
-	class Camera
+	class Camera : public SceneObject
 	{
 	public:
-		Camera(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
+		Camera(const std::string& name, const Transform& transform, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
 		~Camera();
 
 		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
@@ -25,9 +26,7 @@ namespace VulkanRenderer
 		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
 
 		std::vector<VkDescriptorSet> descriptorSets;
-
-		Transform transform;
-
+		
 		float fov = 70.0f;
 
 	private:

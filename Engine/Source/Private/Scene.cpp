@@ -5,12 +5,13 @@
 #include <SceneObject.h>
 #include <MeshInstance.h>
 #include <MeshManager.h>
+#include <Camera.h>
 #include <Transform.h>
 
 using namespace VulkanRenderer;
 
-Scene::Scene(VulkanDevice* device, MeshManager* meshManager, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool)
-	: device(device), meshManager(meshManager), descriptorSetLayout(descriptorSetLayout), descriptorPool(descriptorPool)
+Scene::Scene(VulkanDevice* device, MeshManager* meshManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool)
+	: device(device), meshManager(meshManager), cameraDescriptorSetLayout(cameraDescriptorSetLayout), descriptorPool(descriptorPool)
 {
 
 }
@@ -37,7 +38,7 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const Transform& 
 	while (objectNames.count(instanceName))
 	{
 		instanceName = name + std::to_string(counter);
-		counter++;
+		++counter;
 	}
 	objectNames.insert(instanceName);
 
@@ -46,6 +47,26 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const Transform& 
 	objects.push_back(std::move(object));
 
 	return objectPtr;
+}
+
+Camera* Scene::CreateCamera(const std::string& name, const Transform& transform)
+{
+	std::string cameraName = name;
+	int counter = 1;
+	while (objectNames.count(cameraName))
+	{
+		cameraName = name + std::to_string(counter);
+		++counter;
+	}
+	objectNames.insert(cameraName);
+
+	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, transform, device, cameraDescriptorSetLayout);
+	Camera* cameraPtr = camera.get();
+	objects.push_back(std::move(camera));
+	
+	cameraPtr->CreateDescriptorSets(descriptorPool);
+
+	return cameraPtr;
 }
 
 MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform& transform)
@@ -62,7 +83,7 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform
 	while (objectNames.count(instanceName))
 	{
 		instanceName = name + std::to_string(counter);
-		counter++;
+		++counter;
 	}
 	objectNames.insert(instanceName);
 	
@@ -80,6 +101,10 @@ void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
 		if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
 		{
 			meshInstance->UpdateUniformBuffer(currentFrame, swapChainExtent);
+		}
+		if (auto* camera = dynamic_cast<Camera*>(object.get()))
+		{
+			camera->UpdateUniformBuffer(currentFrame, swapChainExtent);
 		}
 	}
 }

@@ -14,18 +14,20 @@ namespace VulkanRenderer
 	class SceneObject;
 	class MeshInstance;
 	class MeshManager;
+	class Camera;
 	class Transform;
 
 	class Scene
 	{
 	public:
-		Scene(VulkanDevice* device, MeshManager* meshManager, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
+		Scene(VulkanDevice* device, MeshManager* meshManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
 		~Scene();
 
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
 		std::vector<std::unique_ptr<SceneObject>>& GetObjectsMutable();
 		
 		SceneObject* CreateSceneObject(const std::string& name, const Transform& transform);
+		Camera* CreateCamera(const std::string& name, const Transform& transform);
 		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform);
 
 		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
@@ -33,7 +35,8 @@ namespace VulkanRenderer
 	private:
 		VulkanDevice* device;
 
-		VkDescriptorSetLayout descriptorSetLayout;
+		//VkDescriptorSetLayout meshDescriptorSetLayout;
+		VkDescriptorSetLayout cameraDescriptorSetLayout;
 
 		VkDescriptorPool descriptorPool;
 
