@@ -25,6 +25,7 @@ namespace VulkanRenderer
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
 		std::vector<std::unique_ptr<SceneObject>>& GetObjectsMutable();
 		
+		SceneObject* CreateSceneObject(const std::string& name, const Transform& transform);
 		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform);
 
 		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);

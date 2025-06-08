@@ -30,6 +30,24 @@ std::vector<std::unique_ptr<SceneObject>>& Scene::GetObjectsMutable()
 	return objects;
 }
 
+SceneObject* Scene::CreateSceneObject(const std::string& name, const Transform& transform)
+{
+	std::string instanceName = name;
+	int counter = 1;
+	while (objectNames.count(instanceName))
+	{
+		instanceName = name + std::to_string(counter);
+		counter++;
+	}
+	objectNames.insert(instanceName);
+
+	std::unique_ptr<SceneObject> object = std::make_unique<SceneObject>(instanceName, transform);
+	SceneObject* objectPtr = object.get();
+	objects.push_back(std::move(object));
+
+	return objectPtr;
+}
+
 MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform& transform)
 {
 	auto mesh = meshManager->GetMesh(name);
@@ -48,7 +66,7 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform
 	}
 	objectNames.insert(instanceName);
 	
-	std::unique_ptr<MeshInstance> instance = std::make_unique<MeshInstance>(device, descriptorPool, mesh, transform, instanceName);
+	std::unique_ptr<MeshInstance> instance = std::make_unique<MeshInstance>(instanceName, transform, mesh, device, descriptorPool);
 	MeshInstance* instancePtr = instance.get();
 	objects.push_back(std::move(instance));
 	

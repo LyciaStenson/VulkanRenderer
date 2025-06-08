@@ -106,14 +106,19 @@ Engine::Engine()
 	redRockTransform.position = glm::vec3(1.0f, 0.0f, -2.0f);
 	MeshInstance* redRock = scene->CreateMeshInstance("Red Rock", redRockTransform);
 	
+	Transform glassParentTransform;
+	glassParentTransform.position = glm::vec3(0.0f, 1.0f, -3.0f);
+	SceneObject* glassParent = scene->CreateSceneObject("GlassParent", glassParentTransform);
+
 	Transform glassTransform;
-	glassTransform.position = glm::vec3(0.0f, 1.0f, -3.5f);
+	glassTransform.position = glm::vec3(-1.0f, 0.0f, 0.0f);
 	MeshInstance* glass = scene->CreateMeshInstance("Glass", glassTransform);
+	glass->transform.SetParent(&glassParent->transform);
 	
 	Transform glass2Transform;
-	glass2Transform.position = glm::vec3(0.0f, -1.5f, 0.0f);
+	glass2Transform.position = glm::vec3(1.0f, 0.0f, 0.0f);
 	MeshInstance* glass2 = scene->CreateMeshInstance("Glass", glass2Transform);
-	glass2->transform.SetParent(&glass->transform);
+	glass2->transform.SetParent(&glassParent->transform);
 }
 
 Engine::~Engine()
