@@ -176,97 +176,17 @@ void Engine::DrawFrame()
 
 		// Begin scene UI window
 		ImGui::Begin("Scene");
-
-		// Reduce frame padding for drag UI boxes
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 2.0f));
-
-		if (ImGui::TreeNode("Camera"))
 		{
-			ImGui::DragFloat3("Position", &camera->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-			// Translate quaternion rotation to euler angles in degrees for intuitive editing
-			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(camera->transform.rotation));
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-			{
-				// Translate back to radians and quaternion for internal memory
-				glm::vec3 radians = glm::radians(eulerAngles);
-				camera->transform.rotation = glm::quat(radians);
-			}
-
-			ImGui::DragFloat("FOV", &camera->fov, 0.1f, 1.0f, 179.0f, "%.1f");
-
-			ImGui::TreePop();
+			imGuiOverlay->DrawSceneGraph(meshManager->GetOpaqueMeshesMutable());
+			imGuiOverlay->DrawSceneGraph(meshManager->GetTransparentMeshesMutable());
 		}
-
-		for (const auto& meshInstance : meshManager->GetOpaqueMeshes())
-		{
-			if (ImGui::TreeNode(meshInstance->GetName().c_str()))
-			{
-				ImGui::DragFloat3("Position", &meshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(meshInstance->transform.rotation));
-				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-				{
-					// Translate back to radians and quaternion for internal memory
-					glm::vec3 radians = glm::radians(eulerAngles);
-					meshInstance->transform.rotation = glm::quat(radians);
-				}
-				ImGui::DragFloat3("Scale", &meshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				ImGui::TreePop();
-			}
-		}
-
-		for (const auto& meshInstance : meshManager->GetTransparentMeshes())
-		{
-			if (ImGui::TreeNode(meshInstance->GetName().c_str()))
-			{
-				ImGui::DragFloat3("Position", &meshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				// Translate quaternion rotation to euler angles in degrees for intuitive editing
-				glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(meshInstance->transform.rotation));
-				if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
-				{
-					// Translate back to radians and quaternion for internal memory
-					glm::vec3 radians = glm::radians(eulerAngles);
-					meshInstance->transform.rotation = glm::quat(radians);
-				}
-				ImGui::DragFloat3("Scale", &meshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
-
-				ImGui::TreePop();
-			}
-		}
-
-		if (ImGui::Button("Create mesh"))
-		{
-			MeshInfo meshInfo;
-			meshInfo.vertices =
-			{
-				{{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f}},	// Bottom left
-				{{ 0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},	// Bottom right
-				{{ 0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},	// Top right
-				{{-0.5f,  0.5f,  0.0f}, {0.0f, 1.0f}}	// Top left
-			};
-			meshInfo.indices =
-			{
-				0, 1, 2,
-				2, 3, 0
-			};
-			meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
-			meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
-			meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
-
-			//opaqueMeshes.push_back(std::make_unique<Mesh>(device, GetMeshDescriptorSetLayout(), meshInfo));
-			//opaqueMeshes.back()->CreateDescriptorSets(descriptorPool);
-
-			//opaqueMeshes.back()->transform.position = {-1.0f, 0.0f, -3.0f};
-		}
-
-		// Pop temporary frame padding
-		ImGui::PopStyleVar();
-
 		// End scene UI window
+		ImGui::End();
+
+		ImGui::Begin("Inspector");
+		{
+			imGuiOverlay->DrawInspector();
+		}
 		ImGui::End();
 
 		imGuiOverlay->Draw(device->commandBuffers[currentFrame]);

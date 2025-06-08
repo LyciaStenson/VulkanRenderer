@@ -29,6 +29,9 @@ namespace VulkanRenderer
 		const std::vector<std::unique_ptr<MeshInstance>>& GetOpaqueMeshes() const;
 		const std::vector<std::unique_ptr<MeshInstance>>& GetTransparentMeshes() const;
 
+		std::vector<std::unique_ptr<MeshInstance>>& GetOpaqueMeshesMutable();
+		std::vector<std::unique_ptr<MeshInstance>>& GetTransparentMeshesMutable();
+
 	private:
 		VulkanDevice* device;
 		

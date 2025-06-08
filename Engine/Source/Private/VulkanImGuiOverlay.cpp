@@ -8,6 +8,7 @@
 #include <VulkanSwapChain.h>
 #include <VulkanRenderPass.h>
 #include <ImGuiDescriptorPool.h>
+#include <MeshInstance.h>
 
 namespace VulkanRenderer
 {
@@ -71,41 +72,64 @@ namespace VulkanRenderer
 
 		style.TabBarBorderSize = 0.0f;
 		style.WindowBorderSize = 0.0f;
-
-		//ImVec4* colors = style.Colors;
-
-		//colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 0.85f);
-		//colors[ImGuiCol_Text] = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
-		//colors[ImGuiCol_Button] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
-		//colors[ImGuiCol_ButtonHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-		//colors[ImGuiCol_ButtonActive] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
-		//colors[ImGuiCol_TitleBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-		//colors[ImGuiCol_TitleBgActive] = colors[ImGuiCol_TitleBg];
-		//colors[ImGuiCol_Header] = colors[ImGuiCol_TitleBg];
-		//colors[ImGuiCol_HeaderHovered] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-		//colors[ImGuiCol_HeaderActive] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-		
-		//colors[ImGuiCol_Tab] = colors[ImGuiCol_TitleBg];
-		//colors[ImGuiCol_TabHovered] = colors[ImGuiCol_WindowBg];
-		//colors[ImGuiCol_TabSelected] = colors[ImGuiCol_WindowBg];
-		//colors[ImGuiCol_TabSelectedOverline] = colors[ImGuiCol_WindowBg];
-		//colors[ImGuiCol_TabDimmed] = colors[ImGuiCol_Tab];
-		//colors[ImGuiCol_TabDimmedSelected] = colors[ImGuiCol_TabSelected];
-		//colors[ImGuiCol_TabDimmedSelectedOverline] = colors[ImGuiCol_TabSelectedOverline];
 	}
 	
 	void VulkanImGuiOverlay::Draw(VkCommandBuffer commandBuffer)
 	{
-		//ImGui::BeginMainMenuBar();
-		//if (ImGui::BeginMenu("File"))
-		//{
-		//	if (ImGui::MenuItem("Quit"))
-		//		glfwSetWindowShouldClose(glfwWindow, true);
-		//	ImGui::EndMenu();
-		//}
-		//ImGui::EndMainMenuBar();
-		
 		ImGui::Render();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+	}
+
+	void VulkanImGuiOverlay::DrawSceneGraph(std::vector<std::unique_ptr<MeshInstance>>& meshInstances)
+	{
+		for (auto& meshInstance : meshInstances)
+		{
+			if (meshInstance->transform.GetParent() == nullptr)
+			{
+				DrawSceneNode(meshInstance.get());
+			}
+		}
+	}
+
+	void VulkanImGuiOverlay::DrawSceneNode(MeshInstance* meshInstance)
+	{
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+		if (meshInstance == selectedMeshInstance)
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		if (meshInstance->transform.GetChildren().empty())
+			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		
+		bool opened = ImGui::TreeNodeEx(meshInstance, flags, "%s", meshInstance->GetName().c_str());
+		
+		if (ImGui::IsItemClicked())
+			selectedMeshInstance = meshInstance;
+
+		if (opened && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+		{
+			for (auto& child : meshInstance->transform.GetChildren())
+			{
+				DrawSceneNode(child->owner);
+			}
+			ImGui::TreePop();
+		}
+	}
+
+	void VulkanImGuiOverlay::DrawInspector()
+	{
+		if (selectedMeshInstance)
+		{
+			ImGui::DragFloat3("Position", &selectedMeshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+
+			// Translate quaternion rotation to euler angles in degrees for intuitive editing
+			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(selectedMeshInstance->transform.rotation));
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+			{
+				// Translate back to radians and quaternion for internal memory
+				glm::vec3 radians = glm::radians(eulerAngles);
+				selectedMeshInstance->transform.rotation = glm::quat(radians);
+			}
+			ImGui::DragFloat3("Scale", &selectedMeshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+		}
 	}
 }

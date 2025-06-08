@@ -7,12 +7,14 @@
 
 namespace VulkanRenderer
 {
+	class MeshInstance;
+
 	class Transform
 	{
 	public:
 		Transform();
 		~Transform();
-
+		
 		void SetParent(Transform* transform);
 		Transform* GetParent() const;
 
@@ -25,10 +27,12 @@ namespace VulkanRenderer
 		glm::quat rotation;
 		glm::vec3 scale;
 
+		MeshInstance* owner = nullptr;
+
 	private:
 		Transform* parent = nullptr;
 		std::vector<Transform*> children;
-
+		
 		void AddChild(Transform* child);
 		void RemoveChild(Transform* child);
 	};

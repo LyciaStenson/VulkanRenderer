@@ -13,6 +13,7 @@ using namespace VulkanRenderer;
 MeshInstance::MeshInstance(VulkanDevice* device, VkDescriptorPool descriptorPool, std::shared_ptr<Mesh> mesh, const Transform& transform, const std::string& name)
 	: device(device), mesh(mesh), transform(transform), name(name)
 {
+	this->transform.owner = this;
 	CreateUniformBuffers();
 	CreateDescriptorSets(descriptorPool);
 }

@@ -83,3 +83,13 @@ const std::vector<std::unique_ptr<MeshInstance>>& MeshManager::GetTransparentMes
 {
 	return transparentMeshes;
 }
+
+std::vector<std::unique_ptr<MeshInstance>>& MeshManager::GetOpaqueMeshesMutable()
+{
+	return opaqueMeshes;
+}
+
+std::vector<std::unique_ptr<MeshInstance>>& MeshManager::GetTransparentMeshesMutable()
+{
+	return transparentMeshes;
+}
