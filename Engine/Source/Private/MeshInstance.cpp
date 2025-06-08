@@ -116,7 +116,7 @@ void MeshInstance::CreateUniformBuffers()
 void MeshInstance::UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent)
 {
 	MeshUBO ubo{};
-	ubo.model = glm::translate(glm::mat4(1.0f), transform.position) * glm::mat4_cast(transform.rotation) * glm::scale(glm::mat4(1.0f), transform.scale);
+	ubo.model = transform.GetWorldMatrix();
 
 	memcpy(uniformBuffers[currentImage].GetMappedData(), &ubo, sizeof(ubo));
 }

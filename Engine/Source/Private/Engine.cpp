@@ -95,17 +95,22 @@ Engine::Engine()
 	meshManager->LoadMesh("Red Rock", meshInfo2);
 	meshManager->LoadMesh("Glass", meshInfo3);
 	
-	Transform brownRockTransform{glm::vec3(-1.0f, 0.0f, -2.0f)};
-	meshManager->CreateInstance("Brown Rock", brownRockTransform);
+	Transform brownRockTransform;
+	brownRockTransform.position = glm::vec3(-1.0f, 0.0f, -2.0f);
+	MeshInstance* brownRock = meshManager->CreateInstance("Brown Rock", brownRockTransform);
 	
-	Transform redRockTransform{glm::vec3(1.0f, 0.0f, -2.0f)};
-	meshManager->CreateInstance("Red Rock", redRockTransform);
+	Transform redRockTransform;
+	redRockTransform.position = glm::vec3(1.0f, 0.0f, -2.0f);
+	MeshInstance* redRock = meshManager->CreateInstance("Red Rock", redRockTransform);
 	
-	Transform glassTransform{glm::vec3(0.0f, 0.0f, -3.5f)};
-	meshManager->CreateInstance("Glass", glassTransform);
+	Transform glassTransform;
+	glassTransform.position = glm::vec3(0.0f, 0.0f, -3.5f);
+	MeshInstance* glass = meshManager->CreateInstance("Glass", glassTransform);
 	
-	Transform glass2Transform{glm::vec3(0.0f, 1.0f, -4.0f)};
-	meshManager->CreateInstance("Glass", glass2Transform);
+	Transform glass2Transform;
+	glass2Transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
+	MeshInstance* glass2 = meshManager->CreateInstance("Glass", glass2Transform);
+	glass2->transform.SetParent(&glass->transform);
 }
 
 Engine::~Engine()

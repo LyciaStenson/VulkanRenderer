@@ -1,14 +1,35 @@
 #pragma once
 
+#include <vector>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace VulkanRenderer
 {
-	struct Transform
+	class Transform
 	{
-		glm::vec3 position{};
-		glm::quat rotation{};
-		glm::vec3 scale{1.0f, 1.0f, 1.0f};
+	public:
+		Transform();
+		~Transform();
+
+		void SetParent(Transform* transform);
+		Transform* GetParent() const;
+
+		const std::vector<Transform*>& GetChildren() const;
+
+		glm::mat4 GetLocalMatrix() const;
+		glm::mat4 GetWorldMatrix() const;
+
+		glm::vec3 position;
+		glm::quat rotation;
+		glm::vec3 scale;
+
+	private:
+		Transform* parent = nullptr;
+		std::vector<Transform*> children;
+
+		void AddChild(Transform* child);
+		void RemoveChild(Transform* child);
 	};
 }

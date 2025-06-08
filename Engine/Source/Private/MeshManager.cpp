@@ -33,13 +33,13 @@ std::shared_ptr<Mesh> MeshManager::LoadMesh(const std::string& name, const MeshI
 	return mesh;
 }
 
-void MeshManager::CreateInstance(const std::string& name, const Transform& transform)
+MeshInstance* MeshManager::CreateInstance(const std::string& name, const Transform& transform)
 {
 	auto mesh = meshes[name];
 	if (!mesh)
 	{
 		std::cout << "Mesh " << name << " not found" << std::endl;
-		return;
+		return nullptr;
 	}
 
 	std::string instanceName = name;
@@ -51,10 +51,15 @@ void MeshManager::CreateInstance(const std::string& name, const Transform& trans
 	}
 	meshInstanceNames.insert(instanceName);
 	
+	std::unique_ptr<MeshInstance> instance = std::make_unique<MeshInstance>(device, descriptorPool, mesh, transform, instanceName);
+	MeshInstance* instancePtr = instance.get();
+
 	if (mesh->GetTransparencyEnabled())
-		transparentMeshes.push_back(std::make_unique<MeshInstance>(device, descriptorPool, mesh, transform, instanceName));
+		transparentMeshes.push_back(std::move(instance));
 	else
-		opaqueMeshes.push_back(std::make_unique<MeshInstance>(device, descriptorPool, mesh, transform, instanceName));
+		opaqueMeshes.push_back(std::move(instance));
+
+	return instancePtr;
 }
 
 void MeshManager::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)

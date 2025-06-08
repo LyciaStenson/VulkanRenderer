@@ -10,10 +10,10 @@
 namespace VulkanRenderer
 {
 	class VulkanDevice;
+	class Transform;
 	class Mesh;
 	class MeshInstance;
 	struct MeshInfo;
-	struct Transform;
 
 	class MeshManager
 	{
@@ -22,7 +22,7 @@ namespace VulkanRenderer
 		~MeshManager();
 
 		std::shared_ptr<Mesh> LoadMesh(const std::string& name, const MeshInfo& info);
-		void CreateInstance(const std::string& name, const Transform& transform);
+		MeshInstance* CreateInstance(const std::string& name, const Transform& transform);
 
 		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
