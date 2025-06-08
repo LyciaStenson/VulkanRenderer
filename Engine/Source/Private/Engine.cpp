@@ -104,11 +104,11 @@ Engine::Engine()
 	MeshInstance* redRock = meshManager->CreateInstance("Red Rock", redRockTransform);
 	
 	Transform glassTransform;
-	glassTransform.position = glm::vec3(0.0f, 0.0f, -3.5f);
+	glassTransform.position = glm::vec3(0.0f, 1.0f, -3.5f);
 	MeshInstance* glass = meshManager->CreateInstance("Glass", glassTransform);
 	
 	Transform glass2Transform;
-	glass2Transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
+	glass2Transform.position = glm::vec3(0.0f, -1.5f, 0.0f);
 	MeshInstance* glass2 = meshManager->CreateInstance("Glass", glass2Transform);
 	glass2->transform.SetParent(&glass->transform);
 }
