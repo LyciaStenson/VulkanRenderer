@@ -58,66 +58,6 @@ Engine::Engine()
 	Transform cameraTransform;
 	cameraTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	mainCamera = scene->CreateCamera("Camera", cameraTransform);
-
-	// MeshInfo holds the vertices, indices, and texture paths to be passed to Mesh constructor
-	MeshInfo meshInfo;
-	meshInfo.vertices =
-	{
-		{{-0.5f, -0.5f,  0.0f}, {0.0f, 0.0f}},	// Bottom left
-		{{ 0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},	// Bottom right
-		{{ 0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},	// Top right
-		{{-0.5f,  0.5f,  0.0f}, {0.0f, 1.0f}}	// Top left
-	};
-	meshInfo.indices =
-	{
-		0, 1, 2,
-		2, 3, 0
-	};
-	meshInfo.baseColorPath = "Assets/Textures/BrownRock09_2K_BaseColor.png";
-	meshInfo.roughnessPath = "Assets/Textures/BrownRock09_2K_Roughness.png";
-	meshInfo.metallicPath = "Assets/Textures/BrownRock09_2K_Metallic.png";
-	
-	// Reuse vertices and indices
-	MeshInfo meshInfo2;
-	meshInfo2.vertices = meshInfo.vertices;
-	meshInfo2.indices = meshInfo.indices;
-	meshInfo2.baseColorPath = "Assets/Textures/RedRock05_2K_BaseColor.png";
-	meshInfo2.roughnessPath = "Assets/Textures/RedRock05_2K_Roughness.png";
-	meshInfo2.metallicPath = "Assets/Textures/RedRock05_2K_Metallic.png";
-	
-	MeshInfo meshInfo3;
-	meshInfo3.vertices = meshInfo.vertices;
-	meshInfo3.indices = meshInfo.indices;
-	meshInfo3.baseColorPath = "Assets/Textures/Glass_Vintage_001_basecolor.png";
-	meshInfo3.roughnessPath = "Assets/Textures/Glass_Vintage_001_roughness.jpg";
-	meshInfo3.metallicPath = "Assets/Textures/Glass_Vintage_001_metallic.png";
-	meshInfo3.enableTransparency = true;
-	
-	meshManager->LoadMesh("Brown Rock", meshInfo);
-	meshManager->LoadMesh("Red Rock", meshInfo2);
-	meshManager->LoadMesh("Glass", meshInfo3);
-	
-	Transform brownRockTransform;
-	brownRockTransform.position = glm::vec3(-1.0f, 0.0f, -2.0f);
-	MeshInstance* brownRock = scene->CreateMeshInstance("Brown Rock", brownRockTransform);
-	
-	Transform redRockTransform;
-	redRockTransform.position = glm::vec3(1.0f, 0.0f, -2.0f);
-	MeshInstance* redRock = scene->CreateMeshInstance("Red Rock", redRockTransform);
-	
-	Transform glassParentTransform;
-	glassParentTransform.position = glm::vec3(0.0f, 1.0f, -3.0f);
-	SceneObject* glassParent = scene->CreateSceneObject("GlassParent", glassParentTransform);
-
-	Transform glassTransform;
-	glassTransform.position = glm::vec3(-1.0f, 0.0f, 0.0f);
-	MeshInstance* glass = scene->CreateMeshInstance("Glass", glassTransform);
-	glass->transform.SetParent(&glassParent->transform);
-	
-	Transform glass2Transform;
-	glass2Transform.position = glm::vec3(1.0f, 0.0f, 0.0f);
-	MeshInstance* glass2 = scene->CreateMeshInstance("Glass", glass2Transform);
-	glass2->transform.SetParent(&glassParent->transform);
 }
 
 Engine::~Engine()
