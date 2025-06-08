@@ -16,6 +16,7 @@ namespace VulkanRenderer
 	class MeshManager;
 	class Camera;
 	class Transform;
+	struct Model;
 
 	class Scene
 	{
@@ -30,12 +31,13 @@ namespace VulkanRenderer
 		Camera* CreateCamera(const std::string& name, const Transform& transform);
 		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform);
 
+		void InstantiateModel(const std::string& name, const Transform& transform);
+		
 		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
 	private:
 		VulkanDevice* device;
-
-		//VkDescriptorSetLayout meshDescriptorSetLayout;
+		
 		VkDescriptorSetLayout cameraDescriptorSetLayout;
 
 		VkDescriptorPool descriptorPool;
@@ -44,5 +46,7 @@ namespace VulkanRenderer
 
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
+
+		void InstantiateModelNode(const std::shared_ptr<Model>& model);
 	};
 }

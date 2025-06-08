@@ -20,9 +20,9 @@ namespace VulkanRenderer
 	{
 		std::vector<Vertex> vertices;
 		std::vector<uint16_t> indices;
-		std::string baseColorPath;
-		std::string roughnessPath;
-		std::string metallicPath;
+		//std::string baseColorPath;
+		//std::string roughnessPath;
+		//std::string metallicPath;
 		bool enableTransparency = false;
 	};
 	

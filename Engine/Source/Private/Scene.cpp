@@ -7,6 +7,7 @@
 #include <MeshManager.h>
 #include <Camera.h>
 #include <Transform.h>
+#include <Model.h>
 
 using namespace VulkanRenderer;
 
@@ -92,6 +93,19 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform
 	objects.push_back(std::move(instance));
 	
 	return instancePtr;
+}
+
+void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model)
+{
+	if (!model)
+		return;
+
+	const fastgltf::Scene& glftsScene = model->gltfAsset.scenes[model->sceneIndex];
+}
+
+void Scene::InstantiateModel(const std::string& name, const Transform& transform)
+{
+
 }
 
 void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
