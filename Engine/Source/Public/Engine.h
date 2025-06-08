@@ -22,6 +22,7 @@ namespace VulkanRenderer
 	class VulkanSync;
 	class MeshManager;
 	class MeshInstance;
+	class Scene;
 	class VulkanImGuiOverlay;
 
 	class Engine
@@ -50,13 +51,12 @@ namespace VulkanRenderer
 		
 		std::unique_ptr<Camera> camera;
 
+		std::unique_ptr<Scene> scene;
 		std::unique_ptr<MeshManager> meshManager;
 		
 		int currentFrame = 0;
 		
 		void DrawFrame();
 		void RecreateSwapChain();
-
-		void CreateMesh(const std::string& name, const MeshInfo& info);
 	};
 }

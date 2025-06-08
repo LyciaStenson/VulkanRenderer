@@ -184,7 +184,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	}
 }
 
-void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<std::unique_ptr<MeshInstance>>& meshInstances, Camera* camera)
+void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<MeshInstance*>& meshInstances, Camera* camera)
 {
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 

@@ -18,31 +18,17 @@ namespace VulkanRenderer
 	class MeshManager
 	{
 	public:
-		MeshManager(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
+		MeshManager(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
 		~MeshManager();
 
+		std::shared_ptr<Mesh> GetMesh(const std::string& name);
+
 		std::shared_ptr<Mesh> LoadMesh(const std::string& name, const MeshInfo& info);
-		MeshInstance* CreateInstance(const std::string& name, const Transform& transform);
-
-		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
-
-		const std::vector<std::unique_ptr<MeshInstance>>& GetOpaqueMeshes() const;
-		const std::vector<std::unique_ptr<MeshInstance>>& GetTransparentMeshes() const;
-
-		std::vector<std::unique_ptr<MeshInstance>>& GetOpaqueMeshesMutable();
-		std::vector<std::unique_ptr<MeshInstance>>& GetTransparentMeshesMutable();
 
 	private:
 		VulkanDevice* device;
 		
 		VkDescriptorSetLayout descriptorSetLayout;
-		
-		VkDescriptorPool descriptorPool;
-
-		std::vector<std::unique_ptr<MeshInstance>> opaqueMeshes;
-		std::vector<std::unique_ptr<MeshInstance>> transparentMeshes;
-
-		std::unordered_set<std::string> meshInstanceNames;
 		
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> meshes;
 	};

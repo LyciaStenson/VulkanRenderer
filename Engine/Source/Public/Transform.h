@@ -7,7 +7,7 @@
 
 namespace VulkanRenderer
 {
-	class MeshInstance;
+	class SceneObject;
 
 	class Transform
 	{
@@ -27,7 +27,7 @@ namespace VulkanRenderer
 		glm::quat rotation;
 		glm::vec3 scale;
 
-		MeshInstance* owner = nullptr;
+		SceneObject* owner = nullptr;
 
 	private:
 		Transform* parent = nullptr;

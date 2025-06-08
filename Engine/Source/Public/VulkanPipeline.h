@@ -28,7 +28,7 @@ namespace VulkanRenderer
 
 		void SetDescriptorPool(VkDescriptorPool pool);
 		
-		void Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<std::unique_ptr<MeshInstance>>& mesheInstances, Camera* camera);
+		void Render(VkCommandBuffer commandBuffer, uint32_t currentFrame, const std::vector<MeshInstance*>& mesheInstances, Camera* camera);
 
 	private:
 		void CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* layoutManager);

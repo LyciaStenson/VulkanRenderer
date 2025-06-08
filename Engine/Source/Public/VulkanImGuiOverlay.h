@@ -17,7 +17,7 @@ namespace VulkanRenderer
 	class VulkanSwapChain;
 	class VulkanRenderPass;
 	class ImGuiDescriptorPool;
-	class MeshInstance;
+	class SceneObject;
 	
 	class VulkanImGuiOverlay
 	{
@@ -28,8 +28,8 @@ namespace VulkanRenderer
 		void NewFrame();
 		void Draw(VkCommandBuffer commandBuffer);
 
-		void DrawSceneGraph(std::vector<std::unique_ptr<MeshInstance>>& meshInstances);
-		void DrawSceneNode(MeshInstance* meshInstance);
+		void DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances);
+		void DrawSceneNode(SceneObject* meshInstance);
 
 		void DrawInspector();
 
@@ -38,6 +38,6 @@ namespace VulkanRenderer
 
 		std::unique_ptr<ImGuiDescriptorPool> descriptorPool;
 
-		MeshInstance* selectedMeshInstance = nullptr;
+		SceneObject* selectedObject = nullptr;
 	};
 }

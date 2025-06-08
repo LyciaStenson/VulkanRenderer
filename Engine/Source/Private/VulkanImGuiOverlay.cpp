@@ -80,7 +80,7 @@ namespace VulkanRenderer
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 	}
 
-	void VulkanImGuiOverlay::DrawSceneGraph(std::vector<std::unique_ptr<MeshInstance>>& meshInstances)
+	void VulkanImGuiOverlay::DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances)
 	{
 		for (auto& meshInstance : meshInstances)
 		{
@@ -91,23 +91,23 @@ namespace VulkanRenderer
 		}
 	}
 
-	void VulkanImGuiOverlay::DrawSceneNode(MeshInstance* meshInstance)
+	void VulkanImGuiOverlay::DrawSceneNode(SceneObject* object)
 	{
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-		if (meshInstance == selectedMeshInstance)
+		if (object == selectedObject)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		if (meshInstance->transform.GetChildren().empty())
+		if (object->transform.GetChildren().empty())
 			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 		
-		bool opened = ImGui::TreeNodeEx(meshInstance, flags, "%s", meshInstance->GetName().c_str());
+		bool opened = ImGui::TreeNodeEx(object, flags, "%s", object->GetName().c_str());
 		
 		if (ImGui::IsItemClicked())
-			selectedMeshInstance = meshInstance;
+			selectedObject = object;
 
 		if (opened && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
 		{
-			for (auto& child : meshInstance->transform.GetChildren())
+			for (auto& child : object->transform.GetChildren())
 			{
 				DrawSceneNode(child->owner);
 			}
@@ -117,19 +117,19 @@ namespace VulkanRenderer
 
 	void VulkanImGuiOverlay::DrawInspector()
 	{
-		if (selectedMeshInstance)
+		if (selectedObject)
 		{
-			ImGui::DragFloat3("Position", &selectedMeshInstance->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+			ImGui::DragFloat3("Position", &selectedObject->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
 
 			// Translate quaternion rotation to euler angles in degrees for intuitive editing
-			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(selectedMeshInstance->transform.rotation));
+			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(selectedObject->transform.rotation));
 			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
 			{
 				// Translate back to radians and quaternion for internal memory
 				glm::vec3 radians = glm::radians(eulerAngles);
-				selectedMeshInstance->transform.rotation = glm::quat(radians);
+				selectedObject->transform.rotation = glm::quat(radians);
 			}
-			ImGui::DragFloat3("Scale", &selectedMeshInstance->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+			ImGui::DragFloat3("Scale", &selectedObject->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
 		}
 	}
 }

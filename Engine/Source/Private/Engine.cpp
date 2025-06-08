@@ -17,6 +17,7 @@
 #include <VulkanSync.h>
 #include <MeshManager.h>
 #include <MeshInstance.h>
+#include <Scene.h>
 #include <Vertex.h>
 #include <Transform.h>
 #include <VulkanImGuiOverlay.h>
@@ -42,7 +43,7 @@ Engine::Engine()
 
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
-	meshManager = std::make_unique<MeshManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorPool->Get());
+	meshManager = std::make_unique<MeshManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout());
 
 	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
 	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
@@ -57,6 +58,8 @@ Engine::Engine()
 	GLFWwindow* window = glfwWindow->Get();
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
+	scene = std::make_unique<Scene>(device.get(), meshManager.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorPool->Get());
+
 	// MeshInfo holds the vertices, indices, and texture paths to be passed to Mesh constructor
 	MeshInfo meshInfo;
 	meshInfo.vertices =
@@ -97,19 +100,19 @@ Engine::Engine()
 	
 	Transform brownRockTransform;
 	brownRockTransform.position = glm::vec3(-1.0f, 0.0f, -2.0f);
-	MeshInstance* brownRock = meshManager->CreateInstance("Brown Rock", brownRockTransform);
+	MeshInstance* brownRock = scene->CreateMeshInstance("Brown Rock", brownRockTransform);
 	
 	Transform redRockTransform;
 	redRockTransform.position = glm::vec3(1.0f, 0.0f, -2.0f);
-	MeshInstance* redRock = meshManager->CreateInstance("Red Rock", redRockTransform);
+	MeshInstance* redRock = scene->CreateMeshInstance("Red Rock", redRockTransform);
 	
 	Transform glassTransform;
 	glassTransform.position = glm::vec3(0.0f, 1.0f, -3.5f);
-	MeshInstance* glass = meshManager->CreateInstance("Glass", glassTransform);
+	MeshInstance* glass = scene->CreateMeshInstance("Glass", glassTransform);
 	
 	Transform glass2Transform;
 	glass2Transform.position = glm::vec3(0.0f, -1.5f, 0.0f);
-	MeshInstance* glass2 = meshManager->CreateInstance("Glass", glass2Transform);
+	MeshInstance* glass2 = scene->CreateMeshInstance("Glass", glass2Transform);
 	glass2->transform.SetParent(&glass->transform);
 }
 
@@ -147,18 +150,25 @@ void Engine::DrawFrame()
 	}
 
 	camera->UpdateUniformBuffer(currentFrame, swapChain->extent);
-	meshManager->UpdateUniformBuffers(currentFrame, swapChain->extent);
+	scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
 
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
 	
-	std::vector<MeshInstance*> sortedTransparentInstances;
-	sortedTransparentInstances.reserve(meshManager->GetTransparentMeshes().size());
-	for (const auto& mesh : meshManager->GetTransparentMeshes())
-	{
-		sortedTransparentInstances.push_back(mesh.get());
-	}
+	std::vector<MeshInstance*> opaqueMeshInstances;
+	std::vector<MeshInstance*> transparentMeshInstances;
 
-	std::sort(sortedTransparentInstances.begin(), sortedTransparentInstances.end(),
+	for (const auto& object : scene->GetObjects())
+	{
+		if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
+		{
+			if (meshInstance->GetMesh()->GetTransparencyEnabled())
+				transparentMeshInstances.push_back(meshInstance);
+			else
+				opaqueMeshInstances.push_back(meshInstance);
+		}
+	}
+	
+	std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
 		[&](MeshInstance* a, MeshInstance* b)
 		{
 			float distA = glm::length(camera->transform.position - a->transform.position);
@@ -166,8 +176,8 @@ void Engine::DrawFrame()
 			return distA > distB;
 		});
 	
-	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, meshManager->GetOpaqueMeshes(), camera.get());
-	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, meshManager->GetTransparentMeshes(), camera.get());
+	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, camera.get());
+	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, camera.get());
 	
 	// If Dear ImGui overlay exists, draw UI representing objects in the scene
 	if (imGuiOverlay)
@@ -177,8 +187,7 @@ void Engine::DrawFrame()
 		// Begin scene UI window
 		ImGui::Begin("Scene");
 		{
-			imGuiOverlay->DrawSceneGraph(meshManager->GetOpaqueMeshesMutable());
-			imGuiOverlay->DrawSceneGraph(meshManager->GetTransparentMeshesMutable());
+			imGuiOverlay->DrawSceneGraph(scene->GetObjectsMutable());
 		}
 		// End scene UI window
 		ImGui::End();
@@ -262,21 +271,4 @@ void Engine::RecreateSwapChain()
 	swapChain->CreateDepthResources();
 	swapChain->CreateFramebuffers(renderPass->Get());
 	sync->CreateSyncObjects();
-}
-
-void Engine::CreateMesh(const std::string& name, const MeshInfo& info)
-{
-	//std::string candidateName = name;
-	//int counter = 1;
-	//while (meshNames.count(candidateName))
-	//{
-		//candidateName = name + std::to_string(counter);
-		//counter++;
-	//}
-	//meshNames.insert(candidateName);
-	
-	//if (info.enableTransparency)
-		//transparentMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
-	//else
-		//opaqueMeshes.push_back(std::make_unique<Mesh>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), candidateName, info));
 }
