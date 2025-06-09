@@ -6,9 +6,6 @@
 
 #include <volk.h>
 
-#include <Camera.h>
-#include <Mesh.h>
-
 namespace VulkanRenderer
 {
 	class GlfwWindow;
@@ -20,9 +17,10 @@ namespace VulkanRenderer
 	class VulkanPipeline;
 	class VulkanDescriptorPool;
 	class VulkanSync;
-	class MeshManager;
+	class ModelManager;
 	class MeshInstance;
 	class Scene;
+	class Camera;
 	class VulkanImGuiOverlay;
 
 	class Engine
@@ -50,7 +48,7 @@ namespace VulkanRenderer
 		std::unique_ptr<VulkanImGuiOverlay> imGuiOverlay;
 		
 		std::unique_ptr<Scene> scene;
-		std::unique_ptr<MeshManager> meshManager;
+		std::unique_ptr<ModelManager> modelManager;
 
 		Camera* mainCamera = nullptr;
 		

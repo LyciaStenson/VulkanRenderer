@@ -9,6 +9,7 @@
 #include <Vertex.h>
 #include <MeshInstance.h>
 #include <Mesh.h>
+#include <MeshPrimitive.h>
 #include <Camera.h>
 #include <VulkanDevice.h>
 #include <VulkanSwapChain.h>
@@ -193,18 +194,23 @@ void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame
 	{
 		std::shared_ptr<const Mesh> mesh = meshInstance->GetMesh();
 		
-		VkBuffer vertexBuffers[] = {mesh->vertexBuffer->Get()};
-		VkDeviceSize offsets[] = {0};
+		for (size_t i = 0; i < mesh->GetPrimitiveCount(); ++i)
+		{
+			MeshPrimitive* primitive = mesh->GetPrimitive(i);
+			
+			VkBuffer vertexBuffers[] = {primitive->vertexBuffer->Get()};
+			VkDeviceSize offsets[] = {0};
 
-		// Bind vertex and index buffers of mesh
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, mesh->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
+			// Bind vertex and index buffers of mesh
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+			vkCmdBindIndexBuffer(commandBuffer, primitive->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
 
-		// Bind camera (view & proj matrices) and mesh (model matrix) descriptor sets
-		std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], meshInstance->GetDescriptorSets()[currentFrame]};
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
+			// Bind camera (view & proj matrices) and mesh (model matrix) descriptor sets
+			std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], meshInstance->GetUniformDescriptorSets()[currentFrame]};
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
-		// Draw the mesh
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh->GetIndicesSize()), 1, 0, 0, 0);
+			// Draw the mesh
+			vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(primitive->GetIndicesSize()), 1, 0, 0, 0);
+		}
 	}
 }

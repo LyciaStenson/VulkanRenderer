@@ -15,8 +15,11 @@
 #include <VulkanPipeline.h>
 #include <VulkanDescriptorPool.h>
 #include <VulkanSync.h>
-#include <MeshManager.h>
+#include <ModelManager.h>
 #include <MeshInstance.h>
+#include <MeshPrimitive.h>
+#include <Mesh.h>
+#include <Camera.h>
 #include <Scene.h>
 #include <Vertex.h>
 #include <Transform.h>
@@ -43,7 +46,7 @@ Engine::Engine()
 
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
-	meshManager = std::make_unique<MeshManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout());
+	modelManager = std::make_unique<ModelManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout());
 
 	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
 	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
@@ -53,11 +56,17 @@ Engine::Engine()
 	GLFWwindow* window = glfwWindow->Get();
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
-	scene = std::make_unique<Scene>(device.get(), meshManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
+	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
 
 	Transform cameraTransform;
 	cameraTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	mainCamera = scene->CreateCamera("Camera", cameraTransform);
+
+	modelManager->LoadModel("WitchTreeHouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
+
+	Transform treehouseTransform;
+	treehouseTransform.position = glm::vec3(0.0f, 0.0f, -10.0f);
+	scene->InstantiateModel("WitchTreeHouse", treehouseTransform);
 }
 
 Engine::~Engine()
@@ -104,10 +113,13 @@ void Engine::DrawFrame()
 	{
 		if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
 		{
-			if (meshInstance->GetMesh()->GetTransparencyEnabled())
-				transparentMeshInstances.push_back(meshInstance);
-			else
-				opaqueMeshInstances.push_back(meshInstance);
+			for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
+			{
+				if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
+					transparentMeshInstances.push_back(meshInstance);
+				else
+					opaqueMeshInstances.push_back(meshInstance);
+			}
 		}
 	}
 	

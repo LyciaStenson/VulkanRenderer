@@ -15,6 +15,9 @@ namespace VulkanRenderer
 		//glm::vec3 normal;
 		//glm::vec3 tangent;
 		glm::vec2 texCoord;
+		//glm::vec2 baseColorTexCoord;
+		//glm::vec2 metallicRoughnessTexCoord;
+		//glm::vec2 normalTexCoord;
 
 		static VkVertexInputBindingDescription GetBindingDescription();
 

@@ -14,7 +14,7 @@ MeshInstance::MeshInstance(const std::string& name, const Transform& transform, 
 	: SceneObject(name, transform), device(device), mesh(mesh)
 {
 	CreateUniformBuffers();
-	CreateDescriptorSets(descriptorPool);
+	CreateUniformDescriptorSets(descriptorPool);
 }
 
 MeshInstance::~MeshInstance()
@@ -27,16 +27,16 @@ std::shared_ptr<const Mesh> MeshInstance::GetMesh() const
 	return mesh;
 }
 
-const std::vector<VkDescriptorSet>& MeshInstance::GetDescriptorSets() const
+const std::vector<VkDescriptorSet>& MeshInstance::GetUniformDescriptorSets() const
 {
-	return descriptorSets;
+	return uniformDescriptorSets;
 }
 
-void MeshInstance::CreateDescriptorSets(VkDescriptorPool descriptorPool)
+void MeshInstance::CreateUniformDescriptorSets(VkDescriptorPool descriptorPool)
 {
 	VkDevice logicalDevice = device->GetLogical();
 
-	std::vector<VkDescriptorSetLayout> layouts(VulkanConfig::MAX_FRAMES_IN_FLIGHT, mesh->GetDescriptorSetLayout());
+	std::vector<VkDescriptorSetLayout> layouts(VulkanConfig::MAX_FRAMES_IN_FLIGHT, mesh->GetUniformDescriptorSetLayout());
 
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -45,8 +45,8 @@ void MeshInstance::CreateDescriptorSets(VkDescriptorPool descriptorPool)
 	allocInfo.pSetLayouts = layouts.data();
 
 	// Allocate a descriptor set for each frame in flight
-	descriptorSets.resize(VulkanConfig::MAX_FRAMES_IN_FLIGHT);
-	if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+	uniformDescriptorSets.resize(VulkanConfig::MAX_FRAMES_IN_FLIGHT);
+	if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, uniformDescriptorSets.data()) != VK_SUCCESS)
 	{
 		std::cerr << "Failed to allocate mesh descriptor sets" << std::endl;
 		return;
@@ -60,40 +60,40 @@ void MeshInstance::CreateDescriptorSets(VkDescriptorPool descriptorPool)
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(MeshUBO);
 
-		std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = uniformDescriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
 
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &mesh->GetBaseColorDescriptorInfo();
+		//descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//descriptorWrites[1].dstSet = uniformDescriptorSets[i];
+		//descriptorWrites[1].dstBinding = 1;
+		//descriptorWrites[1].dstArrayElement = 0;
+		//descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//descriptorWrites[1].descriptorCount = 1;
+		//descriptorWrites[1].pImageInfo = &mesh->GetBaseColorDescriptorInfo();
 
-		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[2].dstSet = descriptorSets[i];
-		descriptorWrites[2].dstBinding = 2;
-		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &mesh->GetRoughnessDescriptorInfo();
+		//descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//descriptorWrites[2].dstSet = uniformDescriptorSets[i];
+		//descriptorWrites[2].dstBinding = 2;
+		//descriptorWrites[2].dstArrayElement = 0;
+		//descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//descriptorWrites[2].descriptorCount = 1;
+		//descriptorWrites[2].pImageInfo = &mesh->GetRoughnessDescriptorInfo();
 
-		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[3].dstSet = descriptorSets[i];
-		descriptorWrites[3].dstBinding = 3;
-		descriptorWrites[3].dstArrayElement = 0;
-		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[3].descriptorCount = 1;
-		descriptorWrites[3].pImageInfo = &mesh->GetMetallicDescriptorInfo();
+		//descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//descriptorWrites[3].dstSet = uniformDescriptorSets[i];
+		//descriptorWrites[3].dstBinding = 3;
+		//descriptorWrites[3].dstArrayElement = 0;
+		//descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//descriptorWrites[3].descriptorCount = 1;
+		//descriptorWrites[3].pImageInfo = &mesh->GetMetallicDescriptorInfo();
 
-		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
 	}
 }
 

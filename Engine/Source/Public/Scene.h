@@ -8,12 +8,17 @@
 
 #include <volk.h>
 
+#include <fastgltf/core.hpp>
+#include <fastgltf/types.hpp>
+#include <fastgltf/tools.hpp>
+
 namespace VulkanRenderer
 {
 	class VulkanDevice;
 	class SceneObject;
 	class MeshInstance;
-	class MeshManager;
+	class ModelManager;
+	class Mesh;
 	class Camera;
 	class Transform;
 	struct Model;
@@ -21,7 +26,7 @@ namespace VulkanRenderer
 	class Scene
 	{
 	public:
-		Scene(VulkanDevice* device, MeshManager* meshManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
+		Scene(VulkanDevice* device, ModelManager* modelManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
 		~Scene();
 
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
@@ -29,7 +34,6 @@ namespace VulkanRenderer
 		
 		SceneObject* CreateSceneObject(const std::string& name, const Transform& transform);
 		Camera* CreateCamera(const std::string& name, const Transform& transform);
-		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform);
 
 		void InstantiateModel(const std::string& name, const Transform& transform);
 		
@@ -42,11 +46,13 @@ namespace VulkanRenderer
 
 		VkDescriptorPool descriptorPool;
 
-		MeshManager* meshManager;
+		ModelManager* modelManager;
 
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
 
-		void InstantiateModelNode(const std::shared_ptr<Model>& model);
+		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node);
+		
+		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform, std::shared_ptr<Mesh> mesh);
 	};
 }

@@ -13,6 +13,7 @@ namespace VulkanRenderer
 	{
 	public:
 		Transform();
+		Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 		~Transform();
 		
 		void SetParent(Transform* transform);

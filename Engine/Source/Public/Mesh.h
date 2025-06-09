@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,53 +14,27 @@ namespace VulkanRenderer
 {
 	class VulkanDevice;
 	class VulkanTexture;
-
-	struct MeshInfo
-	{
-		std::vector<Vertex> vertices;
-		std::vector<uint16_t> indices;
-		//std::string baseColorPath;
-		//std::string roughnessPath;
-		//std::string metallicPath;
-		bool enableTransparency = false;
-	};
+	class MeshPrimitive;
+	struct MeshPrimitiveInfo;
 	
 	class Mesh
 	{
 	public:
-		Mesh(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const std::string& name, const MeshInfo& info);
+		Mesh(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout);
 		~Mesh();
+
+		size_t GetPrimitiveCount() const;
+		MeshPrimitive* GetPrimitive(size_t index) const;
 		
-		const size_t GetIndicesSize() const;
-		const std::string& GetName() const;
-
-		VkDescriptorImageInfo GetBaseColorDescriptorInfo() const;
-		VkDescriptorImageInfo GetRoughnessDescriptorInfo() const;
-		VkDescriptorImageInfo GetMetallicDescriptorInfo() const;
-
-		VkDescriptorSetLayout GetDescriptorSetLayout() const;
+		VkDescriptorSetLayout GetUniformDescriptorSetLayout() const;
 		
-		bool GetTransparencyEnabled() const;
-
-		VulkanBuffer* vertexBuffer;
-		VulkanBuffer* indexBuffer;
+		void AddPrimitive(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshPrimitiveInfo& info);
 
 	private:
 		VulkanDevice* device;
 		
-		VulkanTexture* baseColorTexture;
-		VulkanTexture* roughnessTexture;
-		VulkanTexture* metallicTexture;
-		
-		VkDescriptorSetLayout descriptorSetLayout;
+		std::vector<std::unique_ptr<MeshPrimitive>> primitives;
 
-		bool transparencyEnabled = false;
-
-		size_t indicesSize;
-
-		std::string name;
-
-		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
-		void CreateIndexBuffer(const std::vector<uint16_t>& indices);
+		VkDescriptorSetLayout uniformDescriptorSetLayout;
 	};
 }

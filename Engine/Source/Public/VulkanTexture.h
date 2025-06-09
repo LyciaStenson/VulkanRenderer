@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <volk.h>
 
@@ -17,7 +18,13 @@ namespace VulkanRenderer
 		MetallicRoughness,
 		Occlusion
 	};
-
+	
+	struct ImageData
+	{
+		std::vector<uint8_t> pixels;
+		int width = 0, height = 0, channels = 0;
+	};
+	
 	class VulkanTexture
 	{
 	public:

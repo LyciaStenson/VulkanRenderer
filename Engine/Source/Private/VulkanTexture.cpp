@@ -21,6 +21,7 @@ VulkanTexture::VulkanTexture(VulkanDevice* device, const unsigned char* pixels, 
 	: device(device)
 {
 	CreateTextureImage(pixels, width, height, sRGB);
+	CreateTextureSampler();
 }
 
 VulkanTexture::~VulkanTexture()

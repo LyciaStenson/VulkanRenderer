@@ -22,20 +22,20 @@ namespace VulkanRenderer
 		~MeshInstance();
 
 		std::shared_ptr<const Mesh> GetMesh() const;
-		const std::vector<VkDescriptorSet>& GetDescriptorSets() const;
+		const std::vector<VkDescriptorSet>& GetUniformDescriptorSets() const;
 		
 		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
 
 	private:
 		VulkanDevice* device;
 
-		std::vector<VkDescriptorSet> descriptorSets;
+		std::vector<VkDescriptorSet> uniformDescriptorSets;
 
 		std::vector<VulkanUniformBuffer> uniformBuffers;
 		
 		std::shared_ptr<Mesh> mesh;
 
 		void CreateUniformBuffers();
-		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
+		void CreateUniformDescriptorSets(VkDescriptorPool descriptorPool);
 	};
 }

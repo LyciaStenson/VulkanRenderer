@@ -11,8 +11,9 @@ namespace VulkanRenderer
 	struct Model
 	{
 		std::string name;
-		std::unordered_map<size_t, std::string> meshIndexToName;
 		fastgltf::Asset gltfAsset;
-		size_t sceneIndex;
+		
+		std::unordered_map<size_t, std::shared_ptr<VulkanTexture>> textures;
+		std::vector<std::shared_ptr<Mesh>> meshes;
 	};
 }

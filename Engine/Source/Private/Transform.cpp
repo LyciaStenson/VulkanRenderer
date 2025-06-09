@@ -3,7 +3,13 @@
 using namespace VulkanRenderer;
 
 Transform::Transform()
-	: parent(nullptr), position(0.0f), rotation(), scale(1.0f)
+	: position(0.0f), rotation(), scale(1.0f)
+{
+
+}
+
+Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
+	: position(position), rotation(rotation), scale(scale)
 {
 
 }
