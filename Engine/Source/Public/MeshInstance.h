@@ -18,7 +18,7 @@ namespace VulkanRenderer
 	class MeshInstance : public SceneObject
 	{
 	public:
-		MeshInstance(const std::string& name, const Transform& transform, std::shared_ptr<Mesh> mesh, VulkanDevice* device, VkDescriptorPool descriptorPool);
+		MeshInstance(const std::string& name, std::shared_ptr<Mesh> mesh, VulkanDevice* device, VkDescriptorPool descriptorPool);
 		~MeshInstance();
 
 		std::shared_ptr<const Mesh> GetMesh() const;

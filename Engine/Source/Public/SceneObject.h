@@ -10,7 +10,7 @@ namespace VulkanRenderer
 	class SceneObject
 	{
 	public:
-		SceneObject(const std::string& name, const Transform& transform);
+		SceneObject(const std::string& name);
 		virtual ~SceneObject() = default;
 
 		const std::string& GetName() const;

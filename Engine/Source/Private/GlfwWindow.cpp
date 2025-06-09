@@ -10,7 +10,7 @@ GlfwWindow::GlfwWindow(Engine* engine)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	window = glfwCreateWindow(1280, 720, "Vulkan Test", nullptr, nullptr);
+	window = glfwCreateWindow(1280, 720, "Vulkan Renderer", nullptr, nullptr);
 	glfwSetWindowUserPointer(window, engine);
 	glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 }

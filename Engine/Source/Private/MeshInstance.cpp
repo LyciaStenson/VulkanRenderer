@@ -10,8 +10,8 @@
 
 using namespace VulkanRenderer;
 
-MeshInstance::MeshInstance(const std::string& name, const Transform& transform, std::shared_ptr<Mesh> mesh, VulkanDevice* device, VkDescriptorPool descriptorPool)
-	: SceneObject(name, transform), device(device), mesh(mesh)
+MeshInstance::MeshInstance(const std::string& name, std::shared_ptr<Mesh> mesh, VulkanDevice* device, VkDescriptorPool descriptorPool)
+	: SceneObject(name), device(device), mesh(mesh)
 {
 	CreateUniformBuffers();
 	CreateUniformDescriptorSets(descriptorPool);

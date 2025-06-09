@@ -18,7 +18,7 @@ namespace VulkanRenderer
 	class Camera : public SceneObject
 	{
 	public:
-		Camera(const std::string& name, const Transform& transform, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
+		Camera(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
 		~Camera();
 
 		void CreateDescriptorSets(VkDescriptorPool descriptorPool);

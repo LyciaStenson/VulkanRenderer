@@ -57,10 +57,8 @@ Engine::Engine()
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
-
-	Transform cameraTransform;
-	cameraTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
-	mainCamera = scene->CreateCamera("Camera", cameraTransform);
+	
+	mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
 
 	modelManager->LoadModel("WitchTreeHouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
 

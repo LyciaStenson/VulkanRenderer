@@ -9,8 +9,8 @@
 
 using namespace VulkanRenderer;
 
-Camera::Camera(const std::string& name, const Transform& transform, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout)
-	: SceneObject(name, transform), device(device), descriptorSetLayout(descriptorSetLayout)
+Camera::Camera(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout)
+	: SceneObject(name), device(device), descriptorSetLayout(descriptorSetLayout)
 {
 	CreateUniformBuffers();
 }

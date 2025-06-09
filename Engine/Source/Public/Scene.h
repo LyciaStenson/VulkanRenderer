@@ -8,6 +8,9 @@
 
 #include <volk.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
 #include <fastgltf/tools.hpp>
@@ -32,8 +35,8 @@ namespace VulkanRenderer
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
 		std::vector<std::unique_ptr<SceneObject>>& GetObjectsMutable();
 		
-		SceneObject* CreateSceneObject(const std::string& name, const Transform& transform);
-		Camera* CreateCamera(const std::string& name, const Transform& transform);
+		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
+		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
 
 		void InstantiateModel(const std::string& name, const Transform& transform);
 		
@@ -51,8 +54,8 @@ namespace VulkanRenderer
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
 
-		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node);
+		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent);
 		
-		MeshInstance* CreateMeshInstance(const std::string& name, const Transform& transform, std::shared_ptr<Mesh> mesh);
+		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent, std::shared_ptr<Mesh> mesh);
 	};
 }

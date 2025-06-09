@@ -33,7 +33,7 @@ std::vector<std::unique_ptr<SceneObject>>& Scene::GetObjectsMutable()
 	return objects;
 }
 
-SceneObject* Scene::CreateSceneObject(const std::string& name, const Transform& transform)
+SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
 {
 	std::string instanceName = name;
 	int counter = 1;
@@ -44,14 +44,19 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const Transform& 
 	}
 	objectNames.insert(instanceName);
 
-	std::unique_ptr<SceneObject> object = std::make_unique<SceneObject>(instanceName, transform);
+	std::unique_ptr<SceneObject> object = std::make_unique<SceneObject>(instanceName);
+	object->transform.position = position;
+	object->transform.rotation = rotation;
+	object->transform.scale = scale;
+	object->transform.SetParent(parent);
+
 	SceneObject* objectPtr = object.get();
 	objects.push_back(std::move(object));
 
 	return objectPtr;
 }
 
-Camera* Scene::CreateCamera(const std::string& name, const Transform& transform)
+Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
 {
 	std::string cameraName = name;
 	int counter = 1;
@@ -62,7 +67,12 @@ Camera* Scene::CreateCamera(const std::string& name, const Transform& transform)
 	}
 	objectNames.insert(cameraName);
 
-	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, transform, device, cameraDescriptorSetLayout);
+	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, device, cameraDescriptorSetLayout);
+	camera->transform.position = position;
+	camera->transform.rotation = rotation;
+	camera->transform.scale = scale;
+	camera->transform.SetParent(parent);
+
 	Camera* cameraPtr = camera.get();
 	objects.push_back(std::move(camera));
 	
@@ -71,7 +81,7 @@ Camera* Scene::CreateCamera(const std::string& name, const Transform& transform)
 	return cameraPtr;
 }
 
-MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform& transform, std::shared_ptr<Mesh> mesh)
+MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent, std::shared_ptr<Mesh> mesh)
 {
 	std::string instanceName = name;
 	int counter = 1;
@@ -82,52 +92,55 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const Transform
 	}
 	objectNames.insert(instanceName);
 	
-	std::unique_ptr<MeshInstance> meshInstance = std::make_unique<MeshInstance>(instanceName, transform, mesh, device, descriptorPool);
+	std::unique_ptr<MeshInstance> meshInstance = std::make_unique<MeshInstance>(instanceName, mesh, device, descriptorPool);
+	meshInstance->transform.position = position;
+	meshInstance->transform.rotation = rotation;
+	meshInstance->transform.scale = scale;
+	meshInstance->transform.SetParent(parent);
+
 	MeshInstance* meshInstancePtr = meshInstance.get();
 	objects.push_back(std::move(meshInstance));
 
 	return meshInstancePtr;
 }
 
-void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node)
+void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent)
 {
-	fastgltf::math::fvec3 translation(0.0f, 0.0f, 0.0f);
-	fastgltf::math::fquat rotation;
-	fastgltf::math::fvec3 scale(1.0f, 1.0f, 1.0f);
+	fastgltf::math::fvec3 gltfTranslation(0.0f, 0.0f, 0.0f);
+	fastgltf::math::fquat gltfRotation;
+	fastgltf::math::fvec3 gltfScale(1.0f, 1.0f, 1.0f);
 
 	if (auto* transform = std::get_if<fastgltf::math::fmat4x4>(&node.transform))
 	{
-		fastgltf::math::decomposeTransformMatrix(*transform, scale, rotation, translation);
+		fastgltf::math::decomposeTransformMatrix(*transform, gltfScale, gltfRotation, gltfTranslation);
 	}
 	else if (auto* trs = std::get_if<fastgltf::TRS>(&node.transform))
 	{
-		translation = trs->translation;
-		rotation = trs->rotation;
-		scale = trs->scale;
+		gltfTranslation = trs->translation;
+		gltfRotation = trs->rotation;
+		gltfScale = trs->scale;
 	}
-
-	Transform transform
-	{
-		glm::vec3(translation.x(), translation.y(), translation.z()),
-		glm::quat(rotation.w(), rotation.x(), rotation.y(), rotation.z()),
-		glm::vec3(scale.x(), scale.y(), scale.z())
-	};
-
+	
+	glm::vec3 position = glm::vec3(gltfTranslation.x(), gltfTranslation.y(), gltfTranslation.z());
+	glm::quat rotation = glm::quat(gltfRotation.w(), gltfRotation.x(), gltfRotation.y(), gltfRotation.z());
+	glm::vec3 scale = glm::vec3(gltfScale.x(), gltfScale.y(), gltfScale.z());
+	
 	SceneObject* object = nullptr;
 
 	if (node.meshIndex.has_value())
 	{
-		object = CreateMeshInstance(node.name.c_str(), transform, model->meshes[node.meshIndex.value()]);
+		object = CreateSceneObject(node.name.c_str(), position, rotation, scale, parent);
+		//object = CreateMeshInstance(node.name.c_str(), transform, model->meshes[node.meshIndex.value()]);
 	}
 	else
 	{
-		object = CreateSceneObject(node.name.c_str(), transform);
+		object = CreateSceneObject(node.name.c_str(), position, rotation, scale, parent);
 	}
 
 	for (const auto& childNodeIndex : node.children)
 	{
 		const auto& childNode = model->gltfAsset.nodes[childNodeIndex];
-		InstantiateModelNode(model, childNode);
+		InstantiateModelNode(model, childNode, &object->transform);
 	}
 }
 
@@ -145,7 +158,7 @@ void Scene::InstantiateModel(const std::string& name, const Transform& transform
 
 	for (size_t rootNodeIndex : gltfScene.nodeIndices)
 	{
-		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex]);
+		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], nullptr);
 	}
 }
 

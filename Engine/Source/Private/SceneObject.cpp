@@ -2,8 +2,8 @@
 
 using namespace VulkanRenderer;
 
-SceneObject::SceneObject(const std::string& name, const Transform& transform)
-	: name(name), transform(transform)
+SceneObject::SceneObject(const std::string& name)
+	: name(name)
 {
 	this->transform.owner = this;
 }
