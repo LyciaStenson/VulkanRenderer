@@ -145,21 +145,23 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 	}
 }
 
-void Scene::InstantiateModel(const std::string& name, const Transform& transform)
+SceneObject* Scene::InstantiateModel(const std::string& name, const Transform& transform)
 {
 	const auto& model = modelManager->GetModel(name);
 
 	if (!model)
 	{
 		std::cout << "Model " << name << " not found. Make sure model is loaded first." << std::endl;
-		return;
+		return nullptr;
 	}
 
 	const fastgltf::Scene& gltfScene = model->gltfAsset.scenes[0];
 
+	SceneObject* root = CreateSceneObject(name, transform.position, transform.rotation, transform.scale, nullptr);
+
 	for (size_t rootNodeIndex : gltfScene.nodeIndices)
 	{
-		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], nullptr);
+		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], &root->transform);
 	}
 }
 

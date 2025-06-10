@@ -63,7 +63,8 @@ Engine::Engine()
 	modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
 
 	Transform treehouseTransform;
-	treehouseTransform.position = glm::vec3(0.0f, 0.0f, -10.0f);
+	treehouseTransform.position = glm::vec3(0.0f, -18.5f, -45.0f);
+	treehouseTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
 	scene->InstantiateModel("WitchTreehouse", treehouseTransform);
 }
 

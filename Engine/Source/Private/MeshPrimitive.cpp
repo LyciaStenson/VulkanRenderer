@@ -7,13 +7,15 @@
 #include <VulkanDevice.h>
 #include <VulkanTexture.h>
 #include <VulkanBuffer.h>
+#include <VulkanUniformBuffer.h>
 #include <MaterialFactorsUBO.h>
 #include <Vertex.h>
 
 using namespace VulkanRenderer;
 
 MeshPrimitive::MeshPrimitive(VulkanDevice* device, VkDescriptorSetLayout materialDescriptorSetLayout, VkDescriptorPool descriptorPool, const MeshPrimitiveInfo& info)
-	: device(device),
+	:
+	device(device),
 	materialDescriptorSetLayout(materialDescriptorSetLayout),
 	baseColorFactor(info.baseColorFactor),
 	metallicFactor(info.metallicFactor),

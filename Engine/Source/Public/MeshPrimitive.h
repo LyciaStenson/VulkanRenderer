@@ -3,8 +3,6 @@
 #include <vector>
 #include <memory>
 
-#include <VulkanUniformBuffer.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -15,6 +13,7 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanTexture;
 	class VulkanBuffer;
+	class VulkanUniformBuffer;
 	struct Vertex;
 
 	struct MeshPrimitiveInfo

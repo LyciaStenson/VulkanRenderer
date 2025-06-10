@@ -38,7 +38,7 @@ namespace VulkanRenderer
 		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
 		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
 
-		void InstantiateModel(const std::string& name, const Transform& transform);
+		SceneObject* InstantiateModel(const std::string& name, const Transform& transform);
 		
 		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
