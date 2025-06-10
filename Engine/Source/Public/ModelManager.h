@@ -9,6 +9,9 @@
 
 #include <volk.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
 #include <fastgltf/tools.hpp>
@@ -26,7 +29,7 @@ namespace VulkanRenderer
 	class ModelManager
 	{
 	public:
-		ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout);
+		ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout, VkDescriptorSetLayout materialDescriptorSetLayout, VkDescriptorPool descriptorPool);
 		~ModelManager();
 		
 		std::shared_ptr<Model> GetModel(const std::string& name);
@@ -39,9 +42,16 @@ namespace VulkanRenderer
 		VulkanDevice* device;
 		
 		VkDescriptorSetLayout uniformDescriptorSetLayout;
+		VkDescriptorSetLayout materialDescriptorSetLayout;
+
+		VkDescriptorPool descriptorPool;
 		
 		std::unordered_map<std::string, std::shared_ptr<Model>> models;
 
+		std::shared_ptr<VulkanTexture> fallbackTexture;
+		
+		std::shared_ptr<VulkanTexture> CreateFallbackTexture(glm::vec4 color);
+		
 		bool DecodeImage(const fastgltf::Asset& asset, const fastgltf::Image& image, std::vector<uint8_t>& outPixels, int& outWidth, int& outHeight, int& outChannels);
 	};
 }

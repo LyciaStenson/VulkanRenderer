@@ -28,7 +28,7 @@ namespace VulkanRenderer
 		
 		VkDescriptorSetLayout GetUniformDescriptorSetLayout() const;
 		
-		void AddPrimitive(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshPrimitiveInfo& info);
+		void AddPrimitive(std::unique_ptr<MeshPrimitive> meshPrimitive);
 
 	private:
 		VulkanDevice* device;

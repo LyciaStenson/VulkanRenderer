@@ -46,7 +46,7 @@ Engine::Engine()
 
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
 
-	modelManager = std::make_unique<ModelManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout());
+	modelManager = std::make_unique<ModelManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorSetLayoutManager->GetMaterialDescriptorSetLayout(), descriptorPool->Get());
 
 	opaquePipeline->SetDescriptorPool(descriptorPool->Get());
 	transparentPipeline->SetDescriptorPool(descriptorPool->Get());

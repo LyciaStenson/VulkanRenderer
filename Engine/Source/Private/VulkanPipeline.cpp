@@ -211,7 +211,7 @@ void VulkanPipeline::Render(VkCommandBuffer commandBuffer, uint32_t currentFrame
 			vkCmdBindIndexBuffer(commandBuffer, primitive->indexBuffer->Get(), 0, VK_INDEX_TYPE_UINT16);
 
 			// Bind camera (view & proj matrices) and mesh (model matrix) descriptor sets
-			std::array<VkDescriptorSet, 2> descriptorSets = {camera->descriptorSets[currentFrame], meshInstance->GetUniformDescriptorSets()[currentFrame]};
+			std::array<VkDescriptorSet, 3> descriptorSets = {camera->descriptorSets[currentFrame], meshInstance->GetUniformDescriptorSets()[currentFrame], primitive->GetMaterialDescriptorSets()[currentFrame]};
 			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
 
 			// Draw the mesh

@@ -67,7 +67,7 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	}
 	objectNames.insert(cameraName);
 
-	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, device, cameraDescriptorSetLayout);
+	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, device, cameraDescriptorSetLayout, descriptorPool);
 	camera->transform.position = position;
 	camera->transform.rotation = rotation;
 	camera->transform.scale = scale;
@@ -76,8 +76,6 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	Camera* cameraPtr = camera.get();
 	objects.push_back(std::move(camera));
 	
-	cameraPtr->CreateDescriptorSets(descriptorPool);
-
 	return cameraPtr;
 }
 
@@ -100,7 +98,7 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3
 
 	MeshInstance* meshInstancePtr = meshInstance.get();
 	objects.push_back(std::move(meshInstance));
-
+	
 	return meshInstancePtr;
 }
 

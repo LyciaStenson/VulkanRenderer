@@ -15,10 +15,10 @@
 
 using namespace VulkanRenderer;
 
-ModelManager::ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout)
-	: device(device), uniformDescriptorSetLayout(uniformDescriptorSetLayout)
+ModelManager::ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout, VkDescriptorSetLayout materialDescriptorSetLayout, VkDescriptorPool descriptorPool)
+	: device(device), uniformDescriptorSetLayout(uniformDescriptorSetLayout), materialDescriptorSetLayout(materialDescriptorSetLayout), descriptorPool(descriptorPool)
 {
-
+	fallbackTexture = CreateFallbackTexture(glm::vec4(1.0f));
 }
 
 ModelManager::~ModelManager()
@@ -54,14 +54,21 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 		std::cout << "fastgltf get data error: " << fastgltf::getErrorMessage(asset.error()) << std::endl;
 		return false;
 	}
-	auto& gltfAsset = asset.get();
-
+	
 	std::shared_ptr<Model> model = std::make_shared<Model>();
+	model->name = name;
+	model->gltfAsset = std::move(asset.get());
+
+	auto& gltfAsset = model->gltfAsset;
+
+	LoadTextures(model);
 	
 	for (size_t meshIndex = 0; meshIndex < gltfAsset.meshes.size(); ++meshIndex)
 	{
 		const fastgltf::Mesh& gltfMesh = gltfAsset.meshes[meshIndex];
 		
+		auto mesh = std::make_shared<Mesh>(device, uniformDescriptorSetLayout);
+
 		for (size_t primitiveIndex = 0; primitiveIndex < gltfMesh.primitives.size(); ++primitiveIndex)
 		{
 			const fastgltf::Primitive& primitive = gltfMesh.primitives[primitiveIndex];
@@ -70,16 +77,16 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 			auto normalIt = primitive.findAttribute("NORMAL");
 			auto tangentIt = primitive.findAttribute("TANGENT");
 			
-			MeshPrimitiveInfo info{};
+			MeshPrimitiveInfo primitiveInfo{};
 			
 			if (positionIt != primitive.attributes.end())
 			{
 				const auto& positionAccessor = gltfAsset.accessors[positionIt->accessorIndex];
-				info.vertices.resize(positionAccessor.count);
+				primitiveInfo.vertices.resize(positionAccessor.count);
 
 				fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec3>(gltfAsset, positionAccessor, [&](fastgltf::math::fvec3 position, std::size_t verticeIndex)
 					{
-						info.vertices[verticeIndex].position = glm::vec3(position.x(), position.y(), position.z());
+						primitiveInfo.vertices[verticeIndex].position = glm::vec3(position.x(), position.y(), position.z());
 					});
 			}
 
@@ -88,7 +95,7 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				auto& normalAccessor = gltfAsset.accessors[normalIt->accessorIndex];
 				fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec3>(gltfAsset, normalAccessor, [&](fastgltf::math::fvec3 normal, std::size_t verticeIndex)
 					{
-						//info.vertices[verticeIndex].normal = glm::vec3(normal.x(), normal.y(), normal.z());
+						//primitiveInfo.vertices[verticeIndex].normal = glm::vec3(normal.x(), normal.y(), normal.z());
 					});
 			}
 
@@ -97,7 +104,7 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				auto& tangentAccessor = gltfAsset.accessors[tangentIt->accessorIndex];
 				fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec4>(gltfAsset, tangentAccessor, [&](fastgltf::math::fvec4 tangent, std::size_t verticeIndex)
 					{
-						//info.vertices[verticeIndex].tangent = glm::vec4(tangent.x(), tangent.y(), tangent.z(), tangent.w());
+						//primitiveInfo.vertices[verticeIndex].tangent = glm::vec4(tangent.x(), tangent.y(), tangent.z(), tangent.w());
 					});
 			}
 
@@ -106,20 +113,20 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				const auto& indexAccessor = gltfAsset.accessors[primitive.indicesAccessor.value()];
 				fastgltf::iterateAccessorWithIndex<std::uint16_t>(gltfAsset, indexAccessor, [&](std::uint16_t index, std::size_t verticeIndex)
 					{
-						info.indices.push_back(index);
+						primitiveInfo.indices.push_back(index);
 					});
 			}
 
 			std::size_t baseColorTexcoordIndex = 0;
-			std::size_t metallicRoughnessTexcoordIndex = 0;
-			std::size_t normalTexcoordIndex = 0;
+			//std::size_t metallicRoughnessTexcoordIndex = 0;
+			//std::size_t normalTexcoordIndex = 0;
 			if (primitive.materialIndex.has_value())
 			{
 				auto& material = gltfAsset.materials[primitive.materialIndex.value()];
 
 				//meshPrimitive.material.doubleSided = material.doubleSided;
 
-				auto& baseColorFactor = material.pbrData.baseColorFactor;
+				//auto& baseColorFactor = material.pbrData.baseColorFactor;
 				//meshPrimitive.material.baseColorFactor = glm::vec4(baseColorFactor.x(), baseColorFactor.y(), baseColorFactor.z(), baseColorFactor.w());
 				//meshPrimitive.material.hasBaseColorTexture = false;
 				auto& baseColorTexture = material.pbrData.baseColorTexture;
@@ -141,47 +148,47 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 					}
 				}
 
-				auto& metallicRoughnessTexture = material.pbrData.metallicRoughnessTexture;
+				//auto& metallicRoughnessTexture = material.pbrData.metallicRoughnessTexture;
 				//meshPrimitive.material.metallicFactor = material.pbrData.metallicFactor;
 				//meshPrimitive.material.roughnessFactor = material.pbrData.roughnessFactor;
 				//meshPrimitive.material.hasMetallicRoughnessTexture = false;
-				if (metallicRoughnessTexture.has_value())
-				{
-					auto& texture = gltfAsset.textures[metallicRoughnessTexture->textureIndex];
-					if (texture.imageIndex.has_value())
-					{
+				//if (metallicRoughnessTexture.has_value())
+				//{
+					//auto& texture = gltfAsset.textures[metallicRoughnessTexture->textureIndex];
+					//if (texture.imageIndex.has_value())
+					//{
 						//meshPrimitive.material.metallicRoughnessTexture = texturesMap[modelName][texture.imageIndex.value()].id;
 						//meshPrimitive.material.hasMetallicRoughnessTexture = true;
-						if (metallicRoughnessTexture->transform && metallicRoughnessTexture->transform->texCoordIndex.has_value())
-						{
-							metallicRoughnessTexcoordIndex = baseColorTexture->transform->texCoordIndex.value();
-						}
-						else
-						{
-							metallicRoughnessTexcoordIndex = material.pbrData.baseColorTexture->texCoordIndex;
-						}
-					}
-				}
+						//if (metallicRoughnessTexture->transform && metallicRoughnessTexture->transform->texCoordIndex.has_value())
+						//{
+							//metallicRoughnessTexcoordIndex = baseColorTexture->transform->texCoordIndex.value();
+						//}
+						//else
+						//{
+							//metallicRoughnessTexcoordIndex = material.pbrData.baseColorTexture->texCoordIndex;
+						//}
+					//}
+				//}
 
-				auto& normalTexture = material.normalTexture;
+				//auto& normalTexture = material.normalTexture;
 				//meshPrimitive.material.hasNormalTexture = false;
-				if (normalTexture.has_value())
-				{
-					auto& texture = gltfAsset.textures[normalTexture->textureIndex];
-					if (texture.imageIndex.has_value())
-					{
+				//if (normalTexture.has_value())
+				//{
+					//auto& texture = gltfAsset.textures[normalTexture->textureIndex];
+					//if (texture.imageIndex.has_value())
+					//{
 						//meshPrimitive.material.normalTexture = texturesMap[modelName][texture.imageIndex.value()].id;
 						//meshPrimitive.material.hasNormalTexture = true;
-						if (normalTexture->transform && normalTexture->transform->texCoordIndex.has_value())
-						{
-							normalTexcoordIndex = normalTexture->transform->texCoordIndex.value();
-						}
-						else
-						{
-							normalTexcoordIndex = material.normalTexture->texCoordIndex;
-						}
-					}
-				}
+						//if (normalTexture->transform && normalTexture->transform->texCoordIndex.has_value())
+						//{
+							//normalTexcoordIndex = normalTexture->transform->texCoordIndex.value();
+						//}
+						//else
+						//{
+							//normalTexcoordIndex = material.normalTexture->texCoordIndex;
+						//}
+					//}
+				//}
 			}
 
 			auto baseColorTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(baseColorTexcoordIndex);
@@ -192,46 +199,61 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				{
 					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
 						{
-							info.vertices[idx].texCoord = glm::vec2(uv.x(), uv.y());
-							//info.vertices[idx].baseColorTexCoord = glm::vec2(uv.x(), uv.y());
+							primitiveInfo.vertices[idx].texCoord = glm::vec2(uv.x(), uv.y());
+							//primitiveInfo.vertices[idx].baseColorTexCoord = glm::vec2(uv.x(), uv.y());
 						});
 				}
 			}
 
-			auto metallicRoughnessTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(metallicRoughnessTexcoordIndex);
-			if (const auto* texcoord = primitive.findAttribute(metallicRoughnessTexcoordAttribute); texcoord != primitive.attributes.end())
-			{
-				auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
-				if (texcoordAccessor.bufferViewIndex.has_value())
-				{
-					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
-						{
-							//info.vertices[idx].metallicRoughnessTexCoord = glm::vec2(uv.x(), uv.y());
-						});
-				}
-			}
+			//auto metallicRoughnessTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(metallicRoughnessTexcoordIndex);
+			//if (const auto* texcoord = primitive.findAttribute(metallicRoughnessTexcoordAttribute); texcoord != primitive.attributes.end())
+			//{
+				//auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
+				//if (texcoordAccessor.bufferViewIndex.has_value())
+				//{
+					//fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
+						//{
+							//primitiveInfo.vertices[idx].metallicRoughnessTexCoord = glm::vec2(uv.x(), uv.y());
+						//});
+				//}
+			//}
 
-			auto normalTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(normalTexcoordIndex);
-			if (const auto* texcoord = primitive.findAttribute(normalTexcoordAttribute); texcoord != primitive.attributes.end())
+			//auto normalTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(normalTexcoordIndex);
+			//if (const auto* texcoord = primitive.findAttribute(normalTexcoordAttribute); texcoord != primitive.attributes.end())
+			//{
+				//auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
+				//if (texcoordAccessor.bufferViewIndex.has_value())
+				//{
+					//fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
+						//{
+							//primitiveInfo.vertices[idx].normalTexCoord = glm::vec2(uv.x(), uv.y());
+						//});
+				//}
+			//}
+			
+			primitiveInfo.baseColorTexture = fallbackTexture;
+
+			if (primitive.materialIndex.has_value())
 			{
-				auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
-				if (texcoordAccessor.bufferViewIndex.has_value())
+				const auto& material = gltfAsset.materials[primitive.materialIndex.value()];
+
+				if (material.pbrData.baseColorTexture.has_value())
 				{
-					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
-						{
-							//info.vertices[idx].normalTexCoord = glm::vec2(uv.x(), uv.y());
-						});
+					const auto& texture = gltfAsset.textures[material.pbrData.baseColorTexture->textureIndex];
+					if (texture.imageIndex.has_value())
+					{
+						auto imageIndex = texture.imageIndex.value();
+						primitiveInfo.baseColorTexture = model->textures[imageIndex];
+					}
 				}
 			}
+			
+			auto meshPrimitive = std::make_unique<MeshPrimitive>(device, materialDescriptorSetLayout, descriptorPool, primitiveInfo);
+			mesh->AddPrimitive(std::move(meshPrimitive));
 		}
 		
-		model->meshes.push_back(std::make_shared<Mesh>(device, uniformDescriptorSetLayout));
+		model->meshes.push_back(mesh);
 	}
-
-	model->name = name;
-	model->gltfAsset = std::move(gltfAsset);
-
-	LoadTextures(model);
 	
 	models[name] = model;
 
@@ -342,4 +364,17 @@ bool ModelManager::DecodeImage(const fastgltf::Asset& asset, const fastgltf::Ima
 		}, image.data);
 	
 	return decoded;
+}
+
+std::shared_ptr<VulkanTexture> ModelManager::CreateFallbackTexture(glm::vec4 color)
+{
+	uint8_t pixel[4] =
+	{
+		static_cast<uint8_t>(color.r * 255),
+		static_cast<uint8_t>(color.g * 255),
+		static_cast<uint8_t>(color.b * 255),
+		static_cast<uint8_t>(color.a * 255)
+	};
+
+	return std::make_shared<VulkanTexture>(device, pixel, 1, 1, VK_FORMAT_R8G8B8A8_UNORM);
 }

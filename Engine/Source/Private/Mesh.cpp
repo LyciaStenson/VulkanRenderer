@@ -3,11 +3,11 @@
 #include <iostream>
 #include <chrono>
 
-#include <stb_image.h>
-
 #include <VulkanDevice.h>
 #include <VulkanTexture.h>
 #include <MeshPrimitive.h>
+
+#include <stb_image.h>
 
 using namespace VulkanRenderer;
 
@@ -39,7 +39,7 @@ VkDescriptorSetLayout Mesh::GetUniformDescriptorSetLayout() const
 	return uniformDescriptorSetLayout;
 }
 
-void Mesh::AddPrimitive(VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, const MeshPrimitiveInfo& info)
+void Mesh::AddPrimitive(std::unique_ptr<MeshPrimitive> meshPrimitive)
 {
-	primitives.push_back(std::make_unique<MeshPrimitive>(device, descriptorSetLayout, info));
+	primitives.push_back(std::move(meshPrimitive));
 }

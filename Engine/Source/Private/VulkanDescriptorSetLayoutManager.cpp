@@ -86,21 +86,21 @@ void VulkanDescriptorSetLayoutManager::CreateMaterialDescriptorSetLayout()
 	baseColorBinding.pImmutableSamplers = nullptr;
 	baseColorBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	VkDescriptorSetLayoutBinding roughnessBinding{};
-	roughnessBinding.binding = 1;
-	roughnessBinding.descriptorCount = 1;
-	roughnessBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	roughnessBinding.pImmutableSamplers = nullptr;
-	roughnessBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	//VkDescriptorSetLayoutBinding roughnessBinding{};
+	//roughnessBinding.binding = 1;
+	//roughnessBinding.descriptorCount = 1;
+	//roughnessBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//roughnessBinding.pImmutableSamplers = nullptr;
+	//roughnessBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	VkDescriptorSetLayoutBinding metallicBinding{};
-	metallicBinding.binding = 2;
-	metallicBinding.descriptorCount = 1;
-	metallicBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	metallicBinding.pImmutableSamplers = nullptr;
-	metallicBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	//VkDescriptorSetLayoutBinding metallicBinding{};
+	//metallicBinding.binding = 2;
+	//metallicBinding.descriptorCount = 1;
+	//metallicBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//metallicBinding.pImmutableSamplers = nullptr;
+	//metallicBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 3> bindings = {baseColorBinding, roughnessBinding, metallicBinding};
+	std::array<VkDescriptorSetLayoutBinding, 1> bindings = {baseColorBinding};//, roughnessBinding, metallicBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
