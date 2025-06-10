@@ -118,13 +118,13 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 			}
 
 			std::size_t baseColorTexcoordIndex = 0;
-			//std::size_t metallicRoughnessTexcoordIndex = 0;
-			//std::size_t normalTexcoordIndex = 0;
+			std::size_t metallicRoughnessTexcoordIndex = 0;
+			std::size_t normalTexcoordIndex = 0;
 			if (primitive.materialIndex.has_value())
 			{
 				auto& material = gltfAsset.materials[primitive.materialIndex.value()];
 
-				//meshPrimitive.material.doubleSided = material.doubleSided;
+				primitiveInfo.doubleSided = material.doubleSided;
 
 				//auto& baseColorFactor = material.pbrData.baseColorFactor;
 				//meshPrimitive.material.baseColorFactor = glm::vec4(baseColorFactor.x(), baseColorFactor.y(), baseColorFactor.z(), baseColorFactor.w());
@@ -148,47 +148,47 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 					}
 				}
 
-				//auto& metallicRoughnessTexture = material.pbrData.metallicRoughnessTexture;
+				auto& metallicRoughnessTexture = material.pbrData.metallicRoughnessTexture;
 				//meshPrimitive.material.metallicFactor = material.pbrData.metallicFactor;
 				//meshPrimitive.material.roughnessFactor = material.pbrData.roughnessFactor;
 				//meshPrimitive.material.hasMetallicRoughnessTexture = false;
-				//if (metallicRoughnessTexture.has_value())
-				//{
-					//auto& texture = gltfAsset.textures[metallicRoughnessTexture->textureIndex];
-					//if (texture.imageIndex.has_value())
-					//{
+				if (metallicRoughnessTexture.has_value())
+				{
+					auto& texture = gltfAsset.textures[metallicRoughnessTexture->textureIndex];
+					if (texture.imageIndex.has_value())
+					{
 						//meshPrimitive.material.metallicRoughnessTexture = texturesMap[modelName][texture.imageIndex.value()].id;
 						//meshPrimitive.material.hasMetallicRoughnessTexture = true;
-						//if (metallicRoughnessTexture->transform && metallicRoughnessTexture->transform->texCoordIndex.has_value())
-						//{
-							//metallicRoughnessTexcoordIndex = baseColorTexture->transform->texCoordIndex.value();
-						//}
-						//else
-						//{
-							//metallicRoughnessTexcoordIndex = material.pbrData.baseColorTexture->texCoordIndex;
-						//}
-					//}
-				//}
+						if (metallicRoughnessTexture->transform && metallicRoughnessTexture->transform->texCoordIndex.has_value())
+						{
+							metallicRoughnessTexcoordIndex = metallicRoughnessTexture->transform->texCoordIndex.value();
+						}
+						else
+						{
+							metallicRoughnessTexcoordIndex = material.pbrData.baseColorTexture->texCoordIndex;
+						}
+					}
+				}
 
-				//auto& normalTexture = material.normalTexture;
+				auto& normalTexture = material.normalTexture;
 				//meshPrimitive.material.hasNormalTexture = false;
-				//if (normalTexture.has_value())
-				//{
-					//auto& texture = gltfAsset.textures[normalTexture->textureIndex];
-					//if (texture.imageIndex.has_value())
-					//{
+				if (normalTexture.has_value())
+				{
+					auto& texture = gltfAsset.textures[normalTexture->textureIndex];
+					if (texture.imageIndex.has_value())
+					{
 						//meshPrimitive.material.normalTexture = texturesMap[modelName][texture.imageIndex.value()].id;
 						//meshPrimitive.material.hasNormalTexture = true;
-						//if (normalTexture->transform && normalTexture->transform->texCoordIndex.has_value())
-						//{
-							//normalTexcoordIndex = normalTexture->transform->texCoordIndex.value();
-						//}
-						//else
-						//{
-							//normalTexcoordIndex = material.normalTexture->texCoordIndex;
-						//}
-					//}
-				//}
+						if (normalTexture->transform && normalTexture->transform->texCoordIndex.has_value())
+						{
+							normalTexcoordIndex = normalTexture->transform->texCoordIndex.value();
+						}
+						else
+						{
+							normalTexcoordIndex = material.normalTexture->texCoordIndex;
+						}
+					}
+				}
 			}
 
 			auto baseColorTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(baseColorTexcoordIndex);
@@ -199,39 +199,41 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				{
 					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
 						{
-							primitiveInfo.vertices[idx].texCoord = glm::vec2(uv.x(), uv.y());
-							//primitiveInfo.vertices[idx].baseColorTexCoord = glm::vec2(uv.x(), uv.y());
+							//primitiveInfo.vertices[idx].texCoord = glm::vec2(uv.x(), uv.y());
+							primitiveInfo.vertices[idx].baseColorTexCoord = glm::vec2(uv.x(), uv.y());
 						});
 				}
 			}
 
-			//auto metallicRoughnessTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(metallicRoughnessTexcoordIndex);
-			//if (const auto* texcoord = primitive.findAttribute(metallicRoughnessTexcoordAttribute); texcoord != primitive.attributes.end())
-			//{
-				//auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
-				//if (texcoordAccessor.bufferViewIndex.has_value())
-				//{
-					//fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
-						//{
-							//primitiveInfo.vertices[idx].metallicRoughnessTexCoord = glm::vec2(uv.x(), uv.y());
-						//});
-				//}
-			//}
+			auto metallicRoughnessTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(metallicRoughnessTexcoordIndex);
+			if (const auto* texcoord = primitive.findAttribute(metallicRoughnessTexcoordAttribute); texcoord != primitive.attributes.end())
+			{
+				auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
+				if (texcoordAccessor.bufferViewIndex.has_value())
+				{
+					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
+						{
+							primitiveInfo.vertices[idx].metallicRoughnessTexCoord = glm::vec2(uv.x(), uv.y());
+						});
+				}
+			}
 
-			//auto normalTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(normalTexcoordIndex);
-			//if (const auto* texcoord = primitive.findAttribute(normalTexcoordAttribute); texcoord != primitive.attributes.end())
-			//{
-				//auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
-				//if (texcoordAccessor.bufferViewIndex.has_value())
-				//{
-					//fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
-						//{
-							//primitiveInfo.vertices[idx].normalTexCoord = glm::vec2(uv.x(), uv.y());
-						//});
-				//}
-			//}
+			auto normalTexcoordAttribute = std::string("TEXCOORD_") + std::to_string(normalTexcoordIndex);
+			if (const auto* texcoord = primitive.findAttribute(normalTexcoordAttribute); texcoord != primitive.attributes.end())
+			{
+				auto& texcoordAccessor = gltfAsset.accessors[texcoord->accessorIndex];
+				if (texcoordAccessor.bufferViewIndex.has_value())
+				{
+					fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(gltfAsset, texcoordAccessor, [&](fastgltf::math::fvec2 uv, std::size_t idx)
+						{
+							primitiveInfo.vertices[idx].normalTexCoord = glm::vec2(uv.x(), uv.y());
+						});
+				}
+			}
 			
 			primitiveInfo.baseColorTexture = fallbackTexture;
+			primitiveInfo.metallicRoughnessTexture = fallbackTexture;
+			primitiveInfo.normalTexture = fallbackTexture;
 
 			if (primitive.materialIndex.has_value())
 			{
@@ -244,6 +246,24 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 					{
 						auto imageIndex = texture.imageIndex.value();
 						primitiveInfo.baseColorTexture = model->textures[imageIndex];
+					}
+				}
+				if (material.pbrData.metallicRoughnessTexture.has_value())
+				{
+					const auto& texture = gltfAsset.textures[material.pbrData.metallicRoughnessTexture->textureIndex];
+					if (texture.imageIndex.has_value())
+					{
+						auto imageIndex = texture.imageIndex.value();
+						primitiveInfo.metallicRoughnessTexture = model->textures[imageIndex];
+					}
+				}
+				if (material.normalTexture.has_value())
+				{
+					const auto& texture = gltfAsset.textures[material.normalTexture->textureIndex];
+					if (texture.imageIndex.has_value())
+					{
+						auto imageIndex = texture.imageIndex.value();
+						primitiveInfo.normalTexture = model->textures[imageIndex];
 					}
 				}
 			}

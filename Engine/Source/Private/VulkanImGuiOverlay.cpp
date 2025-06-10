@@ -9,6 +9,7 @@
 #include <VulkanRenderPass.h>
 #include <ImGuiDescriptorPool.h>
 #include <MeshInstance.h>
+#include <Camera.h>
 
 namespace VulkanRenderer
 {
@@ -119,17 +120,22 @@ namespace VulkanRenderer
 	{
 		if (selectedObject)
 		{
-			ImGui::DragFloat3("Position", &selectedObject->transform.position[0], 0.01f, 0.0f, 0.0f, "%.2f");
+			ImGui::DragFloat3("Position", &selectedObject->transform.position[0], 0.01f, 0.0f, 0.0f, "%.3f");
 
 			// Translate quaternion rotation to euler angles in degrees for intuitive editing
 			glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(selectedObject->transform.rotation));
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.2f"))
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles), 0.1f, 0.0f, 0.0f, "%.3f"))
 			{
 				// Translate back to radians and quaternion for internal memory
 				glm::vec3 radians = glm::radians(eulerAngles);
 				selectedObject->transform.rotation = glm::quat(radians);
 			}
-			ImGui::DragFloat3("Scale", &selectedObject->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.2f");
+			ImGui::DragFloat3("Scale", &selectedObject->transform.scale[0], 0.01f, 0.0f, 0.0f, "%.3f");
+
+			if (Camera* camera = dynamic_cast<Camera*>(selectedObject))
+			{
+				ImGui::DragFloat("FOV", &camera->fov);
+			}
 		}
 	}
 }

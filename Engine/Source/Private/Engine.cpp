@@ -101,8 +101,6 @@ void Engine::DrawFrame()
 	}
 	
 	scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
-
-	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
 	
 	std::vector<MeshInstance*> opaqueMeshInstances;
 	std::vector<MeshInstance*> transparentMeshInstances;
@@ -129,6 +127,8 @@ void Engine::DrawFrame()
 			return distA > distB;
 		});
 	
+	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
+
 	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, mainCamera);
 	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, mainCamera);
 	

@@ -17,9 +17,10 @@ namespace VulkanRenderer
 		std::vector<Vertex> vertices;
 		std::vector<uint16_t> indices;
 		std::shared_ptr<VulkanTexture> baseColorTexture;
-		//std::shared_ptr<VulkanTexture> roughnessTexture;
-		//std::shared_ptr<VulkanTexture> metallicTexture;
+		std::shared_ptr<VulkanTexture> metallicRoughnessTexture;
+		std::shared_ptr<VulkanTexture> normalTexture;
 		bool enableTransparency = false;
+		bool doubleSided = false;
 	};
 
 	class MeshPrimitive
@@ -31,8 +32,8 @@ namespace VulkanRenderer
 		const size_t GetIndicesSize() const;
 
 		VkDescriptorImageInfo GetBaseColorDescriptorInfo() const;
-		//VkDescriptorImageInfo GetRoughnessDescriptorInfo() const;
-		//VkDescriptorImageInfo GetMetallicDescriptorInfo() const;
+		VkDescriptorImageInfo GetMetallicRoughnessDescriptorInfo() const;
+		VkDescriptorImageInfo GetNormalDescriptorInfo() const;
 
 		const std::vector<VkDescriptorSet>& GetMaterialDescriptorSets() const;
 
@@ -42,8 +43,8 @@ namespace VulkanRenderer
 		VulkanBuffer* indexBuffer;
 
 		std::shared_ptr<VulkanTexture> baseColorTexture;
-		//std::shared_ptr<VulkanTexture> roughnessTexture;
-		//std::shared_ptr<VulkanTexture> metallicTexture;
+		std::shared_ptr<VulkanTexture> metallicRoughnessTexture;
+		std::shared_ptr<VulkanTexture> normalTexture;
 
 	private:
 		VulkanDevice* device;
