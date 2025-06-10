@@ -59,12 +59,12 @@ Engine::Engine()
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
 	
 	mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
-
-	modelManager->LoadModel("WitchTreeHouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
+	
+	modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
 
 	Transform treehouseTransform;
 	treehouseTransform.position = glm::vec3(0.0f, 0.0f, -10.0f);
-	scene->InstantiateModel("WitchTreeHouse", treehouseTransform);
+	scene->InstantiateModel("WitchTreehouse", treehouseTransform);
 }
 
 Engine::~Engine()
