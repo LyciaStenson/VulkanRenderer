@@ -14,13 +14,16 @@ namespace VulkanRenderer
 
 		VkDescriptorSetLayout GetCameraDescriptorSetLayout() const;
 		VkDescriptorSetLayout GetMeshDescriptorSetLayout() const;
+		VkDescriptorSetLayout GetMaterialDescriptorSetLayout() const;
 
 	private:
 		void CreateCameraDescriptorSetLayout();
 		void CreateMeshDescriptorSetLayout();
+		void CreateMaterialDescriptorSetLayout();
 
 		VkDescriptorSetLayout cameraDescriptorSetLayout;
 		VkDescriptorSetLayout meshDescriptorSetLayout;
+		VkDescriptorSetLayout materialDescriptorSetLayout;
 
 		VulkanDevice* device;
 	};

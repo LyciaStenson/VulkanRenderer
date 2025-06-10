@@ -131,7 +131,7 @@ void MeshPrimitive::CreateUniformDescriptorSets(VkDescriptorPool descriptorPool)
 		
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = materialDescriptorSets[i];
-		descriptorWrites[0].dstBinding = 1;
+		descriptorWrites[0].dstBinding = 0;
 		descriptorWrites[0].dstArrayElement = 0;
 		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[0].descriptorCount = 1;
@@ -139,7 +139,7 @@ void MeshPrimitive::CreateUniformDescriptorSets(VkDescriptorPool descriptorPool)
 
 		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[1].dstSet = materialDescriptorSets[i];
-		descriptorWrites[1].dstBinding = 2;
+		descriptorWrites[1].dstBinding = 1;
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
@@ -147,7 +147,7 @@ void MeshPrimitive::CreateUniformDescriptorSets(VkDescriptorPool descriptorPool)
 
 		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[2].dstSet = materialDescriptorSets[i];
-		descriptorWrites[2].dstBinding = 3;
+		descriptorWrites[2].dstBinding = 2;
 		descriptorWrites[2].dstArrayElement = 0;
 		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[2].descriptorCount = 1;

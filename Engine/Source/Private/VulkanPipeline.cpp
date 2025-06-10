@@ -148,7 +148,12 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 	colorBlendStateInfo.blendConstants[2] = 0.0f;
 	colorBlendStateInfo.blendConstants[3] = 0.0f;
 
-	std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = { layoutManager->GetCameraDescriptorSetLayout(), layoutManager->GetMeshDescriptorSetLayout() };
+	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts =
+	{
+		layoutManager->GetCameraDescriptorSetLayout(),
+		layoutManager->GetMeshDescriptorSetLayout(),
+		layoutManager->GetMaterialDescriptorSetLayout()
+	};
 	
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

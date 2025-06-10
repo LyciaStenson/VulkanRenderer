@@ -68,31 +68,7 @@ void MeshInstance::CreateUniformDescriptorSets(VkDescriptorPool descriptorPool)
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorWrite.descriptorCount = 1;
 		descriptorWrite.pBufferInfo = &bufferInfo;
-
-		//descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrites[1].dstSet = uniformDescriptorSets[i];
-		//descriptorWrites[1].dstBinding = 1;
-		//descriptorWrites[1].dstArrayElement = 0;
-		//descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//descriptorWrites[1].descriptorCount = 1;
-		//descriptorWrites[1].pImageInfo = &mesh->GetBaseColorDescriptorInfo();
-
-		//descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrites[2].dstSet = uniformDescriptorSets[i];
-		//descriptorWrites[2].dstBinding = 2;
-		//descriptorWrites[2].dstArrayElement = 0;
-		//descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//descriptorWrites[2].descriptorCount = 1;
-		//descriptorWrites[2].pImageInfo = &mesh->GetRoughnessDescriptorInfo();
-
-		//descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrites[3].dstSet = uniformDescriptorSets[i];
-		//descriptorWrites[3].dstBinding = 3;
-		//descriptorWrites[3].dstArrayElement = 0;
-		//descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//descriptorWrites[3].descriptorCount = 1;
-		//descriptorWrites[3].pImageInfo = &mesh->GetMetallicDescriptorInfo();
-
+		
 		vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, nullptr);
 	}
 }
