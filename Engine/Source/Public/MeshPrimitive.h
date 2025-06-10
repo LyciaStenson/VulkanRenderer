@@ -3,6 +3,11 @@
 #include <vector>
 #include <memory>
 
+#include <VulkanUniformBuffer.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <volk.h>
 
 namespace VulkanRenderer
@@ -16,9 +21,15 @@ namespace VulkanRenderer
 	{
 		std::vector<Vertex> vertices;
 		std::vector<uint16_t> indices;
+
+		glm::vec4 baseColorFactor;
+		float metallicFactor;
+		float roughnessFactor;
+
 		std::shared_ptr<VulkanTexture> baseColorTexture;
 		std::shared_ptr<VulkanTexture> metallicRoughnessTexture;
 		std::shared_ptr<VulkanTexture> normalTexture;
+
 		bool enableTransparency = false;
 		bool doubleSided = false;
 	};
@@ -38,9 +49,13 @@ namespace VulkanRenderer
 		const std::vector<VkDescriptorSet>& GetMaterialDescriptorSets() const;
 
 		bool GetTransparencyEnabled() const;
-
+		
 		VulkanBuffer* vertexBuffer;
 		VulkanBuffer* indexBuffer;
+
+		glm::vec4 baseColorFactor;
+		float metallicFactor;
+		float roughnessFactor;
 
 		std::shared_ptr<VulkanTexture> baseColorTexture;
 		std::shared_ptr<VulkanTexture> metallicRoughnessTexture;
@@ -56,7 +71,11 @@ namespace VulkanRenderer
 		VkDescriptorSetLayout materialDescriptorSetLayout;
 
 		std::vector<VkDescriptorSet> materialDescriptorSets;
-
+		
+		VulkanUniformBuffer* materialFactorsUniformBuffer;
+		
+		void CreateMaterialFactorsUniformBuffer();
+		
 		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffer(const std::vector<uint16_t>& indices);
 		

@@ -84,7 +84,7 @@ void MeshInstance::CreateUniformBuffers()
 	}
 }
 
-void MeshInstance::UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent)
+void MeshInstance::UpdateUniformBuffer(uint32_t currentImage)
 {
 	MeshUBO ubo{};
 	ubo.model = transform.GetWorldMatrix();

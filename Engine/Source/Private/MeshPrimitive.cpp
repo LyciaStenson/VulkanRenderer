@@ -7,20 +7,31 @@
 #include <VulkanDevice.h>
 #include <VulkanTexture.h>
 #include <VulkanBuffer.h>
+#include <MaterialFactorsUBO.h>
 #include <Vertex.h>
 
 using namespace VulkanRenderer;
 
 MeshPrimitive::MeshPrimitive(VulkanDevice* device, VkDescriptorSetLayout materialDescriptorSetLayout, VkDescriptorPool descriptorPool, const MeshPrimitiveInfo& info)
-	: device(device), materialDescriptorSetLayout(materialDescriptorSetLayout), baseColorTexture(info.baseColorTexture), metallicRoughnessTexture(info.metallicRoughnessTexture), normalTexture(info.normalTexture), transparencyEnabled(info.enableTransparency)
+	: device(device),
+	materialDescriptorSetLayout(materialDescriptorSetLayout),
+	baseColorFactor(info.baseColorFactor),
+	metallicFactor(info.metallicFactor),
+	roughnessFactor(info.roughnessFactor),
+	baseColorTexture(info.baseColorTexture),
+	metallicRoughnessTexture(info.metallicRoughnessTexture),
+	normalTexture(info.normalTexture),
+	transparencyEnabled(info.enableTransparency)
 {
 	CreateVertexBuffer(info.vertices);
 	CreateIndexBuffer(info.indices);
+	CreateMaterialFactorsUniformBuffer();
 	CreateMaterialDescriptorSets(descriptorPool);
 }
 
 MeshPrimitive::~MeshPrimitive()
 {
+	delete materialFactorsUniformBuffer;
 	delete indexBuffer;
 	delete vertexBuffer;
 }
@@ -68,6 +79,20 @@ const std::vector<VkDescriptorSet>& MeshPrimitive::GetMaterialDescriptorSets() c
 bool MeshPrimitive::GetTransparencyEnabled() const
 {
 	return transparencyEnabled;
+}
+
+void MeshPrimitive::CreateMaterialFactorsUniformBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(MaterialFactorsUBO);
+	
+	materialFactorsUniformBuffer = new VulkanUniformBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	MaterialFactorsUBO ubo{};
+	ubo.baseColor = baseColorFactor;
+	ubo.metallic = metallicFactor;
+	ubo.roughness = roughnessFactor;
+
+	memcpy(materialFactorsUniformBuffer->GetMappedData(), &ubo, sizeof(ubo));
 }
 
 void MeshPrimitive::CreateVertexBuffer(const std::vector<Vertex>& vertices)
@@ -128,15 +153,20 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 	// Update the descriptor set for each frame in flight
 	for (size_t i = 0; i < VulkanConfig::MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+		std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
 		
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = materialFactorsUniformBuffer->Get();
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(MaterialFactorsUBO);
+
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = materialDescriptorSets[i];
 		descriptorWrites[0].dstBinding = 0;
 		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pImageInfo = &GetBaseColorDescriptorInfo();
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
 
 		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[1].dstSet = materialDescriptorSets[i];
@@ -144,7 +174,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &GetMetallicRoughnessDescriptorInfo();
+		descriptorWrites[1].pImageInfo = &GetBaseColorDescriptorInfo();
 
 		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[2].dstSet = materialDescriptorSets[i];
@@ -152,7 +182,15 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[2].dstArrayElement = 0;
 		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &GetNormalDescriptorInfo();
+		descriptorWrites[2].pImageInfo = &GetMetallicRoughnessDescriptorInfo();
+
+		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[3].dstSet = materialDescriptorSets[i];
+		descriptorWrites[3].dstBinding = 3;
+		descriptorWrites[3].dstArrayElement = 0;
+		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[3].descriptorCount = 1;
+		descriptorWrites[3].pImageInfo = &GetNormalDescriptorInfo();
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

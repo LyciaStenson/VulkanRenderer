@@ -24,7 +24,7 @@ namespace VulkanRenderer
 		std::shared_ptr<const Mesh> GetMesh() const;
 		const std::vector<VkDescriptorSet>& GetUniformDescriptorSets() const;
 		
-		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
+		void UpdateUniformBuffer(uint32_t currentImage);
 
 	private:
 		VulkanDevice* device;
