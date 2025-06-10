@@ -129,8 +129,10 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 
 	if (node.meshIndex.has_value())
 	{
-		object = CreateSceneObject(node.name.c_str(), position, rotation, scale, parent);
-		//object = CreateMeshInstance(node.name.c_str(), transform, model->meshes[node.meshIndex.value()]);
+		if (node.meshIndex.value() < model->meshes.size())
+		{
+			object = CreateMeshInstance(node.name.c_str(), position, rotation, scale, parent, model->meshes[node.meshIndex.value()]);
+		}
 	}
 	else
 	{
@@ -140,7 +142,8 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 	for (const auto& childNodeIndex : node.children)
 	{
 		const auto& childNode = model->gltfAsset.nodes[childNodeIndex];
-		InstantiateModelNode(model, childNode, &object->transform);
+		if (object)
+			InstantiateModelNode(model, childNode, &object->transform);
 	}
 }
 

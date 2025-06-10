@@ -23,7 +23,7 @@ ModelManager::ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDe
 
 ModelManager::~ModelManager()
 {
-	//meshes.clear();
+
 }
 
 std::shared_ptr<Model> ModelManager::GetModel(const std::string& name)
@@ -57,10 +57,6 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 	auto& gltfAsset = asset.get();
 
 	std::shared_ptr<Model> model = std::make_shared<Model>();
-	model->name = name;
-	model->gltfAsset = std::move(gltfAsset);
-	
-	LoadTextures(model);
 	
 	for (size_t meshIndex = 0; meshIndex < gltfAsset.meshes.size(); ++meshIndex)
 	{
@@ -231,6 +227,11 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 		
 		model->meshes.push_back(std::make_shared<Mesh>(device, uniformDescriptorSetLayout));
 	}
+
+	model->name = name;
+	model->gltfAsset = std::move(gltfAsset);
+
+	LoadTextures(model);
 	
 	models[name] = model;
 
