@@ -60,12 +60,18 @@ Engine::Engine()
 	
 	mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
 	
-	modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
+	//modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
+	modelManager->LoadModel("StylisedCar", "Assets/Models/StylisedCar/StylisedCar.glb");
 
-	Transform treehouseTransform;
-	treehouseTransform.position = glm::vec3(0.0f, -18.5f, -45.0f);
-	treehouseTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
-	scene->InstantiateModel("WitchTreehouse", treehouseTransform);
+	//Transform treehouseTransform;
+	//treehouseTransform.position = glm::vec3(0.0f, -18.5f, -45.0f);
+	//treehouseTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
+	//scene->InstantiateModel("WitchTreehouse", treehouseTransform);
+
+	Transform carTransform;
+	carTransform.position = glm::vec3(0.0f, -1.5f, -10.0f);
+	carTransform.scale = glm::vec3(35.0f);
+	scene->InstantiateModel("StylisedCar", carTransform);
 }
 
 Engine::~Engine()
@@ -138,9 +144,46 @@ void Engine::DrawFrame()
 	{
 		imGuiOverlay->NewFrame();
 
+		static bool showCreateWindow = false;
+		static bool centerCreateWindow = false;
+
 		// Begin scene UI window
-		ImGui::Begin("Scene");
+		ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_MenuBar);
 		{
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("New Scene Object"))
+				{
+					if (ImGui::MenuItem("Empty Scene Object"))
+					{
+						showCreateWindow = true;
+						centerCreateWindow = true;
+					}
+
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+			
+			if (showCreateWindow)
+			{
+				if (centerCreateWindow)
+				{
+					ImVec2 windowSize = ImVec2(400, 600);
+					ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+					ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
+
+					ImGui::SetNextWindowPos(windowPos);
+					ImGui::SetNextWindowSize(windowSize);
+
+					centerCreateWindow = false;
+				}
+				
+				ImGui::Begin("Create Scene Object", &showCreateWindow, ImGuiWindowFlags_NoResize);
+				ImGui::Text("Create an empty scene object.");
+				ImGui::End();
+			}
+			
 			imGuiOverlay->DrawSceneGraph(scene->GetObjectsMutable());
 		}
 		// End scene UI window
