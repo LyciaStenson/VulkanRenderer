@@ -31,6 +31,8 @@ namespace VulkanRenderer
 	public:
 		ModelManager(VulkanDevice* device, VkDescriptorSetLayout uniformDescriptorSetLayout, VkDescriptorSetLayout materialDescriptorSetLayout, VkDescriptorPool descriptorPool);
 		~ModelManager();
+
+		const std::unordered_map<std::string, std::shared_ptr<Model>>& GetModels();
 		
 		std::shared_ptr<Model> GetModel(const std::string& name);
 		

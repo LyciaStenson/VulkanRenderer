@@ -163,7 +163,7 @@ namespace VulkanRenderer
 				cachedEulerDegrees = WrapEuler180(cachedEulerDegrees);
 				cachedEulerDegrees = RoundEulerDP(cachedEulerDegrees, 2);
 				glm::vec3 eulerRadians = glm::radians(cachedEulerDegrees);
-
+				
 				glm::quat yaw = glm::angleAxis(eulerRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
 				glm::quat pitch = glm::angleAxis(eulerRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
 				glm::quat roll = glm::angleAxis(eulerRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -176,7 +176,7 @@ namespace VulkanRenderer
 
 			if (Camera* camera = dynamic_cast<Camera*>(selectedObject))
 			{
-				ImGui::DragFloat("FOV", &camera->fov);
+				ImGui::DragFloat("FOV", &camera->fov, 0.01f, 1.0f, 179.0f, "%g");
 			}
 		}
 	}

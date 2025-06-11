@@ -26,6 +26,11 @@ ModelManager::~ModelManager()
 
 }
 
+const std::unordered_map<std::string, std::shared_ptr<Model>>& ModelManager::GetModels()
+{
+	return models;
+}
+
 std::shared_ptr<Model> ModelManager::GetModel(const std::string& name)
 {
 	return models[name];

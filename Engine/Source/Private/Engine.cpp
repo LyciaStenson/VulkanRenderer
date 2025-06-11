@@ -27,6 +27,30 @@
 
 using namespace VulkanRenderer;
 
+inline float Wrap180(float angle)
+{
+	angle = std::fmod(angle + 180.0f, 360.0f);
+	if (angle < 0.0f)
+		angle += 360.0f;
+	return angle - 180.0f;
+}
+
+inline glm::vec3 WrapEuler180(const glm::vec3 angles)
+{
+	return glm::vec3(Wrap180(angles.x), Wrap180(angles.y), Wrap180(angles.z));
+}
+
+inline float RoundDP(float value, int dp)
+{
+	float factor = std::pow(10.0f, dp);
+	return std::round(value * factor) / factor;
+}
+
+inline glm::vec3 RoundEulerDP(const glm::vec3& angles, int dp)
+{
+	return glm::vec3(RoundDP(angles.x, dp), RoundDP(angles.y, dp), RoundDP(angles.z, dp));
+}
+
 Engine::Engine()
 {
 	if (volkInitialize() != VK_SUCCESS)
@@ -58,20 +82,20 @@ Engine::Engine()
 	
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
 	
-	mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
+	//mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
 	
 	//modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
-	modelManager->LoadModel("StylisedCar", "Assets/Models/StylisedCar/StylisedCar.glb");
+	//modelManager->LoadModel("StylisedCar", "Assets/Models/StylisedCar/StylisedCar.glb");
 
 	//Transform treehouseTransform;
 	//treehouseTransform.position = glm::vec3(0.0f, -18.5f, -45.0f);
 	//treehouseTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
 	//scene->InstantiateModel("WitchTreehouse", treehouseTransform);
 
-	Transform carTransform;
-	carTransform.position = glm::vec3(0.0f, -1.5f, -10.0f);
-	carTransform.scale = glm::vec3(35.0f);
-	scene->InstantiateModel("StylisedCar", carTransform);
+	//Transform carTransform;
+	//carTransform.position = glm::vec3(0.0f, -1.5f, -10.0f);
+	//carTransform.scale = glm::vec3(35.0f);
+	//scene->InstantiateModel("StylisedCar", carTransform);
 }
 
 Engine::~Engine()
@@ -107,38 +131,40 @@ void Engine::DrawFrame()
 		return;
 	}
 	
-	scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
-	
-	std::vector<MeshInstance*> opaqueMeshInstances;
-	std::vector<MeshInstance*> transparentMeshInstances;
-
-	for (const auto& object : scene->GetObjects())
-	{
-		if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
-		{
-			for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
-			{
-				if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
-					transparentMeshInstances.push_back(meshInstance);
-				else
-					opaqueMeshInstances.push_back(meshInstance);
-			}
-		}
-	}
-	
-	std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
-		[&](MeshInstance* a, MeshInstance* b)
-		{
-			float distA = glm::length(mainCamera->transform.position - a->transform.position);
-			float distB = glm::length(mainCamera->transform.position - b->transform.position);
-			return distA > distB;
-		});
-	
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
 
-	opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, mainCamera);
-	transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, mainCamera);
-	
+	if (mainCamera)
+	{
+		scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
+
+		std::vector<MeshInstance*> opaqueMeshInstances;
+		std::vector<MeshInstance*> transparentMeshInstances;
+
+		for (const auto& object : scene->GetObjects())
+		{
+			if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
+			{
+				for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
+				{
+					if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
+						transparentMeshInstances.push_back(meshInstance);
+					else
+						opaqueMeshInstances.push_back(meshInstance);
+				}
+			}
+		}
+
+		std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
+			[&](MeshInstance* a, MeshInstance* b)
+			{
+				float distA = glm::length(mainCamera->transform.position - a->transform.position);
+				float distB = glm::length(mainCamera->transform.position - b->transform.position);
+				return distA > distB;
+			});
+		
+		opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, mainCamera);
+		transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, mainCamera);
+	}
 	// If Dear ImGui overlay exists, draw UI representing objects in the scene
 	if (imGuiOverlay)
 	{
@@ -180,7 +206,7 @@ void Engine::DrawFrame()
 		{
 			if (centerLoadModel)
 			{
-				ImVec2 windowSize = ImVec2(900, 1100);
+				ImVec2 windowSize = ImVec2(600, 400);
 				ImVec2 displaySize = ImGui::GetIO().DisplaySize;
 				ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
 
@@ -190,14 +216,44 @@ void Engine::DrawFrame()
 				centerLoadModel = false;
 			}
 
+			static std::string name;
+			static char nameBuffer[1024];
+
+			std::strncpy(nameBuffer, name.c_str(), sizeof(nameBuffer));
+			nameBuffer[sizeof(nameBuffer) - 1] = '\0';
+
+			static std::string path;
+			static char pathBuffer[1024];
+
+			std::strncpy(pathBuffer, path.c_str(), sizeof(pathBuffer));
+			pathBuffer[sizeof(pathBuffer) - 1] = '\0';
+
 			ImGui::Begin("Load Model", &showLoadModel, ImGuiWindowFlags_NoResize);
-			ImGui::Text("Create an empty scene object.");
+			ImGui::Text("Load a .glb format model.");
+
+			if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
+			{
+				name = std::string(nameBuffer);
+			}
+
+			if (ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer)))
+			{
+				path = std::string(pathBuffer);
+			}
+
+			ImGui::BeginDisabled(name.size() < 1 || path.size() < 1);
+			if (ImGui::Button("Load Model"))
+			{
+				modelManager->LoadModel(name, path);
+			}
+			ImGui::EndDisabled();
+
 			ImGui::End();
 		}
 
 		if (showAbout)
 		{
-			if (centerLoadModel)
+			if (centerAbout)
 			{
 				ImVec2 windowSize = ImVec2(200, 150);
 				ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -206,16 +262,19 @@ void Engine::DrawFrame()
 				ImGui::SetNextWindowPos(windowPos);
 				ImGui::SetNextWindowSize(windowSize);
 
-				centerLoadModel = false;
+				centerAbout = false;
 			}
 
-			ImGui::Begin("About Vulkan Renderer", &showLoadModel, ImGuiWindowFlags_NoResize);
+			ImGui::Begin("About Vulkan Renderer", &showAbout, ImGuiWindowFlags_NoResize);
 			ImGui::Text("A simple Vulkan Renderer.");
 			ImGui::End();
 		}
 
 		static bool showCreateWindow = false;
 		static bool centerCreateWindow = false;
+
+		static bool showInstantiateModel = false;
+		static bool centerInstantiateModel = false;
 
 		// Begin scene UI window
 		ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_MenuBar);
@@ -224,8 +283,16 @@ void Engine::DrawFrame()
 			{
 				if (ImGui::BeginMenu("New Scene Object"))
 				{
-					showCreateWindow = true;
-					centerCreateWindow = true;
+					if (ImGui::MenuItem("New Scene Object"))
+					{
+						showCreateWindow = true;
+						centerCreateWindow = true;
+					}
+					if (ImGui::MenuItem("Instantiate Model"))
+					{
+						showInstantiateModel = true;
+						centerInstantiateModel = true;
+					}
 					ImGui::EndMenu();
 				}
 				ImGui::EndMenuBar();
@@ -251,7 +318,7 @@ void Engine::DrawFrame()
 
 					ImGui::Text("Create an empty scene object.");
 
-					ImGui::PopStyleVar();
+					ImGui::PopStyleVar(); // Pop spacing
 
 					ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.0f, 0.5f));
 					for (int i = 0; i < objectTypes.size(); ++i)
@@ -259,11 +326,13 @@ void Engine::DrawFrame()
 						if (ImGui::Selectable(objectTypes[i].c_str(), selectedObjectType == i, 0, ImVec2(0.0f, 30.0f)))
 							selectedObjectType = i;
 					}
-					ImGui::PopStyleVar();
+					ImGui::PopStyleVar(); // Pop selectable text align
+
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 15.0f));
 
 					ImGui::Dummy(ImVec2(0.0f, 0.0f));
-
+					
+					ImGui::BeginDisabled(selectedObjectType == -1);
 					if (ImGui::Button("Create"))
 					{
 						Transform transform;
@@ -276,18 +345,76 @@ void Engine::DrawFrame()
 						case 1:
 							break;
 						case 2:
-							scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
+							Camera* camera = scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
+							if (!mainCamera)
+							{
+								mainCamera = camera;
+							}
 							break;
 						}
 
 						showCreateWindow = false;
 						selectedObjectType = -1;
 					}
-
-					ImGui::Text("Test");
-
+					ImGui::EndDisabled();
+					
 					ImGui::PopStyleVar();
 				}
+				ImGui::End();
+			}
+
+			if (showInstantiateModel)
+			{
+				if (centerInstantiateModel)
+				{
+					ImVec2 windowSize = ImVec2(500, 600);
+					ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+					ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
+
+					ImGui::SetNextWindowPos(windowPos);
+					ImGui::SetNextWindowSize(windowSize);
+
+					centerInstantiateModel = false;
+				}
+
+				static Transform transform;
+				static glm::vec3 cachedEulerDegrees;
+
+				static std::string selectedModel;
+				
+				ImGui::Begin("Instantiate Model", &showInstantiateModel, ImGuiWindowFlags_NoResize);
+				ImGui::Text("Instantiate model from name set when loading.");
+
+				for (const auto& [name, model] : modelManager->GetModels())
+				{
+					if (ImGui::Selectable(name.c_str(), selectedModel == name, 0, ImVec2(0.0f, 30.0f)))
+						selectedModel = name;
+				}
+				
+				ImGui::DragFloat3("Position", &transform.position[0], 0.01f, 0.0f, 0.0f, "%g");
+				if (ImGui::DragFloat3("Rotation", &cachedEulerDegrees[0], 0.1f, 0.0f, 0.0f, "%g"))
+				{
+					cachedEulerDegrees = WrapEuler180(cachedEulerDegrees);
+					cachedEulerDegrees = RoundEulerDP(cachedEulerDegrees, 2);
+					glm::vec3 eulerRadians = glm::radians(cachedEulerDegrees);
+
+					glm::quat yaw = glm::angleAxis(eulerRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::quat pitch = glm::angleAxis(eulerRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
+					glm::quat roll = glm::angleAxis(eulerRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+					// Translate back to radians and quaternion for internal memory
+					transform.rotation = yaw * pitch * roll;
+				}
+				ImGui::DragFloat3("Scale", &transform.scale[0], 0.01f, 0.0f, 0.0f, "%g");
+
+				ImGui::BeginDisabled(selectedModel.size() < 1);
+				if (ImGui::Button("Instantiate Model"))
+				{
+					scene->InstantiateModel(selectedModel, transform);
+					showInstantiateModel = false;
+				}
+				ImGui::EndDisabled();
+
 				ImGui::End();
 			}
 			
