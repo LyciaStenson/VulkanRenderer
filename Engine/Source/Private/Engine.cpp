@@ -143,6 +143,76 @@ void Engine::DrawFrame()
 	if (imGuiOverlay)
 	{
 		imGuiOverlay->NewFrame();
+		
+		const std::array<const std::string, 3> objectTypes = {"Empty Scene Object", "Mesh Instance", "Camera"};
+		static int selectedObjectType = -1;
+		
+		static bool showLoadModel = false;
+		static bool centerLoadModel = false;
+
+		static bool showAbout = false;
+		static bool centerAbout = false;
+
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("Project"))
+			{
+				if (ImGui::MenuItem("Load Model"))
+				{
+					showLoadModel = true;
+					centerLoadModel = true;
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help"))
+			{
+				if (ImGui::MenuItem("About"))
+				{
+					showAbout = true;
+					centerAbout = true;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
+		if (showLoadModel)
+		{
+			if (centerLoadModel)
+			{
+				ImVec2 windowSize = ImVec2(900, 1100);
+				ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+				ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
+
+				ImGui::SetNextWindowPos(windowPos);
+				ImGui::SetNextWindowSize(windowSize);
+
+				centerLoadModel = false;
+			}
+
+			ImGui::Begin("Load Model", &showLoadModel, ImGuiWindowFlags_NoResize);
+			ImGui::Text("Create an empty scene object.");
+			ImGui::End();
+		}
+
+		if (showAbout)
+		{
+			if (centerLoadModel)
+			{
+				ImVec2 windowSize = ImVec2(200, 150);
+				ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+				ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
+
+				ImGui::SetNextWindowPos(windowPos);
+				ImGui::SetNextWindowSize(windowSize);
+
+				centerLoadModel = false;
+			}
+
+			ImGui::Begin("About Vulkan Renderer", &showLoadModel, ImGuiWindowFlags_NoResize);
+			ImGui::Text("A simple Vulkan Renderer.");
+			ImGui::End();
+		}
 
 		static bool showCreateWindow = false;
 		static bool centerCreateWindow = false;
@@ -154,12 +224,8 @@ void Engine::DrawFrame()
 			{
 				if (ImGui::BeginMenu("New Scene Object"))
 				{
-					if (ImGui::MenuItem("Empty Scene Object"))
-					{
-						showCreateWindow = true;
-						centerCreateWindow = true;
-					}
-
+					showCreateWindow = true;
+					centerCreateWindow = true;
 					ImGui::EndMenu();
 				}
 				ImGui::EndMenuBar();
@@ -169,7 +235,7 @@ void Engine::DrawFrame()
 			{
 				if (centerCreateWindow)
 				{
-					ImVec2 windowSize = ImVec2(400, 600);
+					ImVec2 windowSize = ImVec2(500, 600);
 					ImVec2 displaySize = ImGui::GetIO().DisplaySize;
 					ImVec2 windowPos = ImVec2((displaySize.x - windowSize.x) * 0.5f, (displaySize.y - windowSize.y) * 0.5f);
 
@@ -181,6 +247,35 @@ void Engine::DrawFrame()
 				
 				ImGui::Begin("Create Scene Object", &showCreateWindow, ImGuiWindowFlags_NoResize);
 				ImGui::Text("Create an empty scene object.");
+
+				ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.0f, 0.5f));
+				for (int i = 0; i < objectTypes.size(); ++i)
+				{
+					if (ImGui::Selectable(objectTypes[i].c_str(), selectedObjectType == i, 0, ImVec2(0.0f, 30.0f)))
+						selectedObjectType = i;
+				}
+				ImGui::PopStyleVar();
+				
+				if (ImGui::Button("Create"))
+				{
+					Transform transform;
+
+					switch (selectedObjectType)
+					{
+					case 0:
+						scene->CreateSceneObject("Empty Scene Object", transform.position, transform.rotation, transform.scale, nullptr);
+						break;
+					case 1:
+						break;
+					case 2:
+						scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
+						break;
+					}
+
+					showCreateWindow = false;
+					selectedObjectType = -1;
+				}
+
 				ImGui::End();
 			}
 			
