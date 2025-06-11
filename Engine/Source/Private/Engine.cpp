@@ -246,36 +246,48 @@ void Engine::DrawFrame()
 				}
 				
 				ImGui::Begin("Create Scene Object", &showCreateWindow, ImGuiWindowFlags_NoResize);
-				ImGui::Text("Create an empty scene object.");
-
-				ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.0f, 0.5f));
-				for (int i = 0; i < objectTypes.size(); ++i)
 				{
-					if (ImGui::Selectable(objectTypes[i].c_str(), selectedObjectType == i, 0, ImVec2(0.0f, 30.0f)))
-						selectedObjectType = i;
-				}
-				ImGui::PopStyleVar();
-				
-				if (ImGui::Button("Create"))
-				{
-					Transform transform;
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 15.0f));
 
-					switch (selectedObjectType)
+					ImGui::Text("Create an empty scene object.");
+
+					ImGui::PopStyleVar();
+
+					ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.0f, 0.5f));
+					for (int i = 0; i < objectTypes.size(); ++i)
 					{
-					case 0:
-						scene->CreateSceneObject("Empty Scene Object", transform.position, transform.rotation, transform.scale, nullptr);
-						break;
-					case 1:
-						break;
-					case 2:
-						scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
-						break;
+						if (ImGui::Selectable(objectTypes[i].c_str(), selectedObjectType == i, 0, ImVec2(0.0f, 30.0f)))
+							selectedObjectType = i;
+					}
+					ImGui::PopStyleVar();
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 15.0f));
+
+					ImGui::Dummy(ImVec2(0.0f, 0.0f));
+
+					if (ImGui::Button("Create"))
+					{
+						Transform transform;
+
+						switch (selectedObjectType)
+						{
+						case 0:
+							scene->CreateSceneObject("Empty Scene Object", transform.position, transform.rotation, transform.scale, nullptr);
+							break;
+						case 1:
+							break;
+						case 2:
+							scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
+							break;
+						}
+
+						showCreateWindow = false;
+						selectedObjectType = -1;
 					}
 
-					showCreateWindow = false;
-					selectedObjectType = -1;
-				}
+					ImGui::Text("Test");
 
+					ImGui::PopStyleVar();
+				}
 				ImGui::End();
 			}
 			
