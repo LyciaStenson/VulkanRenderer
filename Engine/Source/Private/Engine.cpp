@@ -81,21 +81,6 @@ Engine::Engine()
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
-	
-	//mainCamera = scene->CreateCamera("Camera", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(), glm::vec3(1.0f), nullptr);
-	
-	//modelManager->LoadModel("WitchTreehouse", "Assets/Models/WitchTreehouse/witch_treehouse.glb");
-	//modelManager->LoadModel("StylisedCar", "Assets/Models/StylisedCar/StylisedCar.glb");
-
-	//Transform treehouseTransform;
-	//treehouseTransform.position = glm::vec3(0.0f, -18.5f, -45.0f);
-	//treehouseTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
-	//scene->InstantiateModel("WitchTreehouse", treehouseTransform);
-
-	//Transform carTransform;
-	//carTransform.position = glm::vec3(0.0f, -1.5f, -10.0f);
-	//carTransform.scale = glm::vec3(35.0f);
-	//scene->InstantiateModel("StylisedCar", carTransform);
 }
 
 Engine::~Engine()
