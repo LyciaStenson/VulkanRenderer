@@ -81,7 +81,62 @@ namespace VulkanRenderer
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
+	
+	void VulkanImGuiOverlay::Render(VkCommandBuffer commandBuffer)
+	{
+		NewFrame();
 
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Quit"))
+					glfwSetWindowShouldClose(glfwWindow, true);
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Project"))
+			{
+				if (ImGui::MenuItem("Load Model"))
+				{
+					//showLoadModel = true;
+					//centerLoadModel = true;
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Window"))
+			{
+				if (ImGui::MenuItem("Scene"))
+				{
+					//showScene = true;
+				}
+				if (ImGui::MenuItem("Inspector"))
+				{
+					//showInspector = true;
+				}
+				if (ImGui::MenuItem("Asset Browser"))
+				{
+					//showAssetBrowser;
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help"))
+			{
+				if (ImGui::MenuItem("About"))
+				{
+					//showAbout = true;
+					//centerAbout = true;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
+		sceneWindow.Render();
+		inspectorWindow.Render();
+
+		Draw(commandBuffer);
+	}
+	
 	void VulkanImGuiOverlay::NewFrame()
 	{
 		ImGui_ImplVulkan_NewFrame();
@@ -108,76 +163,102 @@ namespace VulkanRenderer
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 	}
 
-	void VulkanImGuiOverlay::DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances)
-	{
-		for (auto& meshInstance : meshInstances)
-		{
-			if (meshInstance->transform.GetParent() == nullptr)
-			{
-				DrawSceneNode(meshInstance.get());
-			}
-		}
-	}
+	//void VulkanImGuiOverlay::DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances)
+	//{
+	//	for (auto& meshInstance : meshInstances)
+	//	{
+	//		if (meshInstance->transform.GetParent() == nullptr)
+	//		{
+	//			DrawSceneNode(meshInstance.get());
+	//		}
+	//	}
+	//}
 
-	void VulkanImGuiOverlay::DrawSceneNode(SceneObject* object)
-	{
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-		if (object == selectedObject)
-			flags |= ImGuiTreeNodeFlags_Selected;
+	//void VulkanImGuiOverlay::DrawSceneNode(SceneObject* object)
+	//{
+	//	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+	//	if (object == selectedObject)
+	//		flags |= ImGuiTreeNodeFlags_Selected;
 
-		if (object->transform.GetChildren().empty())
-			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		
-		bool opened = ImGui::TreeNodeEx(object, flags, "%s", object->GetName().c_str());
-		
-		if (ImGui::IsItemClicked())
-			selectedObject = object;
+	//	if (object->transform.GetChildren().empty())
+	//		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+	//	
+	//	bool opened = ImGui::TreeNodeEx(object, flags, "%s", object->GetName().c_str());
+	//	
+	//	if (ImGui::IsItemClicked())
+	//		selectedObject = object;
 
-		if (opened && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
-		{
-			for (auto& child : object->transform.GetChildren())
-			{
-				DrawSceneNode(child->owner);
-			}
-			ImGui::TreePop();
-		}
-	}
+	//	if (opened && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+	//	{
+	//		for (auto& child : object->transform.GetChildren())
+	//		{
+	//			DrawSceneNode(child->owner);
+	//		}
+	//		ImGui::TreePop();
+	//	}
+	//}
 
-	void VulkanImGuiOverlay::DrawInspector()
-	{
-		static glm::vec3 cachedEulerDegrees;
-		
-		if (selectedObject)
-		{
-			ImGui::DragFloat3("Position", &selectedObject->transform.position[0], 0.01f, 0.0f, 0.0f, "%g");
+	//void VulkanImGuiOverlay::DrawInspector(bool* show)
+	//{
+	//	if (*show)
+	//	{
+	//		static glm::vec3 cachedEulerDegrees;
+	//		
+	//		ImGui::Begin("Inspector");
+	//		
+	//		if (selectedObject)
+	//		{
+	//			const float xPos = 80.0f;
 
-			static void* lastObject = nullptr;
-			if (selectedObject != lastObject)
-			{
-				cachedEulerDegrees = glm::degrees(glm::eulerAngles(selectedObject->transform.rotation));
-				lastObject = selectedObject;
-			}
+	//			ImGui::Text("Position");
+	//			ImGui::SameLine();
+	//			ImGui::SetCursorPosX(xPos);
+	//			ImGui::DragFloat3("##Position", &selectedObject->transform.position[0], 0.01f, 0.0f, 0.0f, "%g");
 
-			if (ImGui::DragFloat3("Rotation", &cachedEulerDegrees[0], 0.1f, 0.0f, 0.0f, "%g"))
-			{
-				cachedEulerDegrees = WrapEuler180(cachedEulerDegrees);
-				cachedEulerDegrees = RoundEulerDP(cachedEulerDegrees, 2);
-				glm::vec3 eulerRadians = glm::radians(cachedEulerDegrees);
-				
-				glm::quat yaw = glm::angleAxis(eulerRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
-				glm::quat pitch = glm::angleAxis(eulerRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
-				glm::quat roll = glm::angleAxis(eulerRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
-				
-				// Translate back to radians and quaternion for internal memory
-				selectedObject->transform.rotation = yaw * pitch * roll;
-			}
+	//			static void* lastObject = nullptr;
+	//			if (selectedObject != lastObject)
+	//			{
+	//				cachedEulerDegrees = glm::degrees(glm::eulerAngles(selectedObject->transform.rotation));
+	//				lastObject = selectedObject;
+	//			}
 
-			ImGui::DragFloat3("Scale", &selectedObject->transform.scale[0], 0.01f, 0.0f, 0.0f, "%g");
+	//			ImGui::Text("Rotation");
+	//			ImGui::SameLine();
+	//			ImGui::SetCursorPosX(xPos);
+	//			if (ImGui::DragFloat3("##Rotation", &cachedEulerDegrees[0], 0.1f, 0.0f, 0.0f, "%g"))
+	//			{
+	//				cachedEulerDegrees = WrapEuler180(cachedEulerDegrees);
+	//				cachedEulerDegrees = RoundEulerDP(cachedEulerDegrees, 2);
+	//				glm::vec3 eulerRadians = glm::radians(cachedEulerDegrees);
 
-			if (Camera* camera = dynamic_cast<Camera*>(selectedObject))
-			{
-				ImGui::DragFloat("FOV", &camera->fov, 0.01f, 1.0f, 179.0f, "%g");
-			}
-		}
-	}
+	//				glm::quat yaw = glm::angleAxis(eulerRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
+	//				glm::quat pitch = glm::angleAxis(eulerRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
+	//				glm::quat roll = glm::angleAxis(eulerRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+	//				// Translate back to radians and quaternion for internal memory
+	//				selectedObject->transform.rotation = yaw * pitch * roll;
+	//			}
+
+	//			ImGui::Text("Scale");
+	//			ImGui::SameLine();
+	//			ImGui::SetCursorPosX(xPos);
+	//			ImGui::DragFloat3("##Scale", &selectedObject->transform.scale[0], 0.01f, 0.0f, 0.0f, "%g");
+
+	//			if (Camera* camera = dynamic_cast<Camera*>(selectedObject))
+	//			{
+	//				ImGui::Text("FOV");
+	//				ImGui::SameLine();
+	//				ImGui::SetCursorPosX(xPos);
+	//				ImGui::DragFloat("##FOV", &camera->fov, 0.01f, 1.0f, 179.0f, "%g");
+	//			}
+	//		}
+	//		ImGui::End();
+	//	}
+	//}
+
+	//void VulkanImGuiOverlay::DrawAssetBrowser(bool* show)
+	//{
+	//	ImGui::Begin("Asset Browser", show);
+	//	ImGui::End();
+	//}
 }

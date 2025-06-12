@@ -3,6 +3,9 @@
 #include <vector>
 #include <memory>
 
+#include <SceneWindow.h>
+#include <InspectorWindow.h>
+
 #include <volk.h>
 #include <glfw/glfw3.h>
 
@@ -24,14 +27,14 @@ namespace VulkanRenderer
 	public:
 		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow);
 		~VulkanImGuiOverlay();
+		
+		void Render(VkCommandBuffer commandBuffer);
+		
+		//void DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances);
 
-		void NewFrame();
-		void Draw(VkCommandBuffer commandBuffer);
+		//void DrawInspector(bool* show);
 
-		void DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances);
-		void DrawSceneNode(SceneObject* meshInstance);
-
-		void DrawInspector();
+		//void DrawAssetBrowser(bool* show);
 
 	private:
 		GLFWwindow* glfwWindow;
@@ -39,5 +42,13 @@ namespace VulkanRenderer
 		std::unique_ptr<ImGuiDescriptorPool> descriptorPool;
 
 		SceneObject* selectedObject = nullptr;
+
+		SceneWindow sceneWindow;
+		InspectorWindow inspectorWindow;
+
+		void NewFrame();
+		void Draw(VkCommandBuffer commandBuffer);
+
+		//void DrawSceneNode(SceneObject* meshInstance);
 	};
 }
