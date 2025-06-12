@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
-#include <SceneWindow.h>
-#include <InspectorWindow.h>
+#include <SceneOutliner.h>
+#include <Inspector.h>
+#include <AssetBrowser.h>
 
 #include <volk.h>
 #include <glfw/glfw3.h>
@@ -43,8 +45,11 @@ namespace VulkanRenderer
 
 		SceneObject* selectedObject = nullptr;
 
-		SceneWindow sceneWindow;
-		InspectorWindow inspectorWindow;
+		std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> m_Windows;
+
+		//SceneOutliner sceneOutliner;
+		//Inspector inspector;
+		//AssetBrowser assetBrowser;
 
 		void NewFrame();
 		void Draw(VkCommandBuffer commandBuffer);

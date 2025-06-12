@@ -2,10 +2,10 @@
 
 #include <ImGuiWindow.h>
 
-class SceneWindow : public ImGuiWindow
+class Inspector : public ImGuiWindow
 {
 public:
-	SceneWindow();
+	Inspector(bool open = true);
 
 protected:
 	void OnRender() override;

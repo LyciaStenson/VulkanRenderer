@@ -2,10 +2,10 @@
 
 #include <ImGuiWindow.h>
 
-class InspectorWindow : public ImGuiWindow
+class AssetBrowser : public ImGuiWindow
 {
 public:
-	InspectorWindow();
+	AssetBrowser(bool open = true);
 
 protected:
 	void OnRender() override;

@@ -71,6 +71,10 @@ namespace VulkanRenderer
 		ImGui_ImplVulkan_Init(&imGuiInitInfo);
 
 		ImGui_ImplVulkan_CreateFontsTexture();
+
+		m_Windows["Scene Outliner"] = std::make_unique<SceneOutliner>();
+		m_Windows["Inspector"] = std::make_unique<Inspector>();
+		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>();
 	}
 	
 	VulkanImGuiOverlay::~VulkanImGuiOverlay()
@@ -105,17 +109,20 @@ namespace VulkanRenderer
 			}
 			if (ImGui::BeginMenu("Window"))
 			{
-				if (ImGui::MenuItem("Scene"))
+				if (ImGui::MenuItem("Scene Outliner"))
 				{
-					//showScene = true;
+					if (m_Windows.count("Scene Outliner"))
+						m_Windows["Scene Outliner"]->SetOpen(true);
 				}
 				if (ImGui::MenuItem("Inspector"))
 				{
-					//showInspector = true;
+					if (m_Windows.count("Inspector"))
+						m_Windows["Inspector"]->SetOpen(true);
 				}
 				if (ImGui::MenuItem("Asset Browser"))
 				{
-					//showAssetBrowser;
+					if (m_Windows.count("Asset Browser"))
+						m_Windows["Asset Browser"]->SetOpen(true);
 				}
 				ImGui::EndMenu();
 			}
@@ -131,8 +138,14 @@ namespace VulkanRenderer
 			ImGui::EndMainMenuBar();
 		}
 
-		sceneWindow.Render();
-		inspectorWindow.Render();
+		for (auto& [_, window] : m_Windows)
+		{
+			window->Render();
+		}
+
+		//sceneOutliner.Render();
+		//inspector.Render();
+		//assetBrowser.Render();
 
 		Draw(commandBuffer);
 	}
