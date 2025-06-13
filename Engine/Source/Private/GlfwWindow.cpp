@@ -34,5 +34,5 @@ void GlfwWindow::GetFramebufferSize(int* width, int* height)
 void GlfwWindow::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
 	Engine* engine = reinterpret_cast<Engine*>(glfwGetWindowUserPointer(window));
-	engine->framebufferResized = true;
+	engine->FramebufferResized();
 }

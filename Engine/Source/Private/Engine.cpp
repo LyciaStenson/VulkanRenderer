@@ -87,6 +87,11 @@ Engine::~Engine()
 	imGuiOverlay.reset();
 }
 
+void Engine::FramebufferResized()
+{
+	framebufferResized = true;
+}
+
 void Engine::Run()
 {
 	while (!glfwWindowShouldClose(glfwWindow->Get()))

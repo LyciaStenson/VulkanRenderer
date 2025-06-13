@@ -29,9 +29,9 @@ namespace VulkanRenderer
 		Engine();
 		~Engine();
 
-		void Run();
+		void FramebufferResized();
 
-		bool framebufferResized = false;
+		void Run();
 
 	private:
 		std::unique_ptr<GlfwWindow> glfwWindow;
@@ -51,6 +51,8 @@ namespace VulkanRenderer
 		std::unique_ptr<ModelManager> modelManager;
 		
 		int currentFrame = 0;
+
+		bool framebufferResized = false;
 		
 		void DrawFrame();
 		void RecreateSwapChain();
