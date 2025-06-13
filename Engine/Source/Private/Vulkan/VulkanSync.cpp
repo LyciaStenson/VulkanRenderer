@@ -1,8 +1,8 @@
-#include <VulkanSync.h>
+#include <Vulkan/VulkanSync.h>
 
 #include <iostream>
 
-#include <VulkanConfig.h>
+#include <Vulkan/VulkanConfig.h>
 
 using namespace VulkanRenderer;
 

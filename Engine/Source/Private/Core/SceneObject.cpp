@@ -1,4 +1,4 @@
-#include <SceneObject.h>
+#include <Core/SceneObject.h>
 
 using namespace VulkanRenderer;
 

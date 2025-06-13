@@ -1,9 +1,9 @@
-#include <VulkanDescriptorSetLayoutManager.h>
+#include <Vulkan/VulkanDescriptorSetLayoutManager.h>
 
 #include <iostream>
 #include <array>
 
-#include <VulkanDevice.h>
+#include <Vulkan/VulkanDevice.h>
 
 using namespace VulkanRenderer;
 

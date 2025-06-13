@@ -1,9 +1,9 @@
-#include <Inspector.h>
+#include <ImGui/Inspector.h>
 
-#include <VulkanImGuiOverlay.h>
-#include <SceneObject.h>
-#include <Scene.h>
-#include <Camera.h>
+#include <Vulkan/VulkanImGuiOverlay.h>
+#include <Core/SceneObject.h>
+#include <Core/Scene.h>
+#include <Core/Camera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

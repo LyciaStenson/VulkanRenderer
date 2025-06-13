@@ -1,12 +1,12 @@
-#include <MeshInstance.h>
+#include <Core/MeshInstance.h>
 
 #include <iostream>
 
-#include <VulkanConfig.h>
-#include <VulkanDevice.h>
-#include <VulkanUniformBuffer.h>
-#include <Mesh.h>
-#include <MeshUBO.h>
+#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanUniformBuffer.h>
+#include <Core/Mesh.h>
+#include <Core/MeshUBO.h>
 
 using namespace VulkanRenderer;
 

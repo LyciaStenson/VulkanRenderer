@@ -1,15 +1,15 @@
-#include <MeshPrimitive.h>
+#include <Core/MeshPrimitive.h>
 
 #include <iostream>
 
-#include <VulkanConfig.h>
-#include <VulkanHelpers.h>
-#include <VulkanDevice.h>
-#include <VulkanTexture.h>
-#include <VulkanBuffer.h>
-#include <VulkanUniformBuffer.h>
-#include <MaterialFactorsUBO.h>
-#include <Vertex.h>
+#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/VulkanHelpers.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanTexture.h>
+#include <Vulkan/VulkanBuffer.h>
+#include <Vulkan/VulkanUniformBuffer.h>
+#include <Core/MaterialFactorsUBO.h>
+#include <Core/Vertex.h>
 
 using namespace VulkanRenderer;
 

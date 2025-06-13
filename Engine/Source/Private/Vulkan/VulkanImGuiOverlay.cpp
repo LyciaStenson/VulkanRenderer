@@ -1,24 +1,24 @@
-#include <VulkanImGuiOverlay.h>
+#include <Vulkan/VulkanImGuiOverlay.h>
 
 #include <vector>
 #include <iostream>
 
-#include <VulkanInstance.h>
-#include <VulkanDevice.h>
-#include <VulkanSwapChain.h>
-#include <VulkanRenderPass.h>
-#include <ImGuiDescriptorPool.h>
-#include <MeshInstance.h>
-#include <Camera.h>
-#include <Scene.h>
-#include <ModelManager.h>
-#include <SceneOutliner.h>
-#include <LoadModelWindow.h>
-#include <CreateObjectWindow.h>
-#include <InstantiateModelWindow.h>
-#include <Inspector.h>
-#include <AssetBrowser.h>
-#include <AboutWindow.h>
+#include <Vulkan/VulkanInstance.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanSwapChain.h>
+#include <Vulkan/VulkanRenderPass.h>
+#include <ImGui/ImGuiDescriptorPool.h>
+#include <Core/MeshInstance.h>
+#include <Core/Camera.h>
+#include <Core/Scene.h>
+#include <Core/ModelManager.h>
+#include <ImGui/SceneOutliner.h>
+#include <ImGui/LoadModelWindow.h>
+#include <ImGui/CreateObjectWindow.h>
+#include <ImGui/InstantiateModelWindow.h>
+#include <ImGui/Inspector.h>
+#include <ImGui/AssetBrowser.h>
+#include <ImGui/AboutWindow.h>
 
 namespace VulkanRenderer
 {

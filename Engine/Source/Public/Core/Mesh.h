@@ -7,8 +7,8 @@
 
 #include <volk.h>
 
-#include <Vertex.h>
-#include <VulkanUniformBuffer.h>
+#include <Core/Vertex.h>
+#include <Vulkan/VulkanUniformBuffer.h>
 
 namespace VulkanRenderer
 {

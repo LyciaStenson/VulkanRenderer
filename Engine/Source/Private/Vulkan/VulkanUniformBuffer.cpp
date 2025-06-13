@@ -1,8 +1,8 @@
-#include <VulkanUniformBuffer.h>
+#include <Vulkan/VulkanUniformBuffer.h>
 
 #include <iostream>
 
-#include <VulkanDevice.h>
+#include <Vulkan/VulkanDevice.h>
 
 using namespace VulkanRenderer;
 

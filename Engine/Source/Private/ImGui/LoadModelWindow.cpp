@@ -1,8 +1,8 @@
-#include <LoadModelWindow.h>
+#include <ImGui/LoadModelWindow.h>
 
 #include <string>
 
-#include <ModelManager.h>
+#include <Core/ModelManager.h>
 
 using namespace VulkanRenderer;
 

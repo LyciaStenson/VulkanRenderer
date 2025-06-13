@@ -1,10 +1,10 @@
-#include <InstantiateModelWindow.h>
+#include <ImGui/InstantiateModelWindow.h>
 
 #include <string>
 
-#include <ModelManager.h>
-#include <Scene.h>
-#include <Transform.h>
+#include <Core/ModelManager.h>
+#include <Core/Scene.h>
+#include <Core/Transform.h>
 
 using namespace VulkanRenderer;
 

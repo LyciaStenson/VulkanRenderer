@@ -7,9 +7,9 @@
 
 #include <volk.h>
 
-#include <SceneObject.h>
-#include <Transform.h>
-#include <VulkanUniformBuffer.h>
+#include <Core/SceneObject.h>
+#include <Core/Transform.h>
+#include <Vulkan/VulkanUniformBuffer.h>
 
 namespace VulkanRenderer
 {

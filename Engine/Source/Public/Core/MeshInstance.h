@@ -6,8 +6,8 @@
 
 #include <volk.h>
 
-#include <SceneObject.h>
-#include <Transform.h>
+#include <Core/SceneObject.h>
+#include <Core/Transform.h>
 
 namespace VulkanRenderer
 {

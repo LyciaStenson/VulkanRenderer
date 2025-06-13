@@ -4,7 +4,7 @@
 
 #include <volk.h>
 
-#include <VulkanBuffer.h>
+#include <Vulkan/VulkanBuffer.h>
 
 namespace VulkanRenderer
 {

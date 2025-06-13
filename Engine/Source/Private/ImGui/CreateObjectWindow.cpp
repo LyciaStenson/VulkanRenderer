@@ -1,9 +1,9 @@
-#include <CreateObjectWindow.h>
+#include <ImGui/CreateObjectWindow.h>
 
 #include <array>
 
-#include <Scene.h>
-#include <Transform.h>
+#include <Core/Scene.h>
+#include <Core/Transform.h>
 
 using namespace VulkanRenderer;
 

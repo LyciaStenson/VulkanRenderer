@@ -1,12 +1,12 @@
-#include <VulkanSwapChain.h>
+#include <Vulkan/VulkanSwapChain.h>
 
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <array>
 
-#include <VulkanHelpers.h>
-#include <VulkanImage.h>
+#include <Vulkan/VulkanHelpers.h>
+#include <Vulkan/VulkanImage.h>
 
 using namespace VulkanRenderer;
 

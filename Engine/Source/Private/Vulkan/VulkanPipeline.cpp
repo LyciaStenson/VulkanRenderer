@@ -1,20 +1,20 @@
-#include <VulkanPipeline.h>
+#include <Vulkan/VulkanPipeline.h>
 
 #include <iostream>
 #include <array>
 
 #include <glm/glm.hpp>
 
-#include <Shader.h>
-#include <Vertex.h>
-#include <MeshInstance.h>
-#include <Mesh.h>
-#include <MeshPrimitive.h>
-#include <Camera.h>
-#include <VulkanDevice.h>
-#include <VulkanSwapChain.h>
-#include <VulkanRenderPass.h>
-#include <VulkanDescriptorSetLayoutManager.h>
+#include <Core/Shader.h>
+#include <Core/Vertex.h>
+#include <Core/MeshInstance.h>
+#include <Core/Mesh.h>
+#include <Core/MeshPrimitive.h>
+#include <Core/Camera.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanSwapChain.h>
+#include <Vulkan/VulkanRenderPass.h>
+#include <Vulkan/VulkanDescriptorSetLayoutManager.h>
 
 using namespace VulkanRenderer;
 

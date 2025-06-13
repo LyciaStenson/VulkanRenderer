@@ -1,11 +1,11 @@
-#include <Mesh.h>
+#include <Core/Mesh.h>
 
 #include <iostream>
 #include <chrono>
 
-#include <VulkanDevice.h>
-#include <VulkanTexture.h>
-#include <MeshPrimitive.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanTexture.h>
+#include <Core/MeshPrimitive.h>
 
 #include <stb_image.h>
 

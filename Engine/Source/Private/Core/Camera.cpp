@@ -1,11 +1,11 @@
-#include <Camera.h>
+#include <Core/Camera.h>
 
 #include <iostream>
 
-#include <VulkanConfig.h>
-#include <CameraUBO.h>
+#include <Vulkan/VulkanConfig.h>
+#include <Core/CameraUBO.h>
 
-#include <VulkanDevice.h>
+#include <Vulkan/VulkanDevice.h>
 
 using namespace VulkanRenderer;
 

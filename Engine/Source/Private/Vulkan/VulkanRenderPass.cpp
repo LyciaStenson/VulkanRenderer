@@ -1,10 +1,10 @@
-#include <VulkanRenderPass.h>
+#include <Vulkan/VulkanRenderPass.h>
 
 #include <iostream>
 #include <array>
 
-#include <VulkanDevice.h>
-#include <VulkanSwapChain.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanSwapChain.h>
 
 using namespace VulkanRenderer;
 

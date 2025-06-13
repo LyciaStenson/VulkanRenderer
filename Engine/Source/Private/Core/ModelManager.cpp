@@ -1,4 +1,4 @@
-#include <ModelManager.h>
+#include <Core/ModelManager.h>
 
 #include <filesystem>
 #include <fstream>
@@ -6,12 +6,12 @@
 
 #include <stb_image.h>
 
-#include <Transform.h>
-#include <Model.h>
-#include <Mesh.h>
-#include <MeshPrimitive.h>
-#include <MeshInstance.h>
-#include <VulkanTexture.h>
+#include <Core/Transform.h>
+#include <Core/Model.h>
+#include <Core/Mesh.h>
+#include <Core/MeshPrimitive.h>
+#include <Core/MeshInstance.h>
+#include <Vulkan/VulkanTexture.h>
 
 using namespace VulkanRenderer;
 

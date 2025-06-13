@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 
-#include <ImGuiWindow.h>
-#include <SceneObject.h>
+#include <ImGui/ImGuiWindow.h>
+#include <Core/SceneObject.h>
 
 namespace VulkanRenderer
 {

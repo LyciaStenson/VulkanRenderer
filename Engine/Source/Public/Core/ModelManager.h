@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <string>
 
-#include <VulkanTexture.h>
+#include <Vulkan/VulkanTexture.h>
 
 #include <volk.h>
 

@@ -1,14 +1,14 @@
-#include <Scene.h>
+#include <Core/Scene.h>
 
 #include <iostream>
 
-#include <SceneObject.h>
-#include <MeshInstance.h>
-#include <ModelManager.h>
-#include <Mesh.h>
-#include <Camera.h>
-#include <Transform.h>
-#include <Model.h>
+#include <Core/SceneObject.h>
+#include <Core/MeshInstance.h>
+#include <Core/ModelManager.h>
+#include <Core/Mesh.h>
+#include <Core/Camera.h>
+#include <Core/Transform.h>
+#include <Core/Model.h>
 
 using namespace VulkanRenderer;
 

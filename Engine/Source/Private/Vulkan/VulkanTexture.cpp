@@ -1,10 +1,10 @@
-#include <VulkanTexture.h>
+#include <Vulkan/VulkanTexture.h>
 
 #include <iostream>
 
-#include <VulkanDevice.h>
-#include <VulkanImage.h>
-#include <VulkanBuffer.h>
+#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/VulkanImage.h>
+#include <Vulkan/VulkanBuffer.h>
 
 #include <stb_image.h>
 
