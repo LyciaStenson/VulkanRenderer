@@ -4,7 +4,7 @@
 
 namespace VulkanRenderer
 {
-	struct CameraUBO
+	struct alignas(16) CameraUBO
 	{
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
