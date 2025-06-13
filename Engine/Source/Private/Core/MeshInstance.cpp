@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include <Vulkan/VulkanConfig.h>
-#include <Vulkan/VulkanDevice.h>
-#include <Vulkan/VulkanUniformBuffer.h>
+#include <Vulkan/Config.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/UniformBuffer.h>
 #include <Core/Mesh.h>
 #include <Core/MeshUBO.h>
 

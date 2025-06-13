@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include <Vulkan/VulkanImGuiOverlay.h>
+#include <Vulkan/ImGuiOverlay.h>
 #include <Core/Scene.h>
 
 using namespace VulkanRenderer;

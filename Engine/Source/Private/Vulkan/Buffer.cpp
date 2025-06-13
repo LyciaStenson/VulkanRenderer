@@ -1,9 +1,9 @@
-#include <Vulkan/VulkanBuffer.h>
+#include <Vulkan/Buffer.h>
 
 #include <iostream>
 
-#include <Vulkan/VulkanHelpers.h>
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Helpers.h>
+#include <Vulkan/Device.h>
 
 using namespace VulkanRenderer;
 

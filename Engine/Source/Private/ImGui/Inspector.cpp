@@ -1,6 +1,6 @@
 #include <ImGui/Inspector.h>
 
-#include <Vulkan/VulkanImGuiOverlay.h>
+#include <Vulkan/ImGuiOverlay.h>
 #include <Core/SceneObject.h>
 #include <Core/Scene.h>
 #include <Core/Camera.h>

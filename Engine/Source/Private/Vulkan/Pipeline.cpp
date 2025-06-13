@@ -1,4 +1,4 @@
-#include <Vulkan/VulkanPipeline.h>
+#include <Vulkan/Pipeline.h>
 
 #include <iostream>
 #include <array>
@@ -11,10 +11,10 @@
 #include <Core/Mesh.h>
 #include <Core/MeshPrimitive.h>
 #include <Core/Camera.h>
-#include <Vulkan/VulkanDevice.h>
-#include <Vulkan/VulkanSwapChain.h>
-#include <Vulkan/VulkanRenderPass.h>
-#include <Vulkan/VulkanDescriptorSetLayoutManager.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/SwapChain.h>
+#include <Vulkan/RenderPass.h>
+#include <Vulkan/DescriptorSetLayoutManager.h>
 
 using namespace VulkanRenderer;
 

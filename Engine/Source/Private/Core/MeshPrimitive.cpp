@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include <Vulkan/VulkanConfig.h>
-#include <Vulkan/VulkanHelpers.h>
-#include <Vulkan/VulkanDevice.h>
-#include <Vulkan/VulkanTexture.h>
-#include <Vulkan/VulkanBuffer.h>
-#include <Vulkan/VulkanUniformBuffer.h>
+#include <Vulkan/Config.h>
+#include <Vulkan/Helpers.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/Texture.h>
+#include <Vulkan/Buffer.h>
+#include <Vulkan/UniformBuffer.h>
 #include <Core/MaterialFactorsUBO.h>
 #include <Core/Vertex.h>
 

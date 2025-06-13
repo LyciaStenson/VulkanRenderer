@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/Config.h>
 #include <Core/CameraUBO.h>
 
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Device.h>
 
 using namespace VulkanRenderer;
 

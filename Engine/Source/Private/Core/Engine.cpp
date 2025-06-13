@@ -5,16 +5,16 @@
 
 #include <volk.h>
 
-#include <Vulkan/VulkanConfig.h>
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Config.h>
+#include <Vulkan/Device.h>
 #include <Core/GlfwWindow.h>
-#include <Vulkan/VulkanInstance.h>
-#include <Vulkan/VulkanSwapChain.h>
-#include <Vulkan/VulkanRenderPass.h>
-#include <Vulkan/VulkanDescriptorSetLayoutManager.h>
-#include <Vulkan/VulkanPipeline.h>
-#include <Vulkan/VulkanDescriptorPool.h>
-#include <Vulkan/VulkanSync.h>
+#include <Vulkan/Instance.h>
+#include <Vulkan/SwapChain.h>
+#include <Vulkan/RenderPass.h>
+#include <Vulkan/DescriptorSetLayoutManager.h>
+#include <Vulkan/Pipeline.h>
+#include <Vulkan/DescriptorPool.h>
+#include <Vulkan/Sync.h>
 #include <Core/ModelManager.h>
 #include <Core/MeshInstance.h>
 #include <Core/MeshPrimitive.h>
@@ -23,7 +23,7 @@
 #include <Core/Scene.h>
 #include <Core/Vertex.h>
 #include <Core/Transform.h>
-#include <Vulkan/VulkanImGuiOverlay.h>
+#include <Vulkan/ImGuiOverlay.h>
 
 using namespace VulkanRenderer;
 

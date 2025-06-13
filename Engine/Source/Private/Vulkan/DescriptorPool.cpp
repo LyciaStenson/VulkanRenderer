@@ -1,10 +1,10 @@
-#include <Vulkan/VulkanDescriptorPool.h>
+#include <Vulkan/DescriptorPool.h>
 
 #include <iostream>
 #include <array>
 
-#include <Vulkan/VulkanConfig.h>
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Config.h>
+#include <Vulkan/Device.h>
 
 using namespace VulkanRenderer;
 

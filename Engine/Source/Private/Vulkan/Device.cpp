@@ -1,10 +1,10 @@
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Device.h>
 
 #include <iostream>
 #include <map>
 #include <set>
 
-#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/Config.h>
 
 using namespace VulkanRenderer;
 

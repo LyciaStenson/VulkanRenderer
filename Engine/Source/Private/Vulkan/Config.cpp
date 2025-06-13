@@ -1,4 +1,4 @@
-#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/Config.h>
 
 #include <iostream>
 

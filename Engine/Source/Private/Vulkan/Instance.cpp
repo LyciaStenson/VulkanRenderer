@@ -1,8 +1,8 @@
-#include <Vulkan/VulkanInstance.h>
+#include <Vulkan/Instance.h>
 
 #include <iostream>
 
-#include <Vulkan/VulkanConfig.h>
+#include <Vulkan/Config.h>
 
 using namespace VulkanRenderer;
 

@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Device.h>
 
 using namespace VulkanRenderer;
 

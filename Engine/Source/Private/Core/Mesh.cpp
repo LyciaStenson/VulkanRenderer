@@ -3,8 +3,8 @@
 #include <iostream>
 #include <chrono>
 
-#include <Vulkan/VulkanDevice.h>
-#include <Vulkan/VulkanTexture.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/Texture.h>
 #include <Core/MeshPrimitive.h>
 
 #include <stb_image.h>

@@ -1,4 +1,4 @@
-#include <Vulkan/VulkanHelpers.h>
+#include <Vulkan/Helpers.h>
 
 #include <iostream>
 #include <algorithm>
@@ -7,8 +7,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include <Vulkan/VulkanConfig.h>
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Config.h>
+#include <Vulkan/Device.h>
 
 namespace VulkanRenderer
 {

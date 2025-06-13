@@ -11,7 +11,7 @@
 #include <Core/Mesh.h>
 #include <Core/MeshPrimitive.h>
 #include <Core/MeshInstance.h>
-#include <Vulkan/VulkanTexture.h>
+#include <Vulkan/Texture.h>
 
 using namespace VulkanRenderer;
 

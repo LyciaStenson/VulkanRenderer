@@ -9,7 +9,7 @@
 
 #include <Core/SceneObject.h>
 #include <Core/Transform.h>
-#include <Vulkan/VulkanUniformBuffer.h>
+#include <Vulkan/UniformBuffer.h>
 
 namespace VulkanRenderer
 {

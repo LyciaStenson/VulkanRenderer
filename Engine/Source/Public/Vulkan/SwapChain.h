@@ -2,7 +2,7 @@
 
 #include <volk.h>
 
-#include <Vulkan/VulkanDevice.h>
+#include <Vulkan/Device.h>
 
 namespace VulkanRenderer
 {

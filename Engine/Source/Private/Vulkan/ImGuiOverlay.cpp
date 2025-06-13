@@ -1,12 +1,12 @@
-#include <Vulkan/VulkanImGuiOverlay.h>
+#include <Vulkan/ImGuiOverlay.h>
 
 #include <vector>
 #include <iostream>
 
-#include <Vulkan/VulkanInstance.h>
-#include <Vulkan/VulkanDevice.h>
-#include <Vulkan/VulkanSwapChain.h>
-#include <Vulkan/VulkanRenderPass.h>
+#include <Vulkan/Instance.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/SwapChain.h>
+#include <Vulkan/RenderPass.h>
 #include <ImGui/ImGuiDescriptorPool.h>
 #include <Core/MeshInstance.h>
 #include <Core/Camera.h>
