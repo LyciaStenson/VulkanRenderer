@@ -76,11 +76,10 @@ Engine::Engine()
 	transparentPipeline->SetDescriptorPool(descriptorPool->Get());
 	
 	sync = std::make_unique<VulkanSync>(device->GetLogical());
-
-	GLFWwindow* window = glfwWindow->Get();
-	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), window);
 	
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
+	
+	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), glfwWindow->Get(), scene.get());
 }
 
 Engine::~Engine()
@@ -118,7 +117,7 @@ void Engine::DrawFrame()
 	
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
 
-	if (mainCamera)
+	if (scene->GetMainCamera())
 	{
 		scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
 

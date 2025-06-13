@@ -4,10 +4,10 @@
 
 namespace VulkanRenderer
 {
-	class AssetBrowser : public ImGuiWindow
+	class AboutWindow : public ImGuiWindow
 	{
 	public:
-		AssetBrowser(bool open = true);
+		AboutWindow(bool open = false);
 
 	protected:
 		void OnRender() override;

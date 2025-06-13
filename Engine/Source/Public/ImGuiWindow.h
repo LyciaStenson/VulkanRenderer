@@ -6,20 +6,32 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
-class ImGuiWindow
+namespace VulkanRenderer
 {
-public:
-	ImGuiWindow(const std::string& title, bool open = true, bool hasMenuBar = false);
-	virtual ~ImGuiWindow() = default;
+	struct ImGuiWindowProperties
+	{
+		bool hasMenuBar = false;
+		bool fixedSize = false;
+		ImVec2 size;
+	};
 
-	void SetOpen(bool open);
+	class ImGuiWindow
+	{
+	public:
+		ImGuiWindow(const std::string& title, bool open = true, const ImGuiWindowProperties& properties = {});
+		virtual ~ImGuiWindow() = default;
 
-	void Render();
+		void SetOpen(bool open);
 
-protected:
-	virtual void OnRender() = 0;
+		void Render();
 
-	std::string m_Title;
-	bool m_Open;
-	bool m_HasMenuBar;
-};
+	protected:
+		virtual void OnRender() = 0;
+
+		std::string m_Title;
+		bool m_Open;
+		bool m_HasMenuBar;
+		bool m_FixedSize;
+		ImVec2 m_Size;
+	};
+}

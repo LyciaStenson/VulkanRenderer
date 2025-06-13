@@ -34,6 +34,9 @@ namespace VulkanRenderer
 
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
 		std::vector<std::unique_ptr<SceneObject>>& GetObjectsMutable();
+
+		Camera* GetMainCamera() const;
+		void SetMainCamera(Camera* camera);
 		
 		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
 		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent);
@@ -53,6 +56,8 @@ namespace VulkanRenderer
 
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
+
+		Camera* mainCamera = nullptr;
 
 		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent);
 		

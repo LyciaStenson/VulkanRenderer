@@ -2,11 +2,23 @@
 
 #include <ImGuiWindow.h>
 
-class Inspector : public ImGuiWindow
+namespace VulkanRenderer
 {
-public:
-	Inspector(bool open = true);
+	class VulkanImGuiOverlay;
+	class SceneObject;
+	class Scene;
 
-protected:
-	void OnRender() override;
-};
+	class Inspector : public ImGuiWindow
+	{
+	public:
+		Inspector(Scene* scene, VulkanImGuiOverlay* overlay, bool open = true);
+
+	protected:
+		void OnRender() override;
+		
+		Scene* m_Scene = nullptr;
+		VulkanImGuiOverlay* m_Overlay = nullptr;
+
+		SceneObject* m_SelectedObject = nullptr;
+	};
+}

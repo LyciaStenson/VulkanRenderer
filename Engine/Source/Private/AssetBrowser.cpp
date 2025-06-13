@@ -1,5 +1,7 @@
 #include <AssetBrowser.h>
 
+using namespace VulkanRenderer;
+
 AssetBrowser::AssetBrowser(bool open)
 	: ImGuiWindow("Asset Browser", open)
 {

@@ -10,40 +10,19 @@
 #include <ImGuiDescriptorPool.h>
 #include <MeshInstance.h>
 #include <Camera.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
-inline float Wrap180(float angle)
-{
-	angle = std::fmod(angle + 180.0f, 360.0f);
-	if (angle < 0.0f)
-		angle += 360.0f;
-	return angle - 180.0f;
-}
-
-inline glm::vec3 WrapEuler180(const glm::vec3 angles)
-{
-	return glm::vec3(Wrap180(angles.x), Wrap180(angles.y), Wrap180(angles.z));
-}
-
-inline float RoundDP(float value, int dp)
-{
-	float factor = std::pow(10.0f, dp);
-	return std::round(value * factor) / factor;
-}
-
-inline glm::vec3 RoundEulerDP(const glm::vec3& angles, int dp)
-{
-	return glm::vec3(RoundDP(angles.x, dp), RoundDP(angles.y, dp), RoundDP(angles.z, dp));
-}
+#include <Scene.h>
+#include <SceneOutliner.h>
+#include <CreateObjectWindow.h>
+#include <Inspector.h>
+#include <AssetBrowser.h>
+#include <AboutWindow.h>
 
 namespace VulkanRenderer
 {
-	VulkanImGuiOverlay::VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow)
-		: glfwWindow(glfwWindow)
+	VulkanImGuiOverlay::VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene)
+		: m_Window(glfwWindow)
 	{
-		descriptorPool = std::make_unique<ImGuiDescriptorPool>(device);
+		m_DescriptorPool = std::make_unique<ImGuiDescriptorPool>(device);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -61,7 +40,7 @@ namespace VulkanRenderer
 		imGuiInitInfo.Device = device->GetLogical();
 		imGuiInitInfo.QueueFamily = device->graphicsQueueFamily;
 		imGuiInitInfo.Queue = device->graphicsQueue;
-		imGuiInitInfo.DescriptorPool = descriptorPool->Get();
+		imGuiInitInfo.DescriptorPool = m_DescriptorPool->Get();
 		imGuiInitInfo.RenderPass = renderPass->Get();
 		imGuiInitInfo.Subpass = 0;
 		imGuiInitInfo.MinImageCount = swapChain->GetMinImageCount();
@@ -72,9 +51,11 @@ namespace VulkanRenderer
 
 		ImGui_ImplVulkan_CreateFontsTexture();
 
-		m_Windows["Scene Outliner"] = std::make_unique<SceneOutliner>();
-		m_Windows["Inspector"] = std::make_unique<Inspector>();
+		m_Windows["Scene Outliner"] = std::make_unique<SceneOutliner>(scene, this);
+		m_Windows["Create Object Window"] = std::make_unique<CreateObjectWindow>(scene);
+		m_Windows["Inspector"] = std::make_unique<Inspector>(scene, this);
 		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>();
+		m_Windows["About"] = std::make_unique<AboutWindow>();
 	}
 	
 	VulkanImGuiOverlay::~VulkanImGuiOverlay()
@@ -86,6 +67,16 @@ namespace VulkanRenderer
 		ImGui::DestroyContext();
 	}
 	
+	SceneObject* VulkanImGuiOverlay::GetSelectedObject() const
+	{
+		return m_SelectedObject;
+	}
+
+	void VulkanImGuiOverlay::SelectObject(SceneObject* object)
+	{
+		m_SelectedObject = object;
+	}
+	
 	void VulkanImGuiOverlay::Render(VkCommandBuffer commandBuffer)
 	{
 		NewFrame();
@@ -95,16 +86,7 @@ namespace VulkanRenderer
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Quit"))
-					glfwSetWindowShouldClose(glfwWindow, true);
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Project"))
-			{
-				if (ImGui::MenuItem("Load Model"))
-				{
-					//showLoadModel = true;
-					//centerLoadModel = true;
-				}
+					glfwSetWindowShouldClose(m_Window, true);
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Window"))
@@ -130,8 +112,8 @@ namespace VulkanRenderer
 			{
 				if (ImGui::MenuItem("About"))
 				{
-					//showAbout = true;
-					//centerAbout = true;
+					if (m_Windows.count("About"))
+						m_Windows["About"]->SetOpen(true);
 				}
 				ImGui::EndMenu();
 			}
@@ -142,12 +124,14 @@ namespace VulkanRenderer
 		{
 			window->Render();
 		}
-
-		//sceneOutliner.Render();
-		//inspector.Render();
-		//assetBrowser.Render();
-
+		
 		Draw(commandBuffer);
+	}
+
+	void VulkanImGuiOverlay::OpenCreateObjectWindow()
+	{
+		if (m_Windows.count("Create Object Window"))
+			m_Windows["Create Object Window"]->SetOpen(true);
 	}
 	
 	void VulkanImGuiOverlay::NewFrame()

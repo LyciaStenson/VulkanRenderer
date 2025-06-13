@@ -2,11 +2,10 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
-#include <SceneOutliner.h>
-#include <Inspector.h>
-#include <AssetBrowser.h>
+#include <ImGuiWindow.h>
 
 #include <volk.h>
 #include <glfw/glfw3.h>
@@ -22,38 +21,32 @@ namespace VulkanRenderer
 	class VulkanSwapChain;
 	class VulkanRenderPass;
 	class ImGuiDescriptorPool;
+	class Scene;
 	class SceneObject;
 	
 	class VulkanImGuiOverlay
 	{
 	public:
-		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow);
+		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene);
 		~VulkanImGuiOverlay();
+
+		SceneObject* GetSelectedObject() const;
+		void SelectObject(SceneObject* object);
 		
 		void Render(VkCommandBuffer commandBuffer);
-		
-		//void DrawSceneGraph(std::vector<std::unique_ptr<SceneObject>>& meshInstances);
 
-		//void DrawInspector(bool* show);
-
-		//void DrawAssetBrowser(bool* show);
+		void OpenCreateObjectWindow();
 
 	private:
-		GLFWwindow* glfwWindow;
+		GLFWwindow* m_Window;
 
-		std::unique_ptr<ImGuiDescriptorPool> descriptorPool;
+		std::unique_ptr<ImGuiDescriptorPool> m_DescriptorPool;
 
-		SceneObject* selectedObject = nullptr;
+		SceneObject* m_SelectedObject = nullptr;
 
 		std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> m_Windows;
-
-		//SceneOutliner sceneOutliner;
-		//Inspector inspector;
-		//AssetBrowser assetBrowser;
-
+		
 		void NewFrame();
 		void Draw(VkCommandBuffer commandBuffer);
-
-		//void DrawSceneNode(SceneObject* meshInstance);
 	};
 }

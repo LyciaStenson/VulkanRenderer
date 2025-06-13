@@ -33,6 +33,16 @@ std::vector<std::unique_ptr<SceneObject>>& Scene::GetObjectsMutable()
 	return objects;
 }
 
+Camera* Scene::GetMainCamera() const
+{
+	return mainCamera;
+}
+
+void Scene::SetMainCamera(Camera* camera)
+{
+	mainCamera = camera;
+}
+
 SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
 {
 	std::string instanceName = name;
