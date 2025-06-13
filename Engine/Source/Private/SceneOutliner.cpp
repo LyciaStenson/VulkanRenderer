@@ -23,11 +23,17 @@ void SceneOutliner::OnRender()
 		{
 			if (ImGui::MenuItem("New Scene Object"))
 			{
-				m_Overlay->OpenCreateObjectWindow();
+				m_Overlay->OpenWindow("Create Object Window");
 			}
 			if (ImGui::MenuItem("Instantiate Model"))
 			{
+				m_Overlay->OpenWindow("Instantiate Model Window");
 			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Load Model"))
+		{
+			m_Overlay->OpenWindow("Load Model Window");
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();

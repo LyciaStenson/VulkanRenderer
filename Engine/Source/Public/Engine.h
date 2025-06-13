@@ -49,8 +49,6 @@ namespace VulkanRenderer
 		
 		std::unique_ptr<Scene> scene;
 		std::unique_ptr<ModelManager> modelManager;
-
-		Camera* mainCamera = nullptr;
 		
 		int currentFrame = 0;
 		

@@ -21,21 +21,22 @@ namespace VulkanRenderer
 	class VulkanSwapChain;
 	class VulkanRenderPass;
 	class ImGuiDescriptorPool;
-	class Scene;
 	class SceneObject;
+	class Scene;
+	class ModelManager;
 	
 	class VulkanImGuiOverlay
 	{
 	public:
-		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene);
+		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene, ModelManager* modelManager);
 		~VulkanImGuiOverlay();
 
 		SceneObject* GetSelectedObject() const;
 		void SelectObject(SceneObject* object);
 		
 		void Render(VkCommandBuffer commandBuffer);
-
-		void OpenCreateObjectWindow();
+		
+		void OpenWindow(const std::string& title);
 
 	private:
 		GLFWwindow* m_Window;

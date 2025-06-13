@@ -11,15 +11,18 @@
 #include <MeshInstance.h>
 #include <Camera.h>
 #include <Scene.h>
+#include <ModelManager.h>
 #include <SceneOutliner.h>
+#include <LoadModelWindow.h>
 #include <CreateObjectWindow.h>
+#include <InstantiateModelWindow.h>
 #include <Inspector.h>
 #include <AssetBrowser.h>
 #include <AboutWindow.h>
 
 namespace VulkanRenderer
 {
-	VulkanImGuiOverlay::VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene)
+	VulkanImGuiOverlay::VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene, ModelManager* modelManager)
 		: m_Window(glfwWindow)
 	{
 		m_DescriptorPool = std::make_unique<ImGuiDescriptorPool>(device);
@@ -50,8 +53,10 @@ namespace VulkanRenderer
 		ImGui_ImplVulkan_Init(&imGuiInitInfo);
 
 		ImGui_ImplVulkan_CreateFontsTexture();
-
+		
 		m_Windows["Scene Outliner"] = std::make_unique<SceneOutliner>(scene, this);
+		m_Windows["Load Model Window"] = std::make_unique<LoadModelWindow>(modelManager);
+		m_Windows["Instantiate Model Window"] = std::make_unique<InstantiateModelWindow>(modelManager, scene);
 		m_Windows["Create Object Window"] = std::make_unique<CreateObjectWindow>(scene);
 		m_Windows["Inspector"] = std::make_unique<Inspector>(scene, this);
 		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>();
@@ -128,10 +133,10 @@ namespace VulkanRenderer
 		Draw(commandBuffer);
 	}
 
-	void VulkanImGuiOverlay::OpenCreateObjectWindow()
+	void VulkanImGuiOverlay::OpenWindow(const std::string& title)
 	{
-		if (m_Windows.count("Create Object Window"))
-			m_Windows["Create Object Window"]->SetOpen(true);
+		if (m_Windows.count(title))
+			m_Windows[title]->SetOpen(true);
 	}
 	
 	void VulkanImGuiOverlay::NewFrame()

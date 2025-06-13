@@ -183,7 +183,7 @@ void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
 		{
 			meshInstance->UpdateUniformBuffer(currentFrame);
 		}
-		if (auto* camera = dynamic_cast<Camera*>(object.get()))
+		else if (auto* camera = dynamic_cast<Camera*>(object.get()))
 		{
 			camera->UpdateUniformBuffer(currentFrame, swapChainExtent);
 		}

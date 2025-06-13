@@ -79,7 +79,7 @@ Engine::Engine()
 	
 	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
 	
-	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), glfwWindow->Get(), scene.get());
+	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), glfwWindow->Get(), scene.get(), modelManager.get());
 }
 
 Engine::~Engine()
@@ -141,13 +141,14 @@ void Engine::DrawFrame()
 		std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
 			[&](MeshInstance* a, MeshInstance* b)
 			{
-				float distA = glm::length(mainCamera->transform.position - a->transform.position);
-				float distB = glm::length(mainCamera->transform.position - b->transform.position);
+				const glm::vec3& cameraPosition = scene->GetMainCamera()->transform.position;
+				float distA = glm::length(cameraPosition - a->transform.position);
+				float distB = glm::length(cameraPosition - b->transform.position);
 				return distA > distB;
 			});
 		
-		opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, mainCamera);
-		transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, mainCamera);
+		opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, scene->GetMainCamera());
+		transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, scene->GetMainCamera());
 	}
 	
 	imGuiOverlay->Render(device->commandBuffers[currentFrame]);
