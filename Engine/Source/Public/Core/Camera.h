@@ -24,17 +24,17 @@ namespace VulkanRenderer
 		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
 
 		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
-
-		std::vector<VkDescriptorSet> descriptorSets;
 		
 		float fov = 70.0f;
 
+		std::vector<VkDescriptorSet> descriptorSets;
+
 	private:
 		VulkanDevice* device;
-		
-		std::vector<VulkanUniformBuffer> uniformBuffers;
 
 		VkDescriptorSetLayout descriptorSetLayout;
+		
+		std::vector<VulkanUniformBuffer> uniformBuffers;
 		
 		void CreateUniformBuffers();
 	};

@@ -3,8 +3,7 @@
 layout(set = 2, binding = 0) uniform MaterialFactorsUBO
 {
 	vec4 baseColor;
-	float metallic;
-	float roughness;
+	vec3 metallicRoughness;
 } factorsUBO;
 
 layout(set = 2, binding = 1) uniform sampler2D baseColorSampler;
@@ -22,8 +21,8 @@ void main()
 	vec4 baseColor = texture(baseColorSampler, fragBaseColorTexCoord) * factorsUBO.baseColor;
 
 	vec4 metallicRoughness = texture(metallicRoughnessSampler, fragMetallicRoughnessTexCoord);
-	float metallic = metallicRoughness.b * factorsUBO.metallic;
-	float roughness = metallicRoughness.g * factorsUBO.roughness;
+	float metallic = metallicRoughness.b * factorsUBO.metallicRoughness.b;
+	float roughness = metallicRoughness.g * factorsUBO.metallicRoughness.g;
 
 	vec3 normal = texture(normalSampler, fragNormalTexCoord).rgb;
 	

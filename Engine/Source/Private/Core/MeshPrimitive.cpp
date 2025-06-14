@@ -91,9 +91,8 @@ void MeshPrimitive::CreateMaterialFactorsUniformBuffer()
 
 	MaterialFactorsUBO ubo{};
 	ubo.baseColor = baseColorFactor;
-	ubo.metallic = metallicFactor;
-	ubo.roughness = roughnessFactor;
-
+	ubo.metallicRoughness = glm::vec3(0.0f, roughnessFactor, metallicFactor);
+	
 	memcpy(materialFactorsUniformBuffer->GetMappedData(), &ubo, sizeof(ubo));
 }
 

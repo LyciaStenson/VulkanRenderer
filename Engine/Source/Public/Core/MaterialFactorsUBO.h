@@ -6,8 +6,7 @@ namespace VulkanRenderer
 {
 	struct alignas(16) MaterialFactorsUBO
 	{
-		alignas(16) glm::vec4 baseColor;
-		alignas(4) float metallic;
-		alignas(4) float roughness;
+		alignas(16)	glm::vec4 baseColor;
+		alignas(16)	glm::vec3 metallicRoughness;
 	};
 }
