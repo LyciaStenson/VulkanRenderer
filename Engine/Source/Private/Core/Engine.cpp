@@ -77,7 +77,7 @@ Engine::Engine()
 	
 	sync = std::make_unique<VulkanSync>(device->GetLogical());
 	
-	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetCameraDescriptorSetLayout(), descriptorPool->Get());
+	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetGlobalDescriptorSetLayout(), descriptorPool->Get());
 	
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), glfwWindow->Get(), scene.get(), modelManager.get());
 }

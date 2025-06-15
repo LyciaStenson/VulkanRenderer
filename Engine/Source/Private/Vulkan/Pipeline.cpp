@@ -150,7 +150,7 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 
 	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts =
 	{
-		layoutManager->GetCameraDescriptorSetLayout(),
+		layoutManager->GetGlobalDescriptorSetLayout(),
 		layoutManager->GetMeshDescriptorSetLayout(),
 		layoutManager->GetMaterialDescriptorSetLayout()
 	};

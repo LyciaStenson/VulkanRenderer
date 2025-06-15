@@ -10,21 +10,21 @@ using namespace VulkanRenderer;
 VulkanDescriptorSetLayoutManager::VulkanDescriptorSetLayoutManager(VulkanDevice* device)
 	: device(device)
 {
-	CreateCameraDescriptorSetLayout();
+	CreateGlobalDescriptorSetLayout();
 	CreateMeshDescriptorSetLayout();
 	CreateMaterialDescriptorSetLayout();
 }
 
 VulkanDescriptorSetLayoutManager::~VulkanDescriptorSetLayoutManager()
 {
-	vkDestroyDescriptorSetLayout(device->GetLogical(), cameraDescriptorSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(device->GetLogical(), globalDescriptorSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(device->GetLogical(), meshDescriptorSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(device->GetLogical(), materialDescriptorSetLayout, nullptr);
 }
 
-VkDescriptorSetLayout VulkanDescriptorSetLayoutManager::GetCameraDescriptorSetLayout() const
+VkDescriptorSetLayout VulkanDescriptorSetLayoutManager::GetGlobalDescriptorSetLayout() const
 {
-	return cameraDescriptorSetLayout;
+	return globalDescriptorSetLayout;
 }
 
 VkDescriptorSetLayout VulkanDescriptorSetLayoutManager::GetMeshDescriptorSetLayout() const
@@ -37,23 +37,31 @@ VkDescriptorSetLayout VulkanDescriptorSetLayoutManager::GetMaterialDescriptorSet
 	return materialDescriptorSetLayout;
 }
 
-void VulkanDescriptorSetLayoutManager::CreateCameraDescriptorSetLayout()
+void VulkanDescriptorSetLayoutManager::CreateGlobalDescriptorSetLayout()
 {
-	VkDescriptorSetLayoutBinding uboBinding{};
-	uboBinding.binding = 0;
-	uboBinding.descriptorCount = 1;
-	uboBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboBinding.pImmutableSamplers = nullptr;
-	uboBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	VkDescriptorSetLayoutBinding cameraBinding{};
+	cameraBinding.binding = 0;
+	cameraBinding.descriptorCount = 1;
+	cameraBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	cameraBinding.pImmutableSamplers = nullptr;
+	cameraBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+	VkDescriptorSetLayoutBinding pointLightsBinding{};
+	pointLightsBinding.binding = 1;
+	pointLightsBinding.descriptorCount = 1;
+	pointLightsBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	pointLightsBinding.pImmutableSamplers = nullptr;
+	pointLightsBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {cameraBinding, pointLightsBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboBinding;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.pBindings = bindings.data();
 
-	if (vkCreateDescriptorSetLayout(device->GetLogical(), &layoutInfo, nullptr, &cameraDescriptorSetLayout) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(device->GetLogical(), &layoutInfo, nullptr, &globalDescriptorSetLayout) != VK_SUCCESS)
 	{
-		std::cerr << "Failed to create camera descriptor set layout" << std::endl;
+		std::cerr << "Failed to create global descriptor set layout" << std::endl;
 	}
 }
 

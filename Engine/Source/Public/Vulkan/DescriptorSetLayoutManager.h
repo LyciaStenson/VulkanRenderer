@@ -12,16 +12,16 @@ namespace VulkanRenderer
 		VulkanDescriptorSetLayoutManager(VulkanDevice* device);
 		~VulkanDescriptorSetLayoutManager();
 
-		VkDescriptorSetLayout GetCameraDescriptorSetLayout() const;
+		VkDescriptorSetLayout GetGlobalDescriptorSetLayout() const;
 		VkDescriptorSetLayout GetMeshDescriptorSetLayout() const;
 		VkDescriptorSetLayout GetMaterialDescriptorSetLayout() const;
 
 	private:
-		void CreateCameraDescriptorSetLayout();
+		void CreateGlobalDescriptorSetLayout();
 		void CreateMeshDescriptorSetLayout();
 		void CreateMaterialDescriptorSetLayout();
 
-		VkDescriptorSetLayout cameraDescriptorSetLayout;
+		VkDescriptorSetLayout globalDescriptorSetLayout;
 		VkDescriptorSetLayout meshDescriptorSetLayout;
 		VkDescriptorSetLayout materialDescriptorSetLayout;
 		
