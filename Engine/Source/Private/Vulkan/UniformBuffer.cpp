@@ -10,7 +10,7 @@ VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, VkDeviceSize size
 	: device(device)
 {
 	buffer = new VulkanBuffer(device, size, usageFlags, propertyFlags);
-	buffer->Map(mappedData);
+	mappedData = buffer->Map();
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer()

@@ -13,7 +13,7 @@ VulkanStorageBuffer::VulkanStorageBuffer(VulkanDevice* device, VkDeviceSize size
 	buffer = new VulkanRenderer::VulkanBuffer(device, size, usageFlags | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, propertyFlags);
 
 	if (propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-		buffer->Map(mappedData);
+		mappedData = buffer->Map();
 }
 
 VulkanStorageBuffer::~VulkanStorageBuffer()

@@ -10,6 +10,17 @@ layout(set = 2, binding = 1) uniform sampler2D baseColorSampler;
 layout(set = 2, binding = 2) uniform sampler2D metallicRoughnessSampler;
 layout(set = 2, binding = 3) uniform sampler2D normalSampler;
 
+struct PointLight
+{
+	vec4 positionRadius;
+	vec4 colorIntensity;
+};
+
+layout (std430, set = 2, binding = 4) buffer PointLights
+{
+	PointLight pointLights[];
+};
+
 layout(location = 0) in vec2 fragBaseColorTexCoord;
 layout(location = 1) in vec2 fragMetallicRoughnessTexCoord;
 layout(location = 2) in vec2 fragNormalTexCoord;
