@@ -43,7 +43,7 @@ const size_t MeshPrimitive::GetIndicesSize() const
 	return indicesSize;
 }
 
-VkDescriptorImageInfo MeshPrimitive::GetBaseColorDescriptorInfo() const
+VkDescriptorImageInfo MeshPrimitive::GetBaseColorInfo() const
 {
 	VkDescriptorImageInfo baseColorInfo{};
 	baseColorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -53,7 +53,7 @@ VkDescriptorImageInfo MeshPrimitive::GetBaseColorDescriptorInfo() const
 	return baseColorInfo;
 }
 
-VkDescriptorImageInfo MeshPrimitive::GetMetallicRoughnessDescriptorInfo() const
+VkDescriptorImageInfo MeshPrimitive::GetMetallicRoughnessInfo() const
 {
 	VkDescriptorImageInfo roughnessInfo{};
 	roughnessInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -63,7 +63,7 @@ VkDescriptorImageInfo MeshPrimitive::GetMetallicRoughnessDescriptorInfo() const
 	return roughnessInfo;
 }
 
-VkDescriptorImageInfo MeshPrimitive::GetNormalDescriptorInfo() const
+VkDescriptorImageInfo MeshPrimitive::GetNormalInfo() const
 {
 	VkDescriptorImageInfo metallicInfo{};
 	metallicInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -71,6 +71,16 @@ VkDescriptorImageInfo MeshPrimitive::GetNormalDescriptorInfo() const
 	metallicInfo.sampler = normalTexture->GetSampler();
 
 	return metallicInfo;
+}
+
+VkDescriptorBufferInfo MeshPrimitive::GetPointLightBufferInfo() const
+{
+	VkDescriptorBufferInfo bufferInfo{};
+	//bufferInfo.buffer = pointLightBuffer;
+	bufferInfo.offset = 0;
+	//bufferInfo.range = pointLightBufferSize;
+
+	return bufferInfo;
 }
 
 const std::vector<VkDescriptorSet>& MeshPrimitive::GetMaterialDescriptorSets() const
@@ -175,7 +185,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &GetBaseColorDescriptorInfo();
+		descriptorWrites[1].pImageInfo = &GetBaseColorInfo();
 
 		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[2].dstSet = materialDescriptorSets[i];
@@ -183,7 +193,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[2].dstArrayElement = 0;
 		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &GetMetallicRoughnessDescriptorInfo();
+		descriptorWrites[2].pImageInfo = &GetMetallicRoughnessInfo();
 
 		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[3].dstSet = materialDescriptorSets[i];
@@ -191,7 +201,15 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[3].dstArrayElement = 0;
 		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[3].descriptorCount = 1;
-		descriptorWrites[3].pImageInfo = &GetNormalDescriptorInfo();
+		descriptorWrites[3].pImageInfo = &GetNormalInfo();
+
+		//descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//descriptorWrites[4].dstSet = materialDescriptorSets[i];
+		//descriptorWrites[4].dstBinding = 4;
+		//descriptorWrites[4].dstArrayElement = 0;
+		//descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		//descriptorWrites[4].descriptorCount = 1;
+		//descriptorWrites[4].pBufferInfo = &GetPointLightBufferInfo();
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

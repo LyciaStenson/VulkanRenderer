@@ -24,7 +24,7 @@ namespace VulkanRenderer
 		VkDescriptorSetLayout cameraDescriptorSetLayout;
 		VkDescriptorSetLayout meshDescriptorSetLayout;
 		VkDescriptorSetLayout materialDescriptorSetLayout;
-
+		
 		VulkanDevice* device;
 	};
 }

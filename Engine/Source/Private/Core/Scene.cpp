@@ -2,11 +2,14 @@
 
 #include <iostream>
 
+#include <Vulkan/Device.h>
+#include <Vulkan/StorageBuffer.h>
 #include <Core/SceneObject.h>
 #include <Core/MeshInstance.h>
 #include <Core/ModelManager.h>
 #include <Core/Mesh.h>
 #include <Core/Camera.h>
+#include <Core/PointLight.h>
 #include <Core/Transform.h>
 #include <Core/Model.h>
 
@@ -86,6 +89,29 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	Camera* cameraPtr = camera.get();
 	objects.push_back(std::move(camera));
 	
+	return cameraPtr;
+}
+
+PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
+{
+	std::string lightName = name;
+	int counter = 1;
+	while (objectNames.count(lightName))
+	{
+		lightName = name + std::to_string(counter);
+		++counter;
+	}
+	objectNames.insert(lightName);
+
+	std::unique_ptr<PointLight> light = std::make_unique<PointLight>(lightName, device, cameraDescriptorSetLayout, descriptorPool);
+	light->transform.position = position;
+	light->transform.rotation = rotation;
+	light->transform.scale = scale;
+	light->transform.SetParent(parent);
+
+	PointLight* cameraPtr = light.get();
+	objects.push_back(std::move(light));
+
 	return cameraPtr;
 }
 

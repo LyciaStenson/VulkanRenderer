@@ -41,9 +41,10 @@ namespace VulkanRenderer
 		
 		const size_t GetIndicesSize() const;
 
-		VkDescriptorImageInfo GetBaseColorDescriptorInfo() const;
-		VkDescriptorImageInfo GetMetallicRoughnessDescriptorInfo() const;
-		VkDescriptorImageInfo GetNormalDescriptorInfo() const;
+		VkDescriptorImageInfo GetBaseColorInfo() const;
+		VkDescriptorImageInfo GetMetallicRoughnessInfo() const;
+		VkDescriptorImageInfo GetNormalInfo() const;
+		VkDescriptorBufferInfo GetPointLightBufferInfo() const;
 
 		const std::vector<VkDescriptorSet>& GetMaterialDescriptorSets() const;
 

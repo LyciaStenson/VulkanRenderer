@@ -9,7 +9,7 @@
 
 using namespace VulkanRenderer;
 
-PointLight::PointLight(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout)
+PointLight::PointLight(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool)
 	: SceneObject(name), device(device), descriptorSetLayout(descriptorSetLayout)
 {
 

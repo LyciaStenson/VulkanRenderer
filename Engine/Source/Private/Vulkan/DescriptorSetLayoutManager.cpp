@@ -106,6 +106,13 @@ void VulkanDescriptorSetLayoutManager::CreateMaterialDescriptorSetLayout()
 	normalBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	normalBinding.pImmutableSamplers = nullptr;
 	normalBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	//VkDescriptorSetLayoutBinding pointLightsBinding{};
+	//pointLightsBinding.binding = 4;
+	//pointLightsBinding.descriptorCount = 1;
+	//pointLightsBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	//pointLightsBinding.pImmutableSamplers = nullptr;
+	//pointLightsBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	
 	std::array<VkDescriptorSetLayoutBinding, 4> bindings = {factorsBinding, baseColorBinding, metallicRoughnessBinding, normalBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};

@@ -14,7 +14,7 @@ namespace VulkanRenderer
 	class PointLight : public SceneObject
 	{
 	public:
-		PointLight(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout);
+		PointLight(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
 		~PointLight();
 
 		void UpdateUniformBuffer(uint32_t currentImage);
