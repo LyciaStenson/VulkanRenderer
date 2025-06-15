@@ -26,7 +26,5 @@ namespace VulkanRenderer
 		VulkanDevice* device;
 
 		void* mappedData = nullptr;
-
-		void AllocateMemory(VkDeviceSize size);
 	};
 }

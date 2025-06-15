@@ -8,10 +8,8 @@ namespace VulkanRenderer
 
 	struct alignas(16) PointLightData
 	{
-		alignas(16)	glm::vec3 position;
-		alignas(16)	glm::vec3 color;
-		alignas(4)	float radius;
-		alignas(4)	float intensity;
+		alignas(16) glm::vec4 positionRadius;
+		alignas(16) glm::vec4 colorIntensity;
 	};
 
 	struct alignas(16) PointLightsUBO
