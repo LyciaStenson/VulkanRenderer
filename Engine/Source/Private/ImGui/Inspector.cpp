@@ -4,6 +4,7 @@
 #include <Core/SceneObject.h>
 #include <Core/Scene.h>
 #include <Core/Camera.h>
+#include <Core/PointLight.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -89,6 +90,23 @@ void Inspector::OnRender()
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(xPos);
 			ImGui::DragFloat("##FOV", &camera->fov, 0.01f, 1.0f, 179.0f, "%g");
+		}
+		else if (PointLight* pointLight = dynamic_cast<PointLight*>(selectedObject))
+		{
+			ImGui::Text("Intensity");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(xPos);
+			ImGui::DragFloat("##Intensity", &pointLight->intensity, 0.01f, 0.1f, 100.0f, "%g");
+
+			ImGui::Text("Color");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(xPos);
+			ImGui::ColorPicker3("##Color", &pointLight->color.r);
+
+			ImGui::Text("Radius");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(xPos);
+			ImGui::DragFloat("##Radius", &pointLight->radius, 0.01f, 0.01f, 100.0f, "%g");
 		}
 	}
 }

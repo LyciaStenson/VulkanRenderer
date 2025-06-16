@@ -19,8 +19,7 @@ namespace VulkanRenderer
 		~PointLight();
 
 		PointLightData GetData() const;
-
-	private:
+		
 		glm::vec3 color = glm::vec3(1.0f);
 		float intensity = 1.0f;
 		float radius = 10.0f;
