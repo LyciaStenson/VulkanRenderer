@@ -12,6 +12,7 @@
 #include <Core/Camera.h>
 #include <Core/CameraUBO.h>
 #include <Core/PointLight.h>
+#include <Core/PointLightData.h>
 #include <Core/Transform.h>
 #include <Core/Model.h>
 
@@ -203,8 +204,10 @@ SceneObject* Scene::InstantiateModel(const std::string& name, const Transform& t
 	}
 }
 
-void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
+void Scene::UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent)
 {
+	std::vector<PointLightData> pointLightData;
+
 	for (const auto& object : GetObjects())
 	{
 		if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
@@ -215,5 +218,11 @@ void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
 		{
 			globalDescriptorSetManager->UpdateCamera(currentFrame, camera->GetUBO(swapChainExtent));
 		}
+		else if (auto* light = dynamic_cast<PointLight*>(object.get()))
+		{
+			pointLightData.push_back(light->GetData());
+		}
 	}
+	
+	globalDescriptorSetManager->UpdatePointLights(currentFrame, pointLightData);
 }

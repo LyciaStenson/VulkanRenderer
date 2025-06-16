@@ -47,7 +47,7 @@ namespace VulkanRenderer
 
 		SceneObject* InstantiateModel(const std::string& name, const Transform& transform);
 		
-		void UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent);
+		void UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
 	private:
 		VulkanDevice* device;

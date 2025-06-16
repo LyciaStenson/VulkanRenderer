@@ -127,11 +127,11 @@ void Engine::DrawFrame()
 	}
 	
 	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
+	
+	scene->UpdateBuffers(currentFrame, swapChain->extent);
 
 	if (scene->GetMainCamera())
 	{
-		scene->UpdateUniformBuffers(currentFrame, swapChain->extent);
-
 		std::vector<MeshInstance*> opaqueMeshInstances;
 		std::vector<MeshInstance*> transparentMeshInstances;
 

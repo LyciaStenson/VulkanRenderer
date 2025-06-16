@@ -15,7 +15,7 @@ CreateObjectWindow::CreateObjectWindow(Scene* scene, bool open)
 
 void CreateObjectWindow::OnRender()
 {
-	const std::array<const std::string, 3> objectTypes = {"Empty Scene Object", "Mesh Instance", "Camera"};
+	const std::array<const std::string, 4> objectTypes = {"Empty Scene Object", "Mesh Instance", "Point Light", "Camera"};
 	static int selectedObjectType = -1;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 15.0f));
@@ -49,6 +49,9 @@ void CreateObjectWindow::OnRender()
 		case 1:
 			break;
 		case 2:
+			m_Scene->CreatePointLight("Point Light", transform.position, transform.rotation, transform.scale, nullptr);
+			break;
+		case 3:
 			Camera* camera = m_Scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
 			if (!m_Scene->GetMainCamera())
 			{
