@@ -28,8 +28,8 @@ CameraUBO Camera::GetUBO(VkExtent2D swapChainExtent) const
 	glm::mat4 world = translation * rotation;
 	
 	ubo.view = glm::inverse(world);
-	ubo.proj = glm::perspective(glm::radians(fov), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.01f, 100.0f);
-	ubo.proj[1][1] *= -1;
+	ubo.projection = glm::perspective(glm::radians(fov), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.01f, 100.0f);
+	ubo.projection[1][1] *= -1;
 
 	return ubo;
 }

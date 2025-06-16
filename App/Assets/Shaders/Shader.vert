@@ -3,8 +3,9 @@
 layout(set = 0, binding = 0) uniform CameraUBO
 {
 	mat4 view;
-	mat4 proj;
-} camUBO;
+	mat4 projection;
+	vec4 position;
+} cameraUBO;
 
 layout(set = 1, binding = 0) uniform MeshUBO
 {
@@ -32,7 +33,7 @@ void main()
 	mat3 normalMat = transpose(inverse(mat3(meshUBO.model)));
 	fragNormal = normalize(normalMat * inNormal);
 	
-	gl_Position = camUBO.proj * camUBO.view * worldPosition;
+	gl_Position = cameraUBO.projection * cameraUBO.view * worldPosition;
 	fragBaseColorTexCoord = inBaseColorTexCoord;
 	fragMetallicRoughnessTexCoord = inMetallicRoughnessTexCoord;
 	fragNormalTexCoord = inNormalTexCoord;

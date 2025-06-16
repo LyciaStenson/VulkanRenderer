@@ -44,7 +44,7 @@ void VulkanDescriptorSetLayoutManager::CreateGlobalDescriptorSetLayout()
 	cameraBinding.descriptorCount = 1;
 	cameraBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	cameraBinding.pImmutableSamplers = nullptr;
-	cameraBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	cameraBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	VkDescriptorSetLayoutBinding pointLightsBinding{};
 	pointLightsBinding.binding = 1;
