@@ -100,7 +100,7 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 				auto& normalAccessor = gltfAsset.accessors[normalIt->accessorIndex];
 				fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec3>(gltfAsset, normalAccessor, [&](fastgltf::math::fvec3 normal, std::size_t verticeIndex)
 					{
-						//primitiveInfo.vertices[verticeIndex].normal = glm::vec3(normal.x(), normal.y(), normal.z());
+						primitiveInfo.vertices[verticeIndex].normal = glm::vec3(normal.x(), normal.y(), normal.z());
 					});
 			}
 
