@@ -16,7 +16,7 @@ struct PointLight
 	vec4 colorIntensity;
 };
 
-layout (std430, set = 0, binding = 1) buffer PointLights
+layout (std430, set = 0, binding = 1) readonly buffer PointLights
 {
 	PointLight pointLights[];
 };
@@ -26,9 +26,12 @@ layout (set = 0, binding = 2) uniform PointLightMeta
 	uint count;
 } pointLightMeta;
 
-layout(location = 0) in vec2 fragBaseColorTexCoord;
-layout(location = 1) in vec2 fragMetallicRoughnessTexCoord;
-layout(location = 2) in vec2 fragNormalTexCoord;
+layout(location = 0) in vec3 fragWorldPos;
+layout(location = 1) in vec3 fragNormal;
+
+layout(location = 2) in vec2 fragBaseColorTexCoord;
+layout(location = 3) in vec2 fragMetallicRoughnessTexCoord;
+layout(location = 4) in vec2 fragNormalTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
@@ -40,21 +43,40 @@ void main()
 	float metallic = metallicRoughness.b * factorsUBO.metallicRoughness.b;
 	float roughness = metallicRoughness.g * factorsUBO.metallicRoughness.g;
 
-	vec3 normal = texture(normalSampler, fragNormalTexCoord).rgb;
+	//vec3 normal = texture(normalSampler, fragNormalTexCoord).rgb;
+	vec3 normal = normalize(fragNormal);
 	
-	vec3 gammaCorrected = pow(baseColor.rgb, vec3(1.0 / 2.2));
-	//outColor = vec4(gammaCorrected, baseColor.a);
-
 	//outColor = vec4(vec3(metallic), 1.0);
 	//outColor = vec4(vec3(roughness), 1.0);
 	//outColor = vec4(normal, 1.0);
 
-	if (pointLightMeta.count == 0)
+	vec3 color = vec3(0.0);
+
+	for (uint i = 0; i < pointLightMeta.count; ++i)
 	{
-		outColor = vec4(0.85f, 0.15f, 0.15f, 1.0f);
+		PointLight light = pointLights[i];
+		vec3 lightPos = light.positionRadius.xyz;
+		float radius = light.positionRadius.w;
+		vec3 lightColor = light.colorIntensity.rgb;
+		float intensity = light.colorIntensity.a;
+
+		vec3 lightDir = lightPos - fragWorldPos;
+		float distance = length(lightDir);
+
+		if (distance > radius)
+			continue;
+
+		lightDir = normalize(lightDir);
+
+		float diffuse = max(dot(normal, lightDir), 0.0);
+
+		float attenuation = 1.0 - clamp(distance / radius, 0.0, 1.0);
+
+		color += diffuse * lightColor * intensity * attenuation;
 	}
-	else
-	{
-		outColor = vec4(0.15f, 0.85f, 0.15f, 1.0f);
-	}
+
+	color *= baseColor.rgb;
+	
+	vec3 gammaCorrected = pow(color, vec3(1.0 / 2.2));
+	outColor = vec4(gammaCorrected, baseColor.a);
 }
