@@ -73,16 +73,6 @@ VkDescriptorImageInfo MeshPrimitive::GetNormalInfo() const
 	return metallicInfo;
 }
 
-VkDescriptorBufferInfo MeshPrimitive::GetPointLightBufferInfo() const
-{
-	VkDescriptorBufferInfo bufferInfo{};
-	//bufferInfo.buffer = pointLightBuffer;
-	bufferInfo.offset = 0;
-	//bufferInfo.range = pointLightBufferSize;
-
-	return bufferInfo;
-}
-
 const std::vector<VkDescriptorSet>& MeshPrimitive::GetMaterialDescriptorSets() const
 {
 	return materialDescriptorSets;
@@ -202,15 +192,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[3].descriptorCount = 1;
 		descriptorWrites[3].pImageInfo = &GetNormalInfo();
-
-		//descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrites[4].dstSet = materialDescriptorSets[i];
-		//descriptorWrites[4].dstBinding = 4;
-		//descriptorWrites[4].dstArrayElement = 0;
-		//descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		//descriptorWrites[4].descriptorCount = 1;
-		//descriptorWrites[4].pBufferInfo = &GetPointLightBufferInfo();
-
+		
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }

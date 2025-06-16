@@ -4,19 +4,21 @@
 
 #include <Vulkan/Device.h>
 #include <Vulkan/StorageBuffer.h>
+#include <Vulkan/GlobalDescriptorSetManager.h>
 #include <Core/SceneObject.h>
 #include <Core/MeshInstance.h>
 #include <Core/ModelManager.h>
 #include <Core/Mesh.h>
 #include <Core/Camera.h>
+#include <Core/CameraUBO.h>
 #include <Core/PointLight.h>
 #include <Core/Transform.h>
 #include <Core/Model.h>
 
 using namespace VulkanRenderer;
 
-Scene::Scene(VulkanDevice* device, ModelManager* modelManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool)
-	: device(device), modelManager(modelManager), cameraDescriptorSetLayout(cameraDescriptorSetLayout), descriptorPool(descriptorPool)
+Scene::Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool)
+	: device(device), modelManager(modelManager), globalDescriptorSetManager(globalDescriptorSetManager), cameraDescriptorSetLayout(cameraDescriptorSetLayout), descriptorPool(descriptorPool)
 {
 
 }
@@ -80,7 +82,7 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	}
 	objectNames.insert(cameraName);
 
-	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName, device, cameraDescriptorSetLayout, descriptorPool);
+	std::unique_ptr<Camera> camera = std::make_unique<Camera>(cameraName);
 	camera->transform.position = position;
 	camera->transform.rotation = rotation;
 	camera->transform.scale = scale;
@@ -103,7 +105,7 @@ PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& po
 	}
 	objectNames.insert(lightName);
 
-	std::unique_ptr<PointLight> light = std::make_unique<PointLight>(lightName, device, cameraDescriptorSetLayout, descriptorPool);
+	std::unique_ptr<PointLight> light = std::make_unique<PointLight>(lightName);
 	light->transform.position = position;
 	light->transform.rotation = rotation;
 	light->transform.scale = scale;
@@ -211,7 +213,7 @@ void Scene::UpdateUniformBuffers(int currentFrame, VkExtent2D swapChainExtent)
 		}
 		else if (auto* camera = dynamic_cast<Camera*>(object.get()))
 		{
-			camera->UpdateUniformBuffer(currentFrame, swapChainExtent);
+			globalDescriptorSetManager->UpdateCamera(currentFrame, camera->GetUBO(swapChainExtent));
 		}
 	}
 }

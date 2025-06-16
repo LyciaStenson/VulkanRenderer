@@ -19,6 +19,7 @@ namespace VulkanRenderer
 {
 	class VulkanDevice;
 	class VulkanStorageBuffer;
+	class GlobalDescriptorSetManager;
 	class SceneObject;
 	class MeshInstance;
 	class ModelManager;
@@ -31,7 +32,7 @@ namespace VulkanRenderer
 	class Scene
 	{
 	public:
-		Scene(VulkanDevice* device, ModelManager* modelManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
+		Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
 		~Scene();
 
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
@@ -55,6 +56,7 @@ namespace VulkanRenderer
 
 		VkDescriptorPool descriptorPool;
 
+		GlobalDescriptorSetManager* globalDescriptorSetManager;
 		ModelManager* modelManager;
 
 		std::vector<std::unique_ptr<SceneObject>> objects;

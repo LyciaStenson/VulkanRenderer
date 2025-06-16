@@ -14,6 +14,7 @@ namespace VulkanRenderer
 	class VulkanSwapChain;
 	class VulkanRenderPass;
 	class VulkanDescriptorSetLayoutManager;
+	class GlobalDescriptorSetManager;
 	class VulkanPipeline;
 	class VulkanDescriptorPool;
 	class VulkanSync;
@@ -43,6 +44,7 @@ namespace VulkanRenderer
 		std::unique_ptr<VulkanPipeline> opaquePipeline;
 		std::unique_ptr<VulkanPipeline> transparentPipeline;
 		std::unique_ptr<VulkanDescriptorPool> descriptorPool;
+		std::unique_ptr<GlobalDescriptorSetManager> globalDescriptorSetManager;
 		std::unique_ptr<VulkanSync> sync;
 
 		std::unique_ptr<VulkanImGuiOverlay> imGuiOverlay;

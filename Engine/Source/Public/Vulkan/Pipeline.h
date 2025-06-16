@@ -10,6 +10,7 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanRenderPass;
 	class VulkanDescriptorSetLayoutManager;
+	class GlobalDescriptorSetManager;
 	class MeshInstance;
 	class Mesh;
 	class Camera;
@@ -23,7 +24,7 @@ namespace VulkanRenderer
 	class VulkanPipeline
 	{
 	public:
-		VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager, PipelineType type);
+		VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager, GlobalDescriptorSetManager* globalDescriptorSetManager, PipelineType type);
 		~VulkanPipeline();
 
 		void SetDescriptorPool(VkDescriptorPool pool);
@@ -41,6 +42,8 @@ namespace VulkanRenderer
 		PipelineType type;
 		
 		VulkanRenderPass* renderPass;
+
+		GlobalDescriptorSetManager* globalDescriptorSetManager;
 		
 		VulkanDevice* device;
 	};

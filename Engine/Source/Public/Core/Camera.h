@@ -13,29 +13,15 @@
 
 namespace VulkanRenderer
 {
-	class VulkanDevice;
-
+	class CameraUBO;
+	
 	class Camera : public SceneObject
 	{
 	public:
-		Camera(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
+		Camera(const std::string& name);
 		~Camera();
-
-		void CreateDescriptorSets(VkDescriptorPool descriptorPool);
-
-		void UpdateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent);
 		
+		CameraUBO GetUBO(VkExtent2D swapChainExtent) const;
 		float fov = 70.0f;
-
-		std::vector<VkDescriptorSet> descriptorSets;
-
-	private:
-		VulkanDevice* device;
-
-		VkDescriptorSetLayout descriptorSetLayout;
-		
-		std::vector<VulkanUniformBuffer> uniformBuffers;
-		
-		void CreateUniformBuffers();
 	};
 }

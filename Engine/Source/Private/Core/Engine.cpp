@@ -12,6 +12,7 @@
 #include <Vulkan/SwapChain.h>
 #include <Vulkan/RenderPass.h>
 #include <Vulkan/DescriptorSetLayoutManager.h>
+#include <Vulkan/GlobalDescriptorSetManager.h>
 #include <Vulkan/Pipeline.h>
 #include <Vulkan/DescriptorPool.h>
 #include <Vulkan/Sync.h>
@@ -61,14 +62,19 @@ Engine::Engine()
 	glfwWindow = std::make_unique<GlfwWindow>(this);
 	instance = std::make_unique<VulkanInstance>(glfwWindow->Get());
 	device = std::make_unique<VulkanDevice>(instance->Get(), instance->GetSurface());
+	
 	swapChain = std::make_unique<VulkanSwapChain>(device.get(), instance->GetSurface(), glfwWindow->Get());
 	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain.get());
 	swapChain->CreateFramebuffers(renderPass->Get());
+	
 	descriptorSetLayoutManager = std::make_unique<VulkanDescriptorSetLayoutManager>(device.get());
-	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Opaque);
-	transparentPipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), PipelineType::Transparent);
-
+	
 	descriptorPool = std::make_unique<VulkanDescriptorPool>(device.get(), 1000);
+
+	globalDescriptorSetManager = std::make_unique<GlobalDescriptorSetManager>(device.get(), descriptorSetLayoutManager->GetGlobalDescriptorSetLayout(), descriptorPool->Get());
+
+	opaquePipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), globalDescriptorSetManager.get(), PipelineType::Opaque);
+	transparentPipeline = std::make_unique<VulkanPipeline>(device.get(), renderPass.get(), descriptorSetLayoutManager.get(), globalDescriptorSetManager.get(), PipelineType::Transparent);
 
 	modelManager = std::make_unique<ModelManager>(device.get(), descriptorSetLayoutManager->GetMeshDescriptorSetLayout(), descriptorSetLayoutManager->GetMaterialDescriptorSetLayout(), descriptorPool->Get());
 
@@ -77,7 +83,7 @@ Engine::Engine()
 	
 	sync = std::make_unique<VulkanSync>(device->GetLogical());
 	
-	scene = std::make_unique<Scene>(device.get(), modelManager.get(), descriptorSetLayoutManager->GetGlobalDescriptorSetLayout(), descriptorPool->Get());
+	scene = std::make_unique<Scene>(device.get(), modelManager.get(), globalDescriptorSetManager.get(), descriptorSetLayoutManager->GetGlobalDescriptorSetLayout(), descriptorPool->Get());
 	
 	imGuiOverlay = std::make_unique<VulkanImGuiOverlay>(instance.get(), device.get(), swapChain.get(), renderPass.get(), glfwWindow->Get(), scene.get(), modelManager.get());
 }

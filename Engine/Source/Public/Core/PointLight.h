@@ -10,25 +10,19 @@ namespace VulkanRenderer
 {
 	class VulkanDevice;
 	class VulkanUniformBuffer;
+	class PointLightData;
 	
 	class PointLight : public SceneObject
 	{
 	public:
-		PointLight(const std::string& name, VulkanDevice* device, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
+		PointLight(const std::string& name);
 		~PointLight();
 
-		void UpdateUniformBuffer(uint32_t currentImage);
+		PointLightData GetData() const;
 
-	protected:
-		VulkanDevice* device;
-
-		VkDescriptorSetLayout descriptorSetLayout;
-		
-		std::vector<VkDescriptorSet> descriptorSets;
-
-		std::vector<VulkanUniformBuffer> uniformBuffers;
-
-		void CreateUniformBuffers();
-		void CreateUniformDescriptorSets(VkDescriptorPool descriptorPool);
+	private:
+		glm::vec3 color = glm::vec3(1.0f);
+		float intensity = 1.0f;
+		float radius = 10.0f;
 	};
 }
