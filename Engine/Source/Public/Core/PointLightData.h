@@ -11,4 +11,9 @@ namespace VulkanRenderer
 		alignas(16) glm::vec4 positionRadius;
 		alignas(16) glm::vec4 colorIntensity;
 	};
+
+	struct alignas(16) PointLightMetaUBO
+	{
+		uint32_t count;
+	};
 }

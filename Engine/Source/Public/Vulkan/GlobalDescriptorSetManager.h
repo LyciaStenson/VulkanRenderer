@@ -9,8 +9,9 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanUniformBuffer;
 	class VulkanStorageBuffer;
-	class CameraUBO;
-	class PointLightData;
+	struct CameraUBO;
+	struct PointLightData;
+	struct PointLightMetaUBO;
 
 	class GlobalDescriptorSetManager
 	{
@@ -20,7 +21,7 @@ namespace VulkanRenderer
 
 		const std::vector<VkDescriptorSet>& GetDescriptorSets() const;
 
-		void UpdateCamera(uint32_t frameIndex, const CameraUBO& ubo);
+		void UpdateCamera(uint32_t frameIndex, const CameraUBO& cameraUBO);
 		void UpdatePointLights(uint32_t frameIndex, const std::vector<PointLightData>& pointLights);
 
 	private:
@@ -30,9 +31,8 @@ namespace VulkanRenderer
 
 		std::vector<VulkanUniformBuffer> cameraBuffers;
 		std::vector<VulkanStorageBuffer> pointLightBuffers;
-
-		std::vector<uint32_t> pointLightCounts;
-
+		std::vector<VulkanUniformBuffer> pointLightMetaBuffers;
+		
 		void CreateBuffers();
 		void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool);
 	};

@@ -13,7 +13,7 @@
 
 namespace VulkanRenderer
 {
-	class CameraUBO;
+	struct CameraUBO;
 	
 	class Camera : public SceneObject
 	{

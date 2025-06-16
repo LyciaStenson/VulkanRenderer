@@ -10,7 +10,7 @@ namespace VulkanRenderer
 {
 	class VulkanDevice;
 	class VulkanUniformBuffer;
-	class PointLightData;
+	struct PointLightData;
 	
 	class PointLight : public SceneObject
 	{

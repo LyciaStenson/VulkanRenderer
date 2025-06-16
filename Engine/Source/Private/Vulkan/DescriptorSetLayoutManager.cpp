@@ -53,7 +53,14 @@ void VulkanDescriptorSetLayoutManager::CreateGlobalDescriptorSetLayout()
 	pointLightsBinding.pImmutableSamplers = nullptr;
 	pointLightsBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {cameraBinding, pointLightsBinding};
+	VkDescriptorSetLayoutBinding pointLightsMetaBinding{};
+	pointLightsMetaBinding.binding = 2;
+	pointLightsMetaBinding.descriptorCount = 1;
+	pointLightsMetaBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	pointLightsMetaBinding.pImmutableSamplers = nullptr;
+	pointLightsMetaBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 3> bindings = {cameraBinding, pointLightsBinding, pointLightsMetaBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());

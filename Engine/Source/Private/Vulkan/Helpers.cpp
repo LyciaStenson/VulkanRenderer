@@ -150,6 +150,8 @@ namespace VulkanRenderer
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 		);
+
+		return VkFormat{};
 	}
 
 	bool HasStencilComponent(VkFormat format)

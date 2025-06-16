@@ -61,9 +61,7 @@ namespace VulkanRenderer
 
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
-
-		std::unique_ptr<VulkanStorageBuffer> pointLightBuffer;
-
+		
 		Camera* mainCamera = nullptr;
 
 		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent);

@@ -202,6 +202,8 @@ SceneObject* Scene::InstantiateModel(const std::string& name, const Transform& t
 	{
 		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], &root->transform);
 	}
+
+	return nullptr;
 }
 
 void Scene::UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent)
