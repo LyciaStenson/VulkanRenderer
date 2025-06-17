@@ -94,7 +94,7 @@ void Inspector::OnRender()
 				ImGui::Text("FOV");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(xPos);
-				ImGui::DragFloat("##FOV", &camera->fov, 0.01f, 1.0f, 179.0f, "%g");
+				ImGui::DragFloat("##FOV", &camera->fov, 0.1f, 1.0f, 179.0f, "%g");
 			}
 		}
 		else if (PointLight* pointLight = dynamic_cast<PointLight*>(selectedObject))

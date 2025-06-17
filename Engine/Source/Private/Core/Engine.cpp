@@ -64,7 +64,7 @@ Engine::Engine()
 	device = std::make_unique<VulkanDevice>(instance->Get(), instance->GetSurface());
 	
 	swapChain = std::make_unique<VulkanSwapChain>(device.get(), instance->GetSurface(), glfwWindow->Get());
-	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain.get());
+	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain->imageFormat, FindDepthFormat(device->GetPhysical()), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	swapChain->CreateFramebuffers(renderPass->Get());
 	
 	descriptorSetLayoutManager = std::make_unique<VulkanDescriptorSetLayoutManager>(device.get());
@@ -112,6 +112,8 @@ void Engine::DrawFrame()
 {
 	vkWaitForFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
+	vkResetCommandBuffer(device->commandBuffers[currentFrame], 0);
+	
 	uint32_t imageIndex;
 	VkResult result = vkAcquireNextImageKHR(device->GetLogical(), swapChain->Get(), UINT64_MAX, sync->imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
@@ -126,7 +128,7 @@ void Engine::DrawFrame()
 		return;
 	}
 	
-	renderPass->Begin(device->commandBuffers[currentFrame], imageIndex);
+	renderPass->Begin(device->commandBuffers[currentFrame], swapChain->framebuffers[imageIndex], swapChain->extent);
 	
 	scene->UpdateBuffers(currentFrame, swapChain->extent);
 

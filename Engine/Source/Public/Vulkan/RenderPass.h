@@ -5,25 +5,23 @@
 namespace VulkanRenderer
 {
 	class VulkanDevice;
-	class VulkanSwapChain;
 
 	class VulkanRenderPass
 	{
 	public:
-		VulkanRenderPass(VulkanDevice* device, VulkanSwapChain* swapChain);
+		VulkanRenderPass(VulkanDevice* device, VkFormat colorFormat, VkFormat depthFormat, VkImageLayout finalColorLayout);
 		~VulkanRenderPass();
 
 		VkRenderPass Get() const;
 
-		void Begin(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+		void Begin(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent);
 		void End(VkCommandBuffer commandBuffer);
 
 	private:
 		VkRenderPass renderPass;
 
 		VulkanDevice* device;
-		VulkanSwapChain* swapChain;
 
-		void CreateRenderPass(VkFormat swapChainImageFormat);
+		void Create(VkFormat colorFormat, VkFormat depthFormat, VkImageLayout finalColorLayout);
 	};
 }

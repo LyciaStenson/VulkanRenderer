@@ -4,14 +4,13 @@
 #include <array>
 
 #include <Vulkan/Device.h>
-#include <Vulkan/SwapChain.h>
 
 using namespace VulkanRenderer;
 
-VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, VulkanSwapChain* swapChain)
-	: device(device), swapChain(swapChain)
+VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, VkFormat colorFormat, VkFormat depthFormat, VkImageLayout finalColorLayout)
+	: device(device)
 {
-	CreateRenderPass(swapChain->imageFormat);
+	Create(colorFormat, depthFormat, finalColorLayout);
 }
 
 VulkanRenderPass::~VulkanRenderPass()
@@ -24,7 +23,7 @@ VkRenderPass VulkanRenderPass::Get() const
 	return renderPass;
 }
 
-void VulkanRenderPass::Begin(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+void VulkanRenderPass::Begin(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent)
 {
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -40,9 +39,9 @@ void VulkanRenderPass::Begin(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChain->framebuffers[imageIndex];
+	renderPassInfo.framebuffer = framebuffer;
 	renderPassInfo.renderArea.offset = {0, 0};
-	renderPassInfo.renderArea.extent = swapChain->extent;
+	renderPassInfo.renderArea.extent = extent;
 
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = {{ 0.0f, 0.0f, 0.0f }};
@@ -56,15 +55,15 @@ void VulkanRenderPass::Begin(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(swapChain->extent.width);
-	viewport.height = static_cast<float>(swapChain->extent.height);
+	viewport.width = static_cast<float>(extent.width);
+	viewport.height = static_cast<float>(extent.height);
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor{};
 	scissor.offset = {0, 0};
-	scissor.extent = swapChain->extent;
+	scissor.extent = extent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
@@ -78,24 +77,24 @@ void VulkanRenderPass::End(VkCommandBuffer commandBuffer)
 	}
 }
 
-void VulkanRenderPass::CreateRenderPass(VkFormat swapChainImageFormat)
+void VulkanRenderPass::Create(VkFormat colorFormat, VkFormat depthFormat, VkImageLayout finalColorLayout)
 {
 	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = swapChainImageFormat;
+	colorAttachment.format = colorFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	colorAttachment.finalLayout = finalColorLayout;
 
 	VkAttachmentReference colorAttachmentRef{};
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentDescription depthAttachment{};
-	depthAttachment.format = FindDepthFormat(device->GetPhysical());
+	depthAttachment.format = depthFormat;
 	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
