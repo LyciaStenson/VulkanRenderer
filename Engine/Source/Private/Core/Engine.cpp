@@ -25,6 +25,7 @@
 #include <Core/Vertex.h>
 #include <Core/Transform.h>
 #include <Vulkan/ImGuiOverlay.h>
+#include <ImGui/SceneWindow.h>
 
 using namespace VulkanRenderer;
 
@@ -127,12 +128,21 @@ void Engine::DrawFrame()
 		std::cerr << "Failed to acquire swap chain image" << std::endl;
 		return;
 	}
+
+	VkCommandBuffer commandBuffer = device->commandBuffers[currentFrame];
 	
-	Render(device->commandBuffers[currentFrame], swapChain->framebuffers[imageIndex], swapChain->extent);
+	//SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
+	//if (sceneWindow)
+		//sceneWindow->GetColorTexture()->TransitionToRenderTarget(commandBuffer);
+
+	Render(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
 	
-	renderPass->Begin(device->commandBuffers[currentFrame], swapChain->framebuffers[imageIndex], swapChain->extent);
-	imGuiOverlay->Render(device->commandBuffers[currentFrame]);
-	renderPass->End(device->commandBuffers[currentFrame]);
+	//if (sceneWindow)
+		//sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
+
+	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
+	imGuiOverlay->Render(commandBuffer);
+	renderPass->End(commandBuffer);
 
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);
 

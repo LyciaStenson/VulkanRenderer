@@ -30,7 +30,9 @@ namespace VulkanRenderer
 	public:
 		VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene, ModelManager* modelManager);
 		~VulkanImGuiOverlay();
-
+		
+		ImGuiWindow* GetWindow(const std::string& title);
+		
 		SceneObject* GetSelectedObject() const;
 		void SelectObject(SceneObject* object);
 		

@@ -73,6 +73,14 @@ namespace VulkanRenderer
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
+
+	ImGuiWindow* VulkanImGuiOverlay::GetWindow(const std::string& title)
+	{
+		if (m_Windows.count(title))
+		{
+			return m_Windows[title].get();
+		}
+	}
 	
 	SceneObject* VulkanImGuiOverlay::GetSelectedObject() const
 	{

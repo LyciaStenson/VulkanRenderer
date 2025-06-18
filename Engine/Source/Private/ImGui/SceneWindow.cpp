@@ -12,7 +12,7 @@ using namespace VulkanRenderer;
 SceneWindow::SceneWindow(VulkanDevice* device, VulkanRenderPass* renderPass, VkFormat colorFormat, VkFormat depthFormat, bool open)
 	: ImGuiWindow("Scene", open), device(device), renderPass(renderPass)
 {
-	CreateRenderResources(colorFormat, depthFormat);
+	//CreateRenderResources(colorFormat, depthFormat);
 }
 
 SceneWindow::~SceneWindow()
@@ -27,14 +27,21 @@ SceneWindow::~SceneWindow()
 	}
 }
 
+VulkanTexture* SceneWindow::GetColorTexture() const
+{
+	return colorTexture;
+}
+
 void SceneWindow::OnRender()
 {
-
+	//ImGui::Image(imGuiTextureId, ImVec2(extent.width, extent.height));
 }
 
 void SceneWindow::CreateRenderResources(VkFormat colorFormat, VkFormat depthFormat)
 {
 	colorTexture = new VulkanTexture(device, extent.width, extent.height, colorFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
+	imGuiTextureId = reinterpret_cast<ImTextureID>(ImGui_ImplVulkan_AddTexture(colorTexture->GetSampler(), colorTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+	
 	depthTexture = new VulkanTexture(device, extent.width, extent.height, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	std::array<VkImageView, 2> attachments =

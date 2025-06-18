@@ -16,6 +16,8 @@ namespace VulkanRenderer
 		SceneWindow(VulkanDevice* device, VulkanRenderPass* renderPass, VkFormat colorFormat, VkFormat depthFormat, bool open = true);
 		~SceneWindow() override;
 
+		VulkanTexture* GetColorTexture() const;
+
 	protected:
 		void OnRender() override;
 
@@ -30,5 +32,7 @@ namespace VulkanRenderer
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
 		VkExtent2D extent = { 800, 600 };
+
+		ImTextureID imGuiTextureId;
 	};
 }
