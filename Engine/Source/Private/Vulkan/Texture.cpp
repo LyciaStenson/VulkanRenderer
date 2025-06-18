@@ -24,9 +24,26 @@ VulkanTexture::VulkanTexture(VulkanDevice* device, const unsigned char* pixels, 
 	CreateTextureSampler();
 }
 
+VulkanTexture::VulkanTexture(VulkanDevice* device, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags)
+	: device(device)
+{
+	image = new VulkanImage
+	(
+		device, width, height, format,
+		usageFlags,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		aspectFlags
+	);
+
+	if (usageFlags & VK_IMAGE_USAGE_SAMPLED_BIT)
+		CreateTextureSampler();
+}
+
 VulkanTexture::~VulkanTexture()
 {
-	vkDestroySampler(device->GetLogical(), sampler, nullptr);
+	if (sampler != VK_NULL_HANDLE)
+		vkDestroySampler(device->GetLogical(), sampler, nullptr);
+	
 	delete image;
 }
 
@@ -38,6 +55,16 @@ VkImageView VulkanTexture::GetImageView() const
 VkSampler VulkanTexture::GetSampler() const
 {
 	return sampler;
+}
+
+void VulkanTexture::TransitionToShaderRead(VkCommandBuffer commandBuffer)
+{
+	image->TransitionImageLayout(commandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
+void VulkanTexture::TransitionToRenderTarget(VkCommandBuffer commandBuffer)
+{
+	image->TransitionImageLayout(commandBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 }
 
 void VulkanTexture::CreateTextureImage(const std::string& path)

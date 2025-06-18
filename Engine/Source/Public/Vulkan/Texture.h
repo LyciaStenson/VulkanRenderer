@@ -30,14 +30,18 @@ namespace VulkanRenderer
 	public:
 		VulkanTexture(VulkanDevice* device, const std::string& path);
 		VulkanTexture(VulkanDevice* device, const unsigned char* pixels, int width, int height, bool sRGB = true);
+		VulkanTexture(VulkanDevice* device, uint32_t width, uint32_t height, VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectFlags);
 		~VulkanTexture();
 
 		VkImageView GetImageView() const;
 		VkSampler GetSampler() const;
 
+		void TransitionToShaderRead(VkCommandBuffer commandBuffer);
+		void TransitionToRenderTarget(VkCommandBuffer commandBuffer);
+
 	private:
 		VulkanImage* image;
-		VkSampler sampler;
+		VkSampler sampler = VK_NULL_HANDLE;
 
 		VulkanDevice* device;
 

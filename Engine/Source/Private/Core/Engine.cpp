@@ -64,7 +64,7 @@ Engine::Engine()
 	device = std::make_unique<VulkanDevice>(instance->Get(), instance->GetSurface());
 	
 	swapChain = std::make_unique<VulkanSwapChain>(device.get(), instance->GetSurface(), glfwWindow->Get());
-	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain->imageFormat, FindDepthFormat(device->GetPhysical()), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	renderPass = std::make_unique<VulkanRenderPass>(device.get(), swapChain->GetColorFormat(), FindDepthFormat(device->GetPhysical()), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	swapChain->CreateFramebuffers(renderPass->Get());
 	
 	descriptorSetLayoutManager = std::make_unique<VulkanDescriptorSetLayoutManager>(device.get());
@@ -90,7 +90,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	imGuiOverlay.reset();
+
 }
 
 void Engine::FramebufferResized()
@@ -128,46 +128,12 @@ void Engine::DrawFrame()
 		return;
 	}
 	
+	Render(device->commandBuffers[currentFrame], swapChain->framebuffers[imageIndex], swapChain->extent);
+	
 	renderPass->Begin(device->commandBuffers[currentFrame], swapChain->framebuffers[imageIndex], swapChain->extent);
-	
-	scene->UpdateBuffers(currentFrame, swapChain->extent);
-
-	if (scene->GetMainCamera())
-	{
-		std::vector<MeshInstance*> opaqueMeshInstances;
-		std::vector<MeshInstance*> transparentMeshInstances;
-
-		for (const auto& object : scene->GetObjects())
-		{
-			if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
-			{
-				for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
-				{
-					if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
-						transparentMeshInstances.push_back(meshInstance);
-					else
-						opaqueMeshInstances.push_back(meshInstance);
-				}
-			}
-		}
-
-		std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
-			[&](MeshInstance* a, MeshInstance* b)
-			{
-				const glm::vec3& cameraPosition = scene->GetMainCamera()->transform.position;
-				float distA = glm::length(cameraPosition - a->transform.position);
-				float distB = glm::length(cameraPosition - b->transform.position);
-				return distA > distB;
-			});
-		
-		opaquePipeline->Render(device->commandBuffers[currentFrame], currentFrame, opaqueMeshInstances, scene->GetMainCamera());
-		transparentPipeline->Render(device->commandBuffers[currentFrame], currentFrame, transparentMeshInstances, scene->GetMainCamera());
-	}
-	
 	imGuiOverlay->Render(device->commandBuffers[currentFrame]);
-	
 	renderPass->End(device->commandBuffers[currentFrame]);
-	
+
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);
 
 	VkSubmitInfo submitInfo{};
@@ -214,6 +180,47 @@ void Engine::DrawFrame()
 	}
 
 	currentFrame = (currentFrame + 1) % VulkanConfig::MAX_FRAMES_IN_FLIGHT;
+}
+
+void Engine::Render(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent)
+{
+	renderPass->Begin(commandBuffer, framebuffer, extent);
+
+	scene->UpdateBuffers(currentFrame, extent);
+
+	if (scene->GetMainCamera())
+	{
+		std::vector<MeshInstance*> opaqueMeshInstances;
+		std::vector<MeshInstance*> transparentMeshInstances;
+
+		for (const auto& object : scene->GetObjects())
+		{
+			if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
+			{
+				for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
+				{
+					if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
+						transparentMeshInstances.push_back(meshInstance);
+					else
+						opaqueMeshInstances.push_back(meshInstance);
+				}
+			}
+		}
+
+		std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
+			[&](MeshInstance* a, MeshInstance* b)
+			{
+				const glm::vec3& cameraPosition = scene->GetMainCamera()->transform.position;
+				float distA = glm::length(cameraPosition - a->transform.position);
+				float distB = glm::length(cameraPosition - b->transform.position);
+				return distA > distB;
+			});
+
+		opaquePipeline->Render(commandBuffer, currentFrame, opaqueMeshInstances, scene->GetMainCamera());
+		transparentPipeline->Render(commandBuffer, currentFrame, transparentMeshInstances, scene->GetMainCamera());
+	}
+	
+	renderPass->End(commandBuffer);
 }
 
 void Engine::RecreateSwapChain()

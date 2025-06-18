@@ -19,6 +19,9 @@ namespace VulkanRenderer
 		uint32_t GetImageCount() const;
 		uint32_t GetMinImageCount() const;
 
+		VkFormat GetColorFormat() const;
+		VkFormat GetDepthFormat() const;
+
 		void CreateSwapChain();
 		void CreateDepthResources();
 		void CreateFramebuffers(VkRenderPass renderPass);
@@ -27,8 +30,6 @@ namespace VulkanRenderer
 
 		std::vector<VkFramebuffer> framebuffers;
 		VkExtent2D extent;
-
-		VkFormat imageFormat;
 
 		VkSurfaceFormatKHR surfaceFormat;
 		VkPresentModeKHR presentMode;
@@ -39,6 +40,9 @@ namespace VulkanRenderer
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 		VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+
+		VkFormat colorFormat;
+		VkFormat depthFormat;
 
 		std::vector<VulkanImage*> images;
 

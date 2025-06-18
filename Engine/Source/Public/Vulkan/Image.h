@@ -19,6 +19,7 @@ namespace VulkanRenderer
 		void CreateImageView(VkImageAspectFlags aspectFlags);
 
 		void TransitionImageLayout(VkImageLayout newLayout);
+		void TransitionImageLayout(VkCommandBuffer commandBuffer, VkImageLayout newLayout);
 
 	private:
 		VkImage image;

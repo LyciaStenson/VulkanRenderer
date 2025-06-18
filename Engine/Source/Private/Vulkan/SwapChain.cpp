@@ -37,6 +37,16 @@ uint32_t VulkanSwapChain::GetMinImageCount() const
 	return minImageCount;
 }
 
+VkFormat VulkanSwapChain::GetColorFormat() const
+{
+	return colorFormat;
+}
+
+VkFormat VulkanSwapChain::GetDepthFormat() const
+{
+	return depthFormat;
+}
+
 void VulkanSwapChain::CreateSwapChain()
 {
 	VkDevice logicalDevice = device->GetLogical();
@@ -104,7 +114,7 @@ void VulkanSwapChain::CreateSwapChain()
 		images.push_back(new VulkanImage(device, image, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT));
 	}
 	
-	imageFormat = surfaceFormat.format;
+	colorFormat = surfaceFormat.format;
 }
 
 void VulkanSwapChain::CleanupSwapChain()
@@ -124,7 +134,7 @@ void VulkanSwapChain::CleanupSwapChain()
 
 void VulkanSwapChain::CreateDepthResources()
 {
-	VkFormat depthFormat = FindDepthFormat(device->GetPhysical());
+	depthFormat = FindDepthFormat(device->GetPhysical());
 	depthImage = new VulkanImage(device, extent.width, extent.height, depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT);
 	depthImage->TransitionImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }

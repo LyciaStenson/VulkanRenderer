@@ -57,6 +57,8 @@ namespace VulkanRenderer
 		bool framebufferResized = false;
 		
 		void DrawFrame();
+		void Render(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent);
+		
 		void RecreateSwapChain();
 	};
 }
