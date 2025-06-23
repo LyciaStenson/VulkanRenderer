@@ -131,18 +131,27 @@ void Engine::DrawFrame()
 
 	VkCommandBuffer commandBuffer = device->commandBuffers[currentFrame];
 	
-	//SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
-	//if (sceneWindow)
-		//sceneWindow->GetColorTexture()->TransitionToRenderTarget(commandBuffer);
-
-	Render(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
+	renderPass->BeginCommandBuffer(commandBuffer);
 	
-	//if (sceneWindow)
-		//sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
+	SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
+	if (sceneWindow)
+		sceneWindow->GetColorTexture()->TransitionToRenderTarget(commandBuffer);
+	
+	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
+	Render(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
+	renderPass->End(commandBuffer);
+	
+	renderPass->EndCommandBuffer(commandBuffer);
+	
+	renderPass->BeginCommandBuffer(commandBuffer);
+
+	if (sceneWindow)
+		sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
 
 	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
 	imGuiOverlay->Render(commandBuffer);
 	renderPass->End(commandBuffer);
+	renderPass->EndCommandBuffer(commandBuffer);
 
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);
 
@@ -194,8 +203,6 @@ void Engine::DrawFrame()
 
 void Engine::Render(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent)
 {
-	renderPass->Begin(commandBuffer, framebuffer, extent);
-
 	scene->UpdateBuffers(currentFrame, extent);
 
 	if (scene->GetMainCamera())
@@ -225,12 +232,10 @@ void Engine::Render(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, Vk
 				float distB = glm::length(cameraPosition - b->transform.position);
 				return distA > distB;
 			});
-
+		
 		opaquePipeline->Render(commandBuffer, currentFrame, opaqueMeshInstances, scene->GetMainCamera());
 		transparentPipeline->Render(commandBuffer, currentFrame, transparentMeshInstances, scene->GetMainCamera());
 	}
-	
-	renderPass->End(commandBuffer);
 }
 
 void Engine::RecreateSwapChain()

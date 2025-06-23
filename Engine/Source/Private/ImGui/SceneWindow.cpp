@@ -12,7 +12,7 @@ using namespace VulkanRenderer;
 SceneWindow::SceneWindow(VulkanDevice* device, VulkanRenderPass* renderPass, VkFormat colorFormat, VkFormat depthFormat, bool open)
 	: ImGuiWindow("Scene", open), device(device), renderPass(renderPass)
 {
-	//CreateRenderResources(colorFormat, depthFormat);
+	CreateRenderResources(colorFormat, depthFormat);
 }
 
 SceneWindow::~SceneWindow()

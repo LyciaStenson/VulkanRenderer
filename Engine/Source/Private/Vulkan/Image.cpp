@@ -171,6 +171,22 @@ void VulkanImage::TransitionImageLayout(VkImageLayout newLayout)
 		sourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
+	else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		memoryBarrier.srcAccessMask = 0;
+		memoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	}
+	else if (currentLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	{
+		memoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		destinationStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
 	else
 	{
 		std::cerr << "Unsupported layout transition" << std::endl;
@@ -250,6 +266,22 @@ void VulkanImage::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImageLa
 		sourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
+	else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		memoryBarrier.srcAccessMask = 0;
+		memoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	}
+	else if (currentLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+	{
+		memoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		destinationStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
 	else
 	{
 		std::cerr << "Unsupported layout transition" << std::endl;
@@ -261,7 +293,8 @@ void VulkanImage::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImageLa
 	vkCmdPipelineBarrier
 	(
 		commandBuffer,
-		sourceStageFlags, destinationStageFlags,
+		sourceStageFlags,
+		destinationStageFlags,
 		0,
 		0, nullptr,
 		0, nullptr,

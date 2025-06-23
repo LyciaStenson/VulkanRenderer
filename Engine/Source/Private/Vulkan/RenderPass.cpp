@@ -25,16 +25,16 @@ VkRenderPass VulkanRenderPass::Get() const
 
 void VulkanRenderPass::Begin(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent)
 {
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	beginInfo.pInheritanceInfo = nullptr;
+	//VkCommandBufferBeginInfo beginInfo{};
+	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	//beginInfo.pInheritanceInfo = nullptr;
 
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-	{
-		std::cerr << "Failed to begin recording command buffer" << std::endl;
-		return;
-	}
+	//if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+	//{
+	//	std::cerr << "Failed to begin recording command buffer" << std::endl;
+	//	return;
+	//}
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -71,6 +71,28 @@ void VulkanRenderPass::End(VkCommandBuffer commandBuffer)
 {
 	vkCmdEndRenderPass(commandBuffer);
 
+	//if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+	//{
+	//	std::cerr << "Failed to record command buffer" << std::endl;
+	//}
+}
+
+void VulkanRenderPass::BeginCommandBuffer(VkCommandBuffer commandBuffer)
+{
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	beginInfo.pInheritanceInfo = nullptr;
+
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+	{
+		std::cerr << "Failed to begin recording command buffer" << std::endl;
+		return;
+	}
+}
+
+void VulkanRenderPass::EndCommandBuffer(VkCommandBuffer commandBuffer)
+{
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 	{
 		std::cerr << "Failed to record command buffer" << std::endl;
