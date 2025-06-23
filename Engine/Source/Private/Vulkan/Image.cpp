@@ -282,6 +282,14 @@ void VulkanImage::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImageLa
 		sourceStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		destinationStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	}
+	else if (currentLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+	{
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		destinationStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	}
 	else
 	{
 		std::cerr << "Unsupported layout transition" << std::endl;

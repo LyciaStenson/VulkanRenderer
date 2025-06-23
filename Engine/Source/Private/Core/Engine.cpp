@@ -113,7 +113,8 @@ void Engine::DrawFrame()
 {
 	vkWaitForFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-	vkResetCommandBuffer(device->commandBuffers[currentFrame], 0);
+	VkCommandBuffer commandBuffer = device->commandBuffers[currentFrame];
+	vkResetCommandBuffer(commandBuffer, 0);
 	
 	uint32_t imageIndex;
 	VkResult result = vkAcquireNextImageKHR(device->GetLogical(), swapChain->Get(), UINT64_MAX, sync->imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
@@ -128,29 +129,24 @@ void Engine::DrawFrame()
 		std::cerr << "Failed to acquire swap chain image" << std::endl;
 		return;
 	}
-
-	VkCommandBuffer commandBuffer = device->commandBuffers[currentFrame];
 	
 	renderPass->BeginCommandBuffer(commandBuffer);
 	
-	SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
-	if (sceneWindow)
-		sceneWindow->GetColorTexture()->TransitionToRenderTarget(commandBuffer);
+	//SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
+	//if (sceneWindow)
+		//sceneWindow->GetColorTexture()->TransitionToRenderTarget(commandBuffer);
 	
 	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
 	Render(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
 	renderPass->End(commandBuffer);
 	
-	renderPass->EndCommandBuffer(commandBuffer);
-	
-	renderPass->BeginCommandBuffer(commandBuffer);
-
-	if (sceneWindow)
-		sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
+	//if (sceneWindow)
+		//sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
 
 	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
 	imGuiOverlay->Render(commandBuffer);
 	renderPass->End(commandBuffer);
+	
 	renderPass->EndCommandBuffer(commandBuffer);
 
 	vkResetFences(device->GetLogical(), 1, &sync->inFlightFences[currentFrame]);

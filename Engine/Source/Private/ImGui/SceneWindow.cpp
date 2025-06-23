@@ -34,7 +34,7 @@ VulkanTexture* SceneWindow::GetColorTexture() const
 
 void SceneWindow::OnRender()
 {
-	//ImGui::Image(imGuiTextureId, ImVec2(extent.width, extent.height));
+	ImGui::Image(imGuiTextureId, ImVec2(extent.width, extent.height));
 }
 
 void SceneWindow::CreateRenderResources(VkFormat colorFormat, VkFormat depthFormat)
