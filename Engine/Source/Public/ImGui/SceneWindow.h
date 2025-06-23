@@ -9,6 +9,7 @@ namespace VulkanRenderer
 	class VulkanDevice;
 	class VulkanRenderPass;
 	class VulkanTexture;
+	class Scene;
 	
 	class SceneWindow : public ImGuiWindow
 	{

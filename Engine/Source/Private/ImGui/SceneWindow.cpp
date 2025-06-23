@@ -6,6 +6,8 @@
 #include <Vulkan/Device.h>
 #include <Vulkan/RenderPass.h>
 #include <Vulkan/Texture.h>
+#include <Core/Scene.h>
+#include <Core/MeshInstance.h>
 
 using namespace VulkanRenderer;
 

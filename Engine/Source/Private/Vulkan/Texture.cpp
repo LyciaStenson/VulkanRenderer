@@ -62,7 +62,7 @@ void VulkanTexture::TransitionToShaderRead(VkCommandBuffer commandBuffer)
 	image->TransitionImageLayout(commandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
-void VulkanTexture::TransitionToRenderTarget(VkCommandBuffer commandBuffer)
+void VulkanTexture::TransitionToColor(VkCommandBuffer commandBuffer)
 {
 	image->TransitionImageLayout(commandBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 }

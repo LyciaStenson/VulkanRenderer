@@ -37,7 +37,7 @@ namespace VulkanRenderer
 		VkSampler GetSampler() const;
 
 		void TransitionToShaderRead(VkCommandBuffer commandBuffer);
-		void TransitionToRenderTarget(VkCommandBuffer commandBuffer);
+		void TransitionToColor(VkCommandBuffer commandBuffer);
 
 	private:
 		VulkanImage* image;
