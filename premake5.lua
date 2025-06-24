@@ -1,6 +1,6 @@
 workspace "VulkanRenderer"
 	architecture "x86_64"
-	startproject "App"
+	startproject "Editor"
 
 	configurations { "Debug", "Release" }
 
