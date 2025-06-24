@@ -37,6 +37,8 @@ namespace VulkanRenderer
 		
 		void CreateRenderResources();
 		void CleanupRenderResources();
+
+		static ImGuiWindowProperties BuildProperties();
 		
 		VulkanDevice* device = nullptr;
 

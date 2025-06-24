@@ -12,7 +12,7 @@
 using namespace VulkanRenderer;
 
 SceneWindow::SceneWindow(VulkanDevice* device, VkFormat colorFormat, VkFormat depthFormat, bool open)
-	: ImGuiWindow("Scene", open), device(device), colorFormat(colorFormat), depthFormat(depthFormat)
+	: ImGuiWindow("Scene", open, BuildProperties()), device(device), colorFormat(colorFormat), depthFormat(depthFormat)
 {
 	renderPass = std::make_unique<VulkanRenderPass>(device, colorFormat, depthFormat, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	
@@ -133,4 +133,13 @@ void SceneWindow::CleanupRenderResources()
 		vkDestroyFramebuffer(device->GetLogical(), framebuffer, nullptr);
 		framebuffer = VK_NULL_HANDLE;
 	}
+}
+
+ImGuiWindowProperties SceneWindow::BuildProperties()
+{
+	ImGuiWindowProperties properties;
+	properties.changePadding = true;
+	properties.padding = ImVec2(2.0f, 2.0f);
+
+	return properties;
 }

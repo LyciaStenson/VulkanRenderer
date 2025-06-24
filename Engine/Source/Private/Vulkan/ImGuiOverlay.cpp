@@ -80,6 +80,7 @@ namespace VulkanRenderer
 		{
 			return m_Windows[title].get();
 		}
+		return nullptr;
 	}
 	
 	SceneObject* VulkanImGuiOverlay::GetSelectedObject() const
@@ -166,7 +167,7 @@ namespace VulkanRenderer
 		style.FrameRounding = 4.0f;
 		style.WindowRounding = 6.0f;
 
-		style.WindowPadding = ImVec2(10.0f, 10.0f);
+		style.WindowPadding = ImVec2(8.0f, 8.0f);
 		style.FramePadding = ImVec2(8.0f, 6.0f);
 		style.ItemSpacing = ImVec2(10.0f, 8.0f);
 

@@ -13,6 +13,8 @@ namespace VulkanRenderer
 		bool hasMenuBar = false;
 		bool fixedSize = false;
 		ImVec2 size;
+		bool changePadding = false;
+		ImVec2 padding;
 	};
 
 	class ImGuiWindow
@@ -33,5 +35,7 @@ namespace VulkanRenderer
 		bool m_HasMenuBar;
 		bool m_FixedSize;
 		ImVec2 m_Size;
+		bool m_ChangePadding;
+		ImVec2 m_Padding;
 	};
 }
