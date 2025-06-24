@@ -61,7 +61,6 @@ if exist "%editor_destination%\Shaders\Compile.bat" (
 	echo Compiling Editor shaders
 	pushd "%editor_destination%\Shaders"
 	call Compile.bat
-	echo Returned from App shader compilation.
 	popd
 ) else (
 	echo Compile.bat not found in Editor Shaders folder!
