@@ -28,10 +28,15 @@ namespace VulkanRenderer
 		void BeginRenderPass(VkCommandBuffer commandBuffer);
 		void EndRenderPass(VkCommandBuffer commandBuffer);
 
+		void RecreateRenderResources();
+
+		bool ShouldResize();
+
 	protected:
 		void OnRender() override;
-
-		void CreateRenderResources(VkFormat colorFormat, VkFormat depthFormat);
+		
+		void CreateRenderResources();
+		void CleanupRenderResources();
 		
 		VulkanDevice* device = nullptr;
 
@@ -42,8 +47,15 @@ namespace VulkanRenderer
 
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
-		VkExtent2D extent = { 800, 600 };
+		VkExtent2D extent = {800, 600};
+		VkFormat colorFormat;
+		VkFormat depthFormat;
 
-		ImTextureID imGuiTextureId;
+		ImTextureID imGuiTextureId = 0;
+
+		unsigned int currentWidth = 800;
+		unsigned int currentHeight = 600;
+
+		bool shouldResize = false;
 	};
 }

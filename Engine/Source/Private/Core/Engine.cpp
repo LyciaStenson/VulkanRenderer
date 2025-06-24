@@ -134,7 +134,11 @@ void Engine::DrawFrame()
 	
 	SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
 	if (sceneWindow)
+	{
+		if (sceneWindow->ShouldResize())
+			sceneWindow->RecreateRenderResources();
 		sceneWindow->GetColorTexture()->TransitionToColor(commandBuffer);
+	}
 
 	if (sceneWindow)
 	{

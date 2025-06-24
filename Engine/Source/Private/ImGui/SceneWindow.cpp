@@ -12,23 +12,16 @@
 using namespace VulkanRenderer;
 
 SceneWindow::SceneWindow(VulkanDevice* device, VkFormat colorFormat, VkFormat depthFormat, bool open)
-	: ImGuiWindow("Scene", open), device(device)
+	: ImGuiWindow("Scene", open), device(device), colorFormat(colorFormat), depthFormat(depthFormat)
 {
 	renderPass = std::make_unique<VulkanRenderPass>(device, colorFormat, depthFormat, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-	CreateRenderResources(colorFormat, depthFormat);
+	
+	CreateRenderResources();
 }
 
 SceneWindow::~SceneWindow()
 {
-	if (colorTexture)
-		delete colorTexture;
-	if (depthTexture)
-		delete depthTexture;
-	if (framebuffer != VK_NULL_HANDLE)
-	{
-		vkDestroyFramebuffer(device->GetLogical(), framebuffer, nullptr);
-	}
+	CleanupRenderResources();
 }
 
 VulkanTexture* SceneWindow::GetColorTexture() const
@@ -56,12 +49,41 @@ void SceneWindow::EndRenderPass(VkCommandBuffer commandBuffer)
 	renderPass->End(commandBuffer);
 }
 
-void SceneWindow::OnRender()
+void SceneWindow::RecreateRenderResources()
 {
-	ImGui::Image(imGuiTextureId, ImVec2(extent.width, extent.height));
+	vkDeviceWaitIdle(device->GetLogical());
+	
+	CleanupRenderResources();
+	CreateRenderResources();
+	shouldResize = false;
 }
 
-void SceneWindow::CreateRenderResources(VkFormat colorFormat, VkFormat depthFormat)
+bool SceneWindow::ShouldResize()
+{
+	return shouldResize;
+}
+
+void SceneWindow::OnRender()
+{
+	ImVec2 size = ImGui::GetContentRegionAvail();
+	
+	unsigned int newWidth = std::max(1, (int)size.x);
+	unsigned int newHeight = std::max(1, (int)size.y);
+	
+	if (newWidth != currentWidth || newHeight != currentHeight)
+	{
+		currentWidth = newWidth;
+		currentHeight = newHeight;
+		
+		extent = {newWidth, newHeight};
+
+		shouldResize = true;
+	}
+
+	ImGui::Image(imGuiTextureId, ImVec2((float)extent.width, (float)extent.height));
+}
+
+void SceneWindow::CreateRenderResources()
 {
 	colorTexture = new VulkanTexture(device, extent.width, extent.height, colorFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT);
 	imGuiTextureId = reinterpret_cast<ImTextureID>(ImGui_ImplVulkan_AddTexture(colorTexture->GetSampler(), colorTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
@@ -86,5 +108,29 @@ void SceneWindow::CreateRenderResources(VkFormat colorFormat, VkFormat depthForm
 	if (vkCreateFramebuffer(device->GetLogical(), &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS)
 	{
 		std::cerr << "Failed to create framebuffers" << std::endl;
+	}
+}
+
+void SceneWindow::CleanupRenderResources()
+{
+	//if (imGuiTextureId != 0)
+	//{
+	//	ImGui_ImplVulkan_RemoveTexture(reinterpret_cast<VkDescriptorSet>(imGuiTextureId));
+	//	imGuiTextureId = 0;
+	//}
+	if (colorTexture)
+	{
+		delete colorTexture;
+		colorTexture = nullptr;
+	}
+	if (depthTexture)
+	{
+		delete depthTexture;
+		depthTexture = nullptr;
+	}
+	if (framebuffer != VK_NULL_HANDLE)
+	{
+		vkDestroyFramebuffer(device->GetLogical(), framebuffer, nullptr);
+		framebuffer = VK_NULL_HANDLE;
 	}
 }
