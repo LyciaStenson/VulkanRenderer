@@ -135,17 +135,20 @@ void Engine::DrawFrame()
 	SceneWindow* sceneWindow = static_cast<SceneWindow*>(imGuiOverlay->GetWindow("Scene Window"));
 	if (sceneWindow)
 		sceneWindow->GetColorTexture()->TransitionToColor(commandBuffer);
-	
-	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
-	Render(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
-	//renderPass->End(commandBuffer);
-	
-	//renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
-	imGuiOverlay->Render(commandBuffer);
-	renderPass->End(commandBuffer);
+
+	if (sceneWindow)
+	{
+		sceneWindow->BeginRenderPass(commandBuffer);
+		Render(commandBuffer, sceneWindow->GetFramebuffer(), sceneWindow->GetExtent());
+		sceneWindow->EndRenderPass(commandBuffer);
+	}
 
 	if (sceneWindow)
 		sceneWindow->GetColorTexture()->TransitionToShaderRead(commandBuffer);
+	
+	renderPass->Begin(commandBuffer, swapChain->framebuffers[imageIndex], swapChain->extent);
+	imGuiOverlay->Render(commandBuffer);
+	renderPass->End(commandBuffer);
 	
 	renderPass->EndCommandBuffer(commandBuffer);
 

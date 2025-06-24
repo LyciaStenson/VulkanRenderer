@@ -61,7 +61,7 @@ namespace VulkanRenderer
 		m_Windows["Create Object Window"] = std::make_unique<CreateObjectWindow>(scene);
 		m_Windows["Inspector"] = std::make_unique<Inspector>(scene, this);
 		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>();
-		//m_Windows["Scene Window"] = std::make_unique<SceneWindow>(device, renderPass, swapChain->GetColorFormat(), swapChain->GetDepthFormat());
+		m_Windows["Scene Window"] = std::make_unique<SceneWindow>(device, swapChain->GetColorFormat(), swapChain->GetDepthFormat());
 		m_Windows["About"] = std::make_unique<AboutWindow>();
 	}
 	

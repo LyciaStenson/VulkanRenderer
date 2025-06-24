@@ -11,9 +11,11 @@
 
 using namespace VulkanRenderer;
 
-SceneWindow::SceneWindow(VulkanDevice* device, VulkanRenderPass* renderPass, VkFormat colorFormat, VkFormat depthFormat, bool open)
-	: ImGuiWindow("Scene", open), device(device), renderPass(renderPass)
+SceneWindow::SceneWindow(VulkanDevice* device, VkFormat colorFormat, VkFormat depthFormat, bool open)
+	: ImGuiWindow("Scene", open), device(device)
 {
+	renderPass = std::make_unique<VulkanRenderPass>(device, colorFormat, depthFormat, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
 	CreateRenderResources(colorFormat, depthFormat);
 }
 
@@ -32,6 +34,26 @@ SceneWindow::~SceneWindow()
 VulkanTexture* SceneWindow::GetColorTexture() const
 {
 	return colorTexture;
+}
+
+VkFramebuffer SceneWindow::GetFramebuffer() const
+{
+	return framebuffer;
+}
+
+VkExtent2D SceneWindow::GetExtent() const
+{
+	return extent;
+}
+
+void SceneWindow::BeginRenderPass(VkCommandBuffer commandBuffer)
+{
+	renderPass->Begin(commandBuffer, framebuffer, extent);
+}
+
+void SceneWindow::EndRenderPass(VkCommandBuffer commandBuffer)
+{
+	renderPass->End(commandBuffer);
 }
 
 void SceneWindow::OnRender()
