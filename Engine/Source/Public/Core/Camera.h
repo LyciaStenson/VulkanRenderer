@@ -22,6 +22,14 @@ namespace VulkanRenderer
 		~Camera();
 		
 		CameraUBO GetUBO(VkExtent2D swapChainExtent) const;
+
+		template <class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(cereal::base_class<SceneObject>(this));
+			archive(fov);
+		}
+
 		float fov = 70.0f;
 	};
 }

@@ -24,6 +24,7 @@ project "Engine"
 		"Vendor/glm",
 		"Vendor/stb",
 		"Vendor/fastgltf/include",
+		"Vendor/cereal",
 		"Vendor/imgui"
 	}
 

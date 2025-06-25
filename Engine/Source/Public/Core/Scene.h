@@ -49,6 +49,12 @@ namespace VulkanRenderer
 		
 		void UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
+		template <class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(objects);
+		}
+
 	private:
 		VulkanDevice* device;
 		
@@ -67,8 +73,5 @@ namespace VulkanRenderer
 		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent);
 		
 		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent, std::shared_ptr<Mesh> mesh);
-
-		//void CreateLightBuffer(uint32_t maxLights);
-		//void UpdateLightBuffer();
 	};
 }

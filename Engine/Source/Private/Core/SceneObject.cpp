@@ -5,7 +5,7 @@ using namespace VulkanRenderer;
 SceneObject::SceneObject(const std::string& name)
 	: name(name)
 {
-	this->transform.owner = this;
+	transform.owner = this;
 }
 
 const std::string& SceneObject::GetName() const

@@ -24,6 +24,14 @@ namespace VulkanRenderer
 		glm::mat4 GetLocalMatrix() const;
 		glm::mat4 GetWorldMatrix() const;
 
+		template <class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(position.x, position.y, position.z);
+			archive(rotation.x, rotation.y, rotation.z, rotation.w);
+			archive(scale.x, scale.y, scale.z);
+		}
+
 		glm::vec3 position;
 		glm::quat rotation;
 		glm::vec3 scale;
