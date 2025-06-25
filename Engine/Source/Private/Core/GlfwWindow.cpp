@@ -2,16 +2,15 @@
 
 #include <iostream>
 
-#include <Core/Engine.h>
+#include <Core/Renderer.h>
 
 using namespace VulkanRenderer;
 
-GlfwWindow::GlfwWindow(Engine* engine)
+GlfwWindow::GlfwWindow()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	window = glfwCreateWindow(1280, 720, "Vulkan Renderer", nullptr, nullptr);
-	glfwSetWindowUserPointer(window, engine);
 	glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 }
 
@@ -26,6 +25,11 @@ GLFWwindow* GlfwWindow::Get() const
 	return window;
 }
 
+void GlfwWindow::SetRendererPointer(Renderer* renderer)
+{
+	glfwSetWindowUserPointer(window, renderer);
+}
+
 void GlfwWindow::GetFramebufferSize(int* width, int* height)
 {
 	glfwGetFramebufferSize(window, width, height);
@@ -33,6 +37,6 @@ void GlfwWindow::GetFramebufferSize(int* width, int* height)
 
 void GlfwWindow::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
-	Engine* engine = reinterpret_cast<Engine*>(glfwGetWindowUserPointer(window));
-	engine->FramebufferResized();
+	Renderer* renderer = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window));
+	renderer->FramebufferResized();
 }

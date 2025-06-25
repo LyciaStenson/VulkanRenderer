@@ -9,56 +9,32 @@
 namespace VulkanRenderer
 {
 	class GlfwWindow;
-	class VulkanInstance;
-	class VulkanDevice;
-	class VulkanSwapChain;
-	class VulkanRenderPass;
-	class VulkanDescriptorSetLayoutManager;
-	class GlobalDescriptorSetManager;
-	class VulkanPipeline;
-	class VulkanDescriptorPool;
-	class VulkanSync;
 	class ModelManager;
 	class MeshInstance;
 	class Scene;
 	class Camera;
-	class VulkanImGuiOverlay;
-
+	class RenderTarget;
+	class Renderer;
+	
 	class Engine
 	{
 	public:
 		Engine();
 		~Engine();
 
-		void FramebufferResized();
-
+		GlfwWindow* GetGlfwWindow() const;
+		Renderer* GetRenderer() const;
+		Scene* GetScene() const;
+		ModelManager* GetModelManager() const;
+		
 		void Run();
 
 	private:
 		std::unique_ptr<GlfwWindow> glfwWindow;
-		std::unique_ptr<VulkanInstance> instance;
-		std::unique_ptr<VulkanDevice> device;
-		std::unique_ptr<VulkanSwapChain> swapChain;
-		std::unique_ptr<VulkanRenderPass> renderPass;
-		std::unique_ptr<VulkanDescriptorSetLayoutManager> descriptorSetLayoutManager;
-		std::unique_ptr<VulkanPipeline> opaquePipeline;
-		std::unique_ptr<VulkanPipeline> transparentPipeline;
-		std::unique_ptr<VulkanDescriptorPool> descriptorPool;
-		std::unique_ptr<GlobalDescriptorSetManager> globalDescriptorSetManager;
-		std::unique_ptr<VulkanSync> sync;
 
-		std::unique_ptr<VulkanImGuiOverlay> imGuiOverlay;
+		std::unique_ptr<Renderer> renderer;
 		
 		std::unique_ptr<Scene> scene;
 		std::unique_ptr<ModelManager> modelManager;
-		
-		int currentFrame = 0;
-
-		bool framebufferResized = false;
-		
-		void DrawFrame();
-		void Render(VkCommandBuffer commandBuffer, VkFramebuffer framebuffer, VkExtent2D extent);
-		
-		void RecreateSwapChain();
 	};
 }

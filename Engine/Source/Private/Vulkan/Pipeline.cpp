@@ -19,10 +19,10 @@
 
 using namespace VulkanRenderer;
 
-VulkanPipeline::VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager, GlobalDescriptorSetManager* globalDescriptorSetManager, PipelineType type)
+VulkanPipeline::VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* descriptorSetLayoutManager, GlobalDescriptorSetManager* globalDescriptorSetManager, PipelineType type)
 	: device(device), renderPass(renderPass), globalDescriptorSetManager(globalDescriptorSetManager), type(type)
 {
-	CreateGraphicsPipeline(layoutManager);
+	CreateGraphicsPipeline(descriptorSetLayoutManager);
 }
 
 VulkanPipeline::~VulkanPipeline()
@@ -36,7 +36,7 @@ void VulkanPipeline::SetDescriptorPool(VkDescriptorPool pool)
 	descriptorPool = pool;
 }
 
-void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* layoutManager)
+void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* descriptorSetLayoutManager)
 {
 	Shader vertShader(device->GetLogical(), "Assets/Shaders/Vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
 	Shader fragShader(device->GetLogical(), "Assets/Shaders/Frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -151,9 +151,9 @@ void VulkanPipeline::CreateGraphicsPipeline(VulkanDescriptorSetLayoutManager* la
 
 	std::array<VkDescriptorSetLayout, 3> descriptorSetLayouts =
 	{
-		layoutManager->GetGlobalDescriptorSetLayout(),
-		layoutManager->GetMeshDescriptorSetLayout(),
-		layoutManager->GetMaterialDescriptorSetLayout()
+		descriptorSetLayoutManager->GetGlobalDescriptorSetLayout(),
+		descriptorSetLayoutManager->GetMeshDescriptorSetLayout(),
+		descriptorSetLayoutManager->GetMaterialDescriptorSetLayout()
 	};
 	
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};

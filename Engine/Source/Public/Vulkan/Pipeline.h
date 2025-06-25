@@ -24,7 +24,7 @@ namespace VulkanRenderer
 	class VulkanPipeline
 	{
 	public:
-		VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* layoutManager, GlobalDescriptorSetManager* globalDescriptorSetManager, PipelineType type);
+		VulkanPipeline(VulkanDevice* device, VulkanRenderPass* renderPass, VulkanDescriptorSetLayoutManager* descriptorSetLayoutManager, GlobalDescriptorSetManager* globalDescriptorSetManager, PipelineType type);
 		~VulkanPipeline();
 
 		void SetDescriptorPool(VkDescriptorPool pool);

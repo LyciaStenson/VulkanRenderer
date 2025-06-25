@@ -4,15 +4,17 @@
 
 namespace VulkanRenderer
 {
-	class Engine;
+	class Renderer;
 
 	class GlfwWindow
 	{
 	public:
-		GlfwWindow(Engine* engine);
+		GlfwWindow();
 		~GlfwWindow();
 
 		GLFWwindow* Get() const;
+
+		void SetRendererPointer(Renderer* renderer);
 
 		void GetFramebufferSize(int* width, int* height);
 
