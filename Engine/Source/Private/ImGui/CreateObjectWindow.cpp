@@ -53,10 +53,6 @@ void CreateObjectWindow::OnRender()
 			break;
 		case 3:
 			Camera* camera = m_Scene->CreateCamera("Camera", transform.position, transform.rotation, transform.scale, nullptr);
-			if (!m_Scene->GetMainCamera())
-			{
-				m_Scene->SetMainCamera(camera);
-			}
 			break;
 		}
 

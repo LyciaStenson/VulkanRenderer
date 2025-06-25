@@ -91,6 +91,11 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 
 	Camera* cameraPtr = camera.get();
 	objects.push_back(std::move(camera));
+
+	if (!GetMainCamera())
+	{
+		SetMainCamera(cameraPtr);
+	}
 	
 	return cameraPtr;
 }
