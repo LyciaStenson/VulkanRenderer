@@ -49,7 +49,7 @@ Renderer::Renderer(GlfwWindow* glfwWindow)
 
 Renderer::~Renderer()
 {
-	vkDeviceWaitIdle(device->GetLogical());
+
 }
 
 VulkanDevice* Renderer::GetDevice() const

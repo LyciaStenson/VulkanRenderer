@@ -16,6 +16,7 @@
 #include <Core/Transform.h>
 #include <Core/RenderTarget.h>
 #include <Core/Renderer.h>
+#include <Vulkan/Device.h>
 #include <Vulkan/DescriptorPool.h>
 #include <Vulkan/DescriptorSetLayoutManager.h>
 #include <Vulkan/GlobalDescriptorSetManager.h>
@@ -95,4 +96,5 @@ void Engine::Run()
 		glfwPollEvents();
 		renderer->DrawFrame(scene.get());
 	}
+	vkDeviceWaitIdle(renderer->GetDevice()->GetLogical());
 }
