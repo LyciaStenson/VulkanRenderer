@@ -31,9 +31,9 @@ namespace VulkanRenderer
 		{
 			archive
 			(
-				cereal::make_nvp("position", position),
-				cereal::make_nvp("rotation", rotation),
-				cereal::make_nvp("scale", scale)
+				CEREAL_NVP(position),
+				CEREAL_NVP(rotation),
+				CEREAL_NVP(scale)
 			);
 		}
 

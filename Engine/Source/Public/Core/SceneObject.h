@@ -13,7 +13,7 @@ namespace VulkanRenderer
 	class SceneObject
 	{
 	public:
-		SceneObject(const std::string& name);
+		SceneObject(const std::string& name = "Scene Object");
 		virtual ~SceneObject() = default;
 
 		const std::string& GetName() const;
@@ -21,7 +21,11 @@ namespace VulkanRenderer
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(name, transform);
+			archive
+			(
+				CEREAL_NVP(name),
+				CEREAL_NVP(transform)
+			);
 		}
 		
 		Transform transform;

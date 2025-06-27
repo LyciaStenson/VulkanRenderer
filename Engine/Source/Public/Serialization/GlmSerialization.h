@@ -12,9 +12,9 @@ namespace glm
 	{
 		archive
 		(
-			cereal::make_nvp("x", vec.x),
-			cereal::make_nvp("y", vec.y),
-			cereal::make_nvp("z", vec.z)
+			CEREAL_NVP(vec.x),
+			CEREAL_NVP(vec.y),
+			CEREAL_NVP(vec.z)
 		);
 	}
 
@@ -23,10 +23,10 @@ namespace glm
 	{
 		archive
 		(
-			cereal::make_nvp("x", quat.x),
-			cereal::make_nvp("y", quat.y),
-			cereal::make_nvp("z", quat.z),
-			cereal::make_nvp("w", quat.w)
+			CEREAL_NVP(quat.x),
+			CEREAL_NVP(quat.y),
+			CEREAL_NVP(quat.z),
+			CEREAL_NVP(quat.w)
 		);
 	}
 }
