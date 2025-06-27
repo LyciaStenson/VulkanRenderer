@@ -4,6 +4,7 @@
 #include <Core/ModelManager.h>
 #include <Core/Scene.h>
 #include <Core/SceneObject.h>
+#include <Core/Camera.h>
 #include <Core/GlfwWindow.h>
 #include <Vulkan/DescriptorPool.h>
 
@@ -19,6 +20,8 @@
 
 using namespace VulkanRenderer;
 
+extern int forceCamera;
+
 int main(int argc, char** argv)
 {
 	Engine engine;
@@ -31,8 +34,10 @@ int main(int argc, char** argv)
 		std::filesystem::create_directories("Assets/Serialization");
 	}
 	
-	std::vector<std::shared_ptr<SceneObject>> outSceneObjects;
-	outSceneObjects.push_back(std::make_shared<SceneObject>("Test Object"));
+	std::vector<std::unique_ptr<SceneObject>> outSceneObjects;
+	outSceneObjects.push_back(std::make_unique<SceneObject>("Test Scene Object"));
+	outSceneObjects.push_back(std::make_unique<Camera>("Test Camera"));
+
 	outSceneObjects[0]->transform.position = glm::vec3(1.0f, 2.0f, 3.0f);
 	{
 		std::ofstream os("Assets/Serialization/SceneObjects.json");
@@ -41,8 +46,10 @@ int main(int argc, char** argv)
 		//cereal::BinaryOutputArchive archive(os);
 		archive(cereal::make_nvp("SceneObjects", outSceneObjects));
 	}
+	Camera* outCamera = (Camera*)outSceneObjects[1].get();
+	outCamera->fov = 65.5f;
 	
-	std::vector<std::shared_ptr<SceneObject>> inSceneObjects;
+	std::vector<std::unique_ptr<SceneObject>> inSceneObjects;
 	{
 		std::ifstream is("Assets/Serialization/SceneObjects.json");
 		//std::ifstream is("Assets/Serialization/SceneObjects.bin", std::ios::binary);
@@ -52,6 +59,9 @@ int main(int argc, char** argv)
 	}
 	
 	std::cout << inSceneObjects[0]->GetName() << ": " << inSceneObjects[0]->transform.position.x << ", " << inSceneObjects[0]->transform.position.y << ", " << inSceneObjects[0]->transform.position.z << std::endl;
+	
+	Camera* inCamera = (Camera*)inSceneObjects[1].get();
+	std::cout << inCamera->GetName() << ": " << inCamera->transform.position.x << ", " << inCamera->transform.position.y << ", " << inCamera->transform.position.z << ", FOV: " << inCamera->fov << std::endl;
 
 	//Transform cameraTransform{};
 	//engine.GetScene()->CreateCamera("Camera", cameraTransform.position, cameraTransform.rotation, cameraTransform.scale);

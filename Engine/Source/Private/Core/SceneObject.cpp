@@ -15,4 +15,4 @@ const std::string& SceneObject::GetName() const
 	return name;
 }
 
-CEREAL_REGISTER_TYPE(VulkanRenderer::SceneObject);
+CEREAL_REGISTER_TYPE(VulkanRenderer::SceneObject)

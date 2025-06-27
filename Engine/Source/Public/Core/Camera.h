@@ -26,10 +26,13 @@ namespace VulkanRenderer
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(cereal::base_class<SceneObject>(this));
-			archive(fov);
+			archive
+			(
+				cereal::base_class<SceneObject>(this),
+				CEREAL_NVP(fov)
+			);
 		}
-
+		
 		float fov = 70.0f;
 	};
 }
