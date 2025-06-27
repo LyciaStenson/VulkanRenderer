@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Serialization/GlmSerialization.h>
+
 namespace VulkanRenderer
 {
 	class SceneObject;
@@ -27,9 +29,12 @@ namespace VulkanRenderer
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(position.x, position.y, position.z);
-			archive(rotation.x, rotation.y, rotation.z, rotation.w);
-			archive(scale.x, scale.y, scale.z);
+			archive
+			(
+				cereal::make_nvp("position", position),
+				cereal::make_nvp("rotation", rotation),
+				cereal::make_nvp("scale", scale)
+			);
 		}
 
 		glm::vec3 position;
