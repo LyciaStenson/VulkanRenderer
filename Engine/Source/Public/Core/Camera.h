@@ -11,6 +11,9 @@
 #include <Core/Transform.h>
 #include <Vulkan/UniformBuffer.h>
 
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/portable_binary.hpp>
+
 namespace VulkanRenderer
 {
 	struct CameraUBO;
@@ -18,6 +21,7 @@ namespace VulkanRenderer
 	class Camera : public SceneObject
 	{
 	public:
+		Camera() = default;
 		Camera(const std::string& name);
 		~Camera();
 		
@@ -36,3 +40,6 @@ namespace VulkanRenderer
 		float fov = 70.0f;
 	};
 }
+
+CEREAL_REGISTER_TYPE(VulkanRenderer::Camera)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(VulkanRenderer::SceneObject, VulkanRenderer::Camera)

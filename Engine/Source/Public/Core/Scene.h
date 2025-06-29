@@ -15,6 +15,11 @@
 #include <fastgltf/types.hpp>
 #include <fastgltf/tools.hpp>
 
+#include <cereal/cereal.hpp>
+
+#include <cereal/types/string.hpp>
+#include <cereal/types/memory.hpp>
+
 namespace VulkanRenderer
 {
 	class VulkanDevice;
@@ -32,7 +37,7 @@ namespace VulkanRenderer
 	class Scene
 	{
 	public:
-		Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool);
+		Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorPool descriptorPool);
 		~Scene();
 
 		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
@@ -40,6 +45,12 @@ namespace VulkanRenderer
 
 		Camera* GetMainCamera() const;
 		void SetMainCamera(Camera* camera);
+
+		bool SaveSceneJSON(const std::string& path);
+		bool SaveSceneBIN(const std::string& path);
+
+		bool LoadSceneJSON(const std::string& path);
+		bool LoadSceneBIN(const std::string& path);
 		
 		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent = nullptr);
 		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent = nullptr);
@@ -50,15 +61,35 @@ namespace VulkanRenderer
 		void UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
 		template <class Archive>
-		void serialize(Archive& archive)
+		void save(Archive& archive) const
 		{
-			archive(objects);
+			archive(CEREAL_NVP(objects));
+			std::string mainCameraPath = mainCamera ? mainCamera->GetName() : "";
+			archive(CEREAL_NVP(mainCameraPath));
+		}
+
+		template <class Archive>
+		void load(Archive& archive)
+		{
+			archive(CEREAL_NVP(objects));
+			std::string mainCameraPath;
+			archive(CEREAL_NVP(mainCameraPath));
+
+			mainCamera = nullptr;
+			for (const auto& object : objects)
+			{
+				if (object->GetName() == mainCameraPath)
+				{
+					mainCamera = dynamic_cast<Camera*>(object.get());
+					break;
+				}
+			}
 		}
 
 	private:
 		VulkanDevice* device;
 		
-		VkDescriptorSetLayout cameraDescriptorSetLayout;
+		//VkDescriptorSetLayout globalDescriptorSetLayout;
 
 		VkDescriptorPool descriptorPool;
 

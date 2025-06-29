@@ -1,7 +1,5 @@
 #include <Core/SceneObject.h>
 
-#include <cereal/types/polymorphic.hpp>
-
 using namespace VulkanRenderer;
 
 SceneObject::SceneObject(const std::string& name)
@@ -14,5 +12,3 @@ const std::string& SceneObject::GetName() const
 {
 	return name;
 }
-
-CEREAL_REGISTER_TYPE(VulkanRenderer::SceneObject)

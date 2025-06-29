@@ -21,7 +21,7 @@ namespace VulkanRenderer
 	public:
 		Engine();
 		~Engine();
-
+		
 		GlfwWindow* GetGlfwWindow() const;
 		Renderer* GetRenderer() const;
 		Scene* GetScene() const;

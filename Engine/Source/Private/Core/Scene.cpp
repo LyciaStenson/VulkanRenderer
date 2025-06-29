@@ -16,10 +16,19 @@
 #include <Core/Transform.h>
 #include <Core/Model.h>
 
+#include <filesystem>
+#include <fstream>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+
 using namespace VulkanRenderer;
 
-Scene::Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorSetLayout cameraDescriptorSetLayout, VkDescriptorPool descriptorPool)
-	: device(device), modelManager(modelManager), globalDescriptorSetManager(globalDescriptorSetManager), cameraDescriptorSetLayout(cameraDescriptorSetLayout), descriptorPool(descriptorPool)
+Scene::Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorPool descriptorPool)
+	: device(device), modelManager(modelManager), globalDescriptorSetManager(globalDescriptorSetManager), descriptorPool(descriptorPool)
 {
 
 }
@@ -47,6 +56,66 @@ Camera* Scene::GetMainCamera() const
 void Scene::SetMainCamera(Camera* camera)
 {
 	mainCamera = camera;
+}
+
+bool Scene::SaveSceneJSON(const std::string& path)
+{
+	std::ofstream os(path);
+	if (!os.is_open())
+	{
+		std::cerr << "Failed to open scene for writing at " << path << std::endl;
+		return false;
+	}
+	
+	cereal::JSONOutputArchive archive(os);
+	save(archive);
+
+	return true;
+}
+
+bool Scene::SaveSceneBIN(const std::string& path)
+{
+	std::ofstream os(path, std::ios::binary);
+	if (!os.is_open())
+	{
+		std::cerr << "Failed to open scene for writing at " << path << std::endl;
+		return false;
+	}
+	
+	cereal::BinaryOutputArchive archive(os);
+	save(archive);
+
+	return true;
+}
+
+bool Scene::LoadSceneJSON(const std::string& path)
+{
+	std::ifstream is(path);
+	if (!is.is_open())
+	{
+		std::cerr << "Failed to open scene for reading at " << path << std::endl;
+		return false;
+	}
+	
+	cereal::JSONInputArchive archive(is);
+	load(archive);
+
+	return true;
+}
+
+bool Scene::LoadSceneBIN(const std::string& path)
+{
+	std::ifstream is(path, std::ios::binary);
+	if (!is.is_open())
+	{
+		std::cerr << "Failed to open scene for reading at " << path << std::endl;
+		return false;
+	}
+	
+	cereal::BinaryInputArchive archive(is);
+	load(archive);
+
+	return true;
 }
 
 SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)

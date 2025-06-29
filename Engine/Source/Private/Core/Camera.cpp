@@ -6,8 +6,6 @@
 #include <Vulkan/Device.h>
 #include <Core/CameraUBO.h>
 
-#include <cereal/types/polymorphic.hpp>
-
 using namespace VulkanRenderer;
 
 Camera::Camera(const std::string& name)
@@ -35,6 +33,3 @@ CameraUBO Camera::GetUBO(VkExtent2D swapChainExtent) const
 
 	return ubo;
 }
-
-CEREAL_REGISTER_TYPE(VulkanRenderer::Camera)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(VulkanRenderer::SceneObject, VulkanRenderer::Camera)

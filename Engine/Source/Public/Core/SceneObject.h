@@ -8,12 +8,16 @@
 #include <cereal/types/string.hpp>
 #include <cereal/types/memory.hpp>
 
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/portable_binary.hpp>
+
 namespace VulkanRenderer
 {
 	class SceneObject
 	{
 	public:
-		SceneObject(const std::string& name = "Scene Object");
+		SceneObject() = default;
+		SceneObject(const std::string& name);
 		virtual ~SceneObject() = default;
 
 		const std::string& GetName() const;
@@ -34,3 +38,5 @@ namespace VulkanRenderer
 		std::string name;
 	};
 }
+
+CEREAL_REGISTER_TYPE(VulkanRenderer::SceneObject)

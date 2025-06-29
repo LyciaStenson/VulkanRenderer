@@ -24,7 +24,7 @@
 namespace VulkanRenderer
 {
 	VulkanImGuiOverlay::VulkanImGuiOverlay(VulkanInstance* instance, VulkanDevice* device, VulkanSwapChain* swapChain, VulkanRenderPass* renderPass, GLFWwindow* glfwWindow, Scene* scene, ModelManager* modelManager)
-		: m_Window(glfwWindow)
+		: m_Window(glfwWindow), m_Scene(scene)
 	{
 		m_DescriptorPool = std::make_unique<ImGuiDescriptorPool>(device);
 
@@ -101,6 +101,16 @@ namespace VulkanRenderer
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::MenuItem("Load Scene"))
+				{
+					std::string path = "Assets/Scenes/Scene.json";
+					m_Scene->LoadSceneJSON(path);
+				}
+				if (ImGui::MenuItem("Save Scene"))
+				{
+					std::string path = "Assets/Scenes/Scene.json";
+					m_Scene->SaveSceneJSON(path);
+				}
 				if (ImGui::MenuItem("Quit"))
 					glfwSetWindowShouldClose(m_Window, true);
 				ImGui::EndMenu();

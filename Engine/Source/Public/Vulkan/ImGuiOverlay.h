@@ -45,6 +45,7 @@ namespace VulkanRenderer
 
 		std::unique_ptr<ImGuiDescriptorPool> m_DescriptorPool;
 
+		Scene* m_Scene = nullptr;
 		SceneObject* m_SelectedObject = nullptr;
 
 		std::unordered_map<std::string, std::unique_ptr<ImGuiWindow>> m_Windows;
