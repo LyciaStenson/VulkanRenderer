@@ -71,11 +71,13 @@ namespace VulkanRenderer
 		template <class Archive>
 		void load(Archive& archive)
 		{
+			objects.clear();
+			mainCamera = nullptr;
+
 			archive(CEREAL_NVP(objects));
 			std::string mainCameraPath;
 			archive(CEREAL_NVP(mainCameraPath));
-
-			mainCamera = nullptr;
+			
 			for (const auto& object : objects)
 			{
 				if (object->GetName() == mainCameraPath)
@@ -89,8 +91,6 @@ namespace VulkanRenderer
 	private:
 		VulkanDevice* device;
 		
-		//VkDescriptorSetLayout globalDescriptorSetLayout;
-
 		VkDescriptorPool descriptorPool;
 
 		GlobalDescriptorSetManager* globalDescriptorSetManager;

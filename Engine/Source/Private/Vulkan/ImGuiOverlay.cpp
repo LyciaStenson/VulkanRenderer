@@ -60,7 +60,7 @@ namespace VulkanRenderer
 		m_Windows["Instantiate Model Window"] = std::make_unique<InstantiateModelWindow>(modelManager, scene);
 		m_Windows["Create Object Window"] = std::make_unique<CreateObjectWindow>(scene);
 		m_Windows["Inspector"] = std::make_unique<Inspector>(scene, this);
-		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>();
+		m_Windows["Asset Browser"] = std::make_unique<AssetBrowser>(scene, this);
 		m_Windows["Scene Window"] = std::make_unique<SceneWindow>(device, swapChain->GetColorFormat(), swapChain->GetDepthFormat());
 		m_Windows["About"] = std::make_unique<AboutWindow>();
 	}
@@ -103,12 +103,12 @@ namespace VulkanRenderer
 			{
 				if (ImGui::MenuItem("Load Scene"))
 				{
-					std::string path = "Assets/Scenes/Scene.json";
+					std::string path = "Assets/Scenes/Scene.tscene";
 					m_Scene->LoadSceneJSON(path);
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					std::string path = "Assets/Scenes/Scene.json";
+					std::string path = "Assets/Scenes/Scene.tscene";
 					m_Scene->SaveSceneJSON(path);
 				}
 				if (ImGui::MenuItem("Quit"))
@@ -170,7 +170,7 @@ namespace VulkanRenderer
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
+		
 		ImGuiStyle& style = ImGui::GetStyle();
 		
 		style.TabRounding = 4.0f;
