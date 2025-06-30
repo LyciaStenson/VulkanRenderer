@@ -41,7 +41,7 @@ void SceneOutliner::OnRender()
 
 	for (auto& meshInstance : m_Scene->GetObjectsMutable())
 	{
-		if (meshInstance->transform.GetParent() == nullptr)
+		if (meshInstance->GetParent() == nullptr)
 		{
 			DrawSceneNode(meshInstance.get());
 		}
@@ -54,7 +54,7 @@ void SceneOutliner::DrawSceneNode(SceneObject* object)
 	if (object == m_Overlay->GetSelectedObject())
 		flags |= ImGuiTreeNodeFlags_Selected;
 
-	if (object->transform.GetChildren().empty())
+	if (object->GetChildren().empty())
 		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 	bool opened = ImGui::TreeNodeEx(object, flags, "%s", object->GetName().c_str());
@@ -64,9 +64,9 @@ void SceneOutliner::DrawSceneNode(SceneObject* object)
 	
 	if (opened && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
 	{
-		for (auto& child : object->transform.GetChildren())
+		for (auto& child : object->GetChildren())
 		{
-			DrawSceneNode(child->owner);
+			DrawSceneNode(child.get());
 		}
 		ImGui::TreePop();
 	}

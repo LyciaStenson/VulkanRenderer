@@ -16,36 +16,12 @@ Transform::Transform(const glm::vec3& position, const glm::quat& rotation, const
 
 Transform::~Transform()
 {
-	SetParent(nullptr);
-	for (Transform* child : children)
-	{
-		child->parent = nullptr;
-	}
-	children.clear();
-}
-
-void Transform::SetParent(Transform* newParent)
-{
-	if (parent == newParent)
-		return;
-
-	if (parent)
-		parent->RemoveChild(this);
-
-	parent = newParent;
-
-	if (parent)
-		parent->AddChild(this);
-}
-
-Transform* Transform::GetParent() const
-{
-	return parent;
-}
-
-const std::vector<Transform*>& Transform::GetChildren() const
-{
-	return children;
+	//SetParent(nullptr);
+	//for (Transform* child : children)
+	//{
+	//	child->parent = nullptr;
+	//}
+	//children.clear();
 }
 
 glm::mat4 Transform::GetLocalMatrix() const
@@ -56,23 +32,10 @@ glm::mat4 Transform::GetLocalMatrix() const
 	return t * r * s;
 }
 
-glm::mat4 Transform::GetWorldMatrix() const
-{
-	if (parent)
-		return parent->GetWorldMatrix() * GetLocalMatrix();
-	else
-		return GetLocalMatrix();
-}
-
-void Transform::AddChild(Transform* child)
-{
-	if (std::find(children.begin(), children.end(), child) == children.end())
-		children.push_back(child);
-}
-
-void Transform::RemoveChild(Transform* child)
-{
-	auto it = std::find(children.begin(), children.end(), child);
-	if (it != children.end())
-		children.erase(it);
-}
+//glm::mat4 Transform::GetWorldMatrix() const
+//{
+//	if (parent)
+//		return parent->GetWorldMatrix() * GetLocalMatrix();
+//	else
+//		return GetLocalMatrix();
+//}

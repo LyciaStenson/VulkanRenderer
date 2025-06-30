@@ -18,9 +18,17 @@ namespace VulkanRenderer
 	public:
 		SceneObject() = default;
 		SceneObject(const std::string& name);
-		virtual ~SceneObject() = default;
+		virtual ~SceneObject();
 
 		const std::string& GetName() const;
+		
+		void SetParent(SceneObject* transform);
+		SceneObject* GetParent() const;
+		
+		const std::vector<std::unique_ptr<SceneObject>>& GetChildren() const;
+
+		glm::mat4 GetLocalMatrix() const;
+		glm::mat4 GetWorldMatrix() const;
 
 		template <class Archive>
 		void serialize(Archive& archive)
@@ -34,8 +42,15 @@ namespace VulkanRenderer
 		
 		Transform transform;
 
+		SceneObject* parent = nullptr;
+
 	private:
 		std::string name;
+		
+		std::vector<std::unique_ptr<SceneObject>> children;
+		
+		void AddChild(std::unique_ptr<SceneObject> child);
+		std::unique_ptr<SceneObject> DetachChild(SceneObject* child);
 	};
 }
 

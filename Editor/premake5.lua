@@ -31,6 +31,8 @@ project "Editor"
 		"%{wks.location}/Engine/Vendor/imgui"
 	}
 
+	defines { "EDITOR" }
+
 	links { "Engine" }
 
 	filter { "configurations:Debug" }

@@ -18,13 +18,8 @@ namespace VulkanRenderer
 		Transform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 		~Transform();
 		
-		void SetParent(Transform* transform);
-		Transform* GetParent() const;
-
-		const std::vector<Transform*>& GetChildren() const;
-
 		glm::mat4 GetLocalMatrix() const;
-		glm::mat4 GetWorldMatrix() const;
+		//glm::mat4 GetWorldMatrix() const;
 
 		template <class Archive>
 		void serialize(Archive& archive)
@@ -43,11 +38,10 @@ namespace VulkanRenderer
 
 		SceneObject* owner = nullptr;
 
-	private:
-		Transform* parent = nullptr;
-		std::vector<Transform*> children;
+	//private:
+		//Transform* parent = nullptr;
 		
-		void AddChild(Transform* child);
-		void RemoveChild(Transform* child);
+		//void AddChild(Transform* child);
+		//void RemoveChild(Transform* child);
 	};
 }

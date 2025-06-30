@@ -87,7 +87,7 @@ void MeshInstance::CreateUniformBuffers()
 void MeshInstance::UpdateUniformBuffer(uint32_t currentImage)
 {
 	MeshUBO ubo{};
-	ubo.model = transform.GetWorldMatrix();
+	ubo.model = GetWorldMatrix();
 
 	memcpy(uniformBuffers[currentImage].GetMappedData(), &ubo, sizeof(ubo));
 }

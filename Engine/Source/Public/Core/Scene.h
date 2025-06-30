@@ -51,13 +51,13 @@ namespace VulkanRenderer
 
 		bool LoadSceneJSON(const std::string& path);
 		bool LoadSceneBIN(const std::string& path);
-		
-		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent = nullptr);
-		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent = nullptr);
-		PointLight* CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent = nullptr);
+
+		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
+		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
+		PointLight* CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 
 		SceneObject* InstantiateModel(const std::string& name, const Transform& transform);
-		
+
 		void UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent);
 
 		template <class Archive>
@@ -77,7 +77,7 @@ namespace VulkanRenderer
 			archive(CEREAL_NVP(objects));
 			std::string mainCameraPath;
 			archive(CEREAL_NVP(mainCameraPath));
-			
+
 			for (const auto& object : objects)
 			{
 				if (object->GetName() == mainCameraPath)
@@ -90,7 +90,7 @@ namespace VulkanRenderer
 
 	private:
 		VulkanDevice* device;
-		
+
 		VkDescriptorPool descriptorPool;
 
 		GlobalDescriptorSetManager* globalDescriptorSetManager;
@@ -98,11 +98,11 @@ namespace VulkanRenderer
 
 		std::vector<std::unique_ptr<SceneObject>> objects;
 		std::unordered_set<std::string> objectNames;
-		
+
 		Camera* mainCamera = nullptr;
 
-		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent);
-		
-		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent, std::shared_ptr<Mesh> mesh);
+		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, SceneObject* parent);
+
+		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent, std::shared_ptr<Mesh> mesh);
 	};
 }

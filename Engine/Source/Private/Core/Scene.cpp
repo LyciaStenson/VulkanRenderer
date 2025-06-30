@@ -118,7 +118,7 @@ bool Scene::LoadSceneBIN(const std::string& path)
 	return true;
 }
 
-SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
+SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent)
 {
 	std::string instanceName = name;
 	int counter = 1;
@@ -133,7 +133,7 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& 
 	object->transform.position = position;
 	object->transform.rotation = rotation;
 	object->transform.scale = scale;
-	object->transform.SetParent(parent);
+	object->SetParent(parent);
 
 	SceneObject* objectPtr = object.get();
 	objects.push_back(std::move(object));
@@ -141,7 +141,7 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& 
 	return objectPtr;
 }
 
-Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
+Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent)
 {
 	std::string cameraName = name;
 	int counter = 1;
@@ -156,7 +156,7 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	camera->transform.position = position;
 	camera->transform.rotation = rotation;
 	camera->transform.scale = scale;
-	camera->transform.SetParent(parent);
+	camera->SetParent(parent);
 
 	Camera* cameraPtr = camera.get();
 	objects.push_back(std::move(camera));
@@ -169,7 +169,7 @@ Camera* Scene::CreateCamera(const std::string& name, const glm::vec3& position, 
 	return cameraPtr;
 }
 
-PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent)
+PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent)
 {
 	std::string lightName = name;
 	int counter = 1;
@@ -184,7 +184,7 @@ PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& po
 	light->transform.position = position;
 	light->transform.rotation = rotation;
 	light->transform.scale = scale;
-	light->transform.SetParent(parent);
+	light->SetParent(parent);
 
 	PointLight* cameraPtr = light.get();
 	objects.push_back(std::move(light));
@@ -192,7 +192,7 @@ PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& po
 	return cameraPtr;
 }
 
-MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, Transform* parent, std::shared_ptr<Mesh> mesh)
+MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent, std::shared_ptr<Mesh> mesh)
 {
 	std::string instanceName = name;
 	int counter = 1;
@@ -207,7 +207,7 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3
 	meshInstance->transform.position = position;
 	meshInstance->transform.rotation = rotation;
 	meshInstance->transform.scale = scale;
-	meshInstance->transform.SetParent(parent);
+	meshInstance->SetParent(parent);
 
 	MeshInstance* meshInstancePtr = meshInstance.get();
 	objects.push_back(std::move(meshInstance));
@@ -215,7 +215,7 @@ MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3
 	return meshInstancePtr;
 }
 
-void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, Transform* parent)
+void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, SceneObject* parent)
 {
 	fastgltf::math::fvec3 gltfTranslation(0.0f, 0.0f, 0.0f);
 	fastgltf::math::fquat gltfRotation;
@@ -254,7 +254,7 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 	{
 		const auto& childNode = model->gltfAsset.nodes[childNodeIndex];
 		if (object)
-			InstantiateModelNode(model, childNode, &object->transform);
+			InstantiateModelNode(model, childNode, object);
 	}
 }
 
@@ -274,7 +274,7 @@ SceneObject* Scene::InstantiateModel(const std::string& name, const Transform& t
 
 	for (size_t rootNodeIndex : gltfScene.nodeIndices)
 	{
-		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], &root->transform);
+		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], root);
 	}
 
 	return nullptr;
