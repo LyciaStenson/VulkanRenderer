@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <ImGui/ImGuiWindow.h>
+#include <ImGuiWindow.h>
 
 namespace VulkanRenderer
 {

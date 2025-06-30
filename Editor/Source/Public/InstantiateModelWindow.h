@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ImGui/ImGuiWindow.h>
+#include <ImGuiWindow.h>
 
 namespace VulkanRenderer
 {

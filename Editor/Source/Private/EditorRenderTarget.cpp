@@ -3,13 +3,13 @@
 #include <Core/Engine.h>
 #include <Core/Renderer.h>
 #include <Vulkan/Texture.h>
-#include <Vulkan/ImGuiOverlay.h>
-#include <ImGui/SceneWindow.h>
+#include <ImGuiOverlay.h>
+#include <SceneWindow.h>
 
-#include <Vulkan/Instance.h>;
-#include <Vulkan/Device.h>;
-#include <Vulkan/SwapChain.h>;
-#include <Core/ModelManager.h>;
+#include <Vulkan/Instance.h>
+#include <Vulkan/Device.h>
+#include <Vulkan/SwapChain.h>
+#include <Core/ModelManager.h>
 
 using namespace VulkanRenderer;
 

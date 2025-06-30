@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include <ImGui/ImGuiWindow.h>
+#include <ImGuiWindow.h>
 #include <Core/SceneObject.h>
 
 namespace VulkanRenderer

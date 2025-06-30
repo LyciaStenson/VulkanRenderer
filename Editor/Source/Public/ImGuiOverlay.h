@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <ImGui/ImGuiWindow.h>
+#include <ImGuiWindow.h>
 
 #include <volk.h>
 #include <glfw/glfw3.h>

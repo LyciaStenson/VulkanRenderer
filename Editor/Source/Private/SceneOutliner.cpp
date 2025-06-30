@@ -1,10 +1,10 @@
-#include <ImGui/SceneOutliner.h>
+#include <SceneOutliner.h>
 
 #include <array>
 #include <string>
 #include <iostream>
 
-#include <Vulkan/ImGuiOverlay.h>
+#include <ImGuiOverlay.h>
 #include <Core/Scene.h>
 
 using namespace VulkanRenderer;

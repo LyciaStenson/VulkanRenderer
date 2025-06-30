@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <ImGui/ImGuiWindow.h>
+#include <ImGuiWindow.h>
 
 #include <volk.h>
 

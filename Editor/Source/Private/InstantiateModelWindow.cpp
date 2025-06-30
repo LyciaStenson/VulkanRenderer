@@ -1,4 +1,4 @@
-#include <ImGui/InstantiateModelWindow.h>
+#include <InstantiateModelWindow.h>
 
 #include <string>
 

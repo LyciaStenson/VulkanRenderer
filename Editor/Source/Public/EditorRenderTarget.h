@@ -2,7 +2,7 @@
 
 #include <Core/RenderTarget.h>
 
-#include <Vulkan/ImGuiOverlay.h>
+#include <ImGuiOverlay.h>
 
 namespace VulkanRenderer
 {

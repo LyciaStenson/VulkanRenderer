@@ -20,7 +20,6 @@
 #include <Vulkan/DescriptorPool.h>
 #include <Vulkan/DescriptorSetLayoutManager.h>
 #include <Vulkan/GlobalDescriptorSetManager.h>
-#include <ImGui/SceneWindow.h>
 
 using namespace VulkanRenderer;
 

@@ -1,9 +1,9 @@
-#include <ImGui/AssetBrowser.h>
+#include <AssetBrowser.h>
 
 #include <iostream>
 
 #include <Core/Scene.h>
-#include <Vulkan/ImGuiOverlay.h>
+#include <ImGuiOverlay.h>
 
 using namespace VulkanRenderer;
 
