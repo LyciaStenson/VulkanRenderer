@@ -14,6 +14,7 @@
 #include <Vulkan/Sync.h>
 #include <Core/GlfwWindow.h>
 #include <Core/Scene.h>
+#include <Core/SceneObject.h>
 #include <Core/Mesh.h>
 #include <Core/MeshPrimitive.h>
 #include <Core/MeshInstance.h>
@@ -175,21 +176,12 @@ void Renderer::DrawScene(Scene* scene, VkCommandBuffer commandBuffer, VkExtent2D
 	{
 		std::vector<MeshInstance*> opaqueMeshInstances;
 		std::vector<MeshInstance*> transparentMeshInstances;
-
-		for (const auto& object : scene->GetObjects())
+		
+		for (const auto& object : scene->GetRootObject()->GetChildren())
 		{
-			if (auto* meshInstance = dynamic_cast<MeshInstance*>(object.get()))
-			{
-				for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
-				{
-					if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
-						transparentMeshInstances.push_back(meshInstance);
-					else
-						opaqueMeshInstances.push_back(meshInstance);
-				}
-			}
+			CollectMeshInstances(object.get(), opaqueMeshInstances, transparentMeshInstances);
 		}
-
+		
 		std::sort(transparentMeshInstances.begin(), transparentMeshInstances.end(),
 			[&](MeshInstance* a, MeshInstance* b)
 			{
@@ -229,4 +221,24 @@ void Renderer::RecreateSwapChain()
 	swapChain->CreateDepthResources();
 	swapChain->CreateFramebuffers(renderPass->Get());
 	sync->CreateSyncObjects();
+}
+
+void Renderer::CollectMeshInstances(SceneObject* object, std::vector<MeshInstance*>& opaque, std::vector<MeshInstance*>& transparent)
+{
+	if (!object)
+		return;
+
+	if (auto* meshInstance = dynamic_cast<MeshInstance*>(object))
+	{
+		for (size_t i = 0; i < meshInstance->GetMesh()->GetPrimitiveCount(); ++i)
+		{
+			if (meshInstance->GetMesh()->GetPrimitive(i)->GetTransparencyEnabled())
+				transparent.push_back(meshInstance);
+			else
+				opaque.push_back(meshInstance);
+		}
+	}
+
+	for (const auto& child : object->GetChildren())
+		CollectMeshInstances(child.get(), opaque, transparent);
 }

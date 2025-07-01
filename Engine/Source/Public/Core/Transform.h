@@ -19,8 +19,7 @@ namespace VulkanRenderer
 		~Transform();
 		
 		glm::mat4 GetLocalMatrix() const;
-		//glm::mat4 GetWorldMatrix() const;
-
+		
 		template <class Archive>
 		void serialize(Archive& archive)
 		{
@@ -35,13 +34,5 @@ namespace VulkanRenderer
 		glm::vec3 position;
 		glm::quat rotation;
 		glm::vec3 scale;
-
-		SceneObject* owner = nullptr;
-
-	//private:
-		//Transform* parent = nullptr;
-		
-		//void AddChild(Transform* child);
-		//void RemoveChild(Transform* child);
 	};
 }

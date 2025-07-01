@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <volk.h>
 
@@ -17,6 +18,8 @@ namespace VulkanRenderer
 	class VulkanSync;
 	class GlfwWindow;
 	class Scene;
+	class SceneObject;
+	class MeshInstance;
 	class RenderTarget;
 	
 	class Renderer
@@ -43,6 +46,8 @@ namespace VulkanRenderer
 
 	private:
 		void RecreateSwapChain();
+
+		void CollectMeshInstances(SceneObject* object, std::vector<MeshInstance*>& opaque, std::vector<MeshInstance*>& transparent);
 
 		std::unique_ptr<VulkanInstance> instance;
 		std::unique_ptr<VulkanDevice> device;

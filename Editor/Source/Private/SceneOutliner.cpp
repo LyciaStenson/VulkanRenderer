@@ -39,12 +39,9 @@ void SceneOutliner::OnRender()
 		ImGui::EndMenuBar();
 	}
 
-	for (auto& meshInstance : m_Scene->GetObjectsMutable())
+	for (const auto& child : m_Scene->GetRootObject()->GetChildren())
 	{
-		if (meshInstance->GetParent() == nullptr)
-		{
-			DrawSceneNode(meshInstance.get());
-		}
+		DrawSceneNode(child.get());
 	}
 }
 

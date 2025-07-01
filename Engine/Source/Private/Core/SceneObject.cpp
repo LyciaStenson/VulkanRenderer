@@ -5,17 +5,25 @@ using namespace VulkanRenderer;
 SceneObject::SceneObject(const std::string& name)
 	: name(name)
 {
-	transform.owner = this;
+
 }
 
 SceneObject::~SceneObject()
 {
-	SetParent(nullptr);
+	//SetParent(nullptr);
 }
 
 const std::string& SceneObject::GetName() const
 {
 	return name;
+}
+
+std::string SceneObject::GetPath() const
+{
+	if (!parent)
+		return name;
+
+	return parent->GetPath() + '/' + name;
 }
 
 void SceneObject::SetParent(SceneObject* newParent)
@@ -29,8 +37,8 @@ void SceneObject::SetParent(SceneObject* newParent)
 
 	parent = newParent;
 	
-	//if (newParent)
-		//newParent->AddChild(std::move(uniquePtr));
+	if (newParent && uniquePtr)
+		newParent->AddChild(std::move(uniquePtr));
 }
 
 SceneObject* SceneObject::GetParent() const
@@ -58,19 +66,8 @@ glm::mat4 SceneObject::GetWorldMatrix() const
 
 void SceneObject::AddChild(std::unique_ptr<SceneObject> child)
 {
-	SceneObject* childPtr = child.get();
-
-	auto it = std::find_if(children.begin(), children.end(),
-		[childPtr](const std::unique_ptr<SceneObject>& existingChild)
-		{
-			return existingChild.get() == childPtr;
-		});
-
-	if (it == children.end())
-	{
-		children.push_back(std::move(child));
-		childPtr->parent = this;
-	}
+	child->parent = this;
+	children.push_back(std::move(child));
 }
 
 std::unique_ptr<SceneObject> SceneObject::DetachChild(SceneObject* child)

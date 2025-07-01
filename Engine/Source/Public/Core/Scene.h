@@ -32,6 +32,7 @@ namespace VulkanRenderer
 	class Camera;
 	class PointLight;
 	class Transform;
+	struct PointLightData;
 	struct Model;
 
 	class Scene
@@ -40,9 +41,8 @@ namespace VulkanRenderer
 		Scene(VulkanDevice* device, ModelManager* modelManager, GlobalDescriptorSetManager* globalDescriptorSetManager, VkDescriptorPool descriptorPool);
 		~Scene();
 
-		const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
-		std::vector<std::unique_ptr<SceneObject>>& GetObjectsMutable();
-
+		const SceneObject* GetRootObject() const;
+		
 		Camera* GetMainCamera() const;
 		void SetMainCamera(Camera* camera);
 
@@ -58,34 +58,31 @@ namespace VulkanRenderer
 
 		SceneObject* InstantiateModel(const std::string& name, const Transform& transform);
 
+		SceneObject* FindObject(const std::string& path, SceneObject* root = nullptr);
+
 		void UpdateBuffers(int currentFrame, VkExtent2D swapChainExtent);
+		void UpdateBuffersRecursive(int currentFrame, VkExtent2D swapChainExtent, SceneObject* object, std::vector<PointLightData>& pointLightData);
 
 		template <class Archive>
 		void save(Archive& archive) const
 		{
-			archive(CEREAL_NVP(objects));
-			std::string mainCameraPath = mainCamera ? mainCamera->GetName() : "";
+			archive(CEREAL_NVP(rootObject));
+			std::string mainCameraPath = mainCamera ? mainCamera->GetPath() : "";
 			archive(CEREAL_NVP(mainCameraPath));
 		}
 
 		template <class Archive>
 		void load(Archive& archive)
 		{
-			objects.clear();
+			rootObject = nullptr;
 			mainCamera = nullptr;
 
-			archive(CEREAL_NVP(objects));
+			archive(CEREAL_NVP(rootObject));
 			std::string mainCameraPath;
 			archive(CEREAL_NVP(mainCameraPath));
-
-			for (const auto& object : objects)
-			{
-				if (object->GetName() == mainCameraPath)
-				{
-					mainCamera = dynamic_cast<Camera*>(object.get());
-					break;
-				}
-			}
+			
+			if (!mainCameraPath.empty())
+				mainCamera = dynamic_cast<Camera*>(FindObject(mainCameraPath));
 		}
 
 	private:
@@ -95,10 +92,9 @@ namespace VulkanRenderer
 
 		GlobalDescriptorSetManager* globalDescriptorSetManager;
 		ModelManager* modelManager;
-
-		std::vector<std::unique_ptr<SceneObject>> objects;
-		std::unordered_set<std::string> objectNames;
-
+		
+		std::unique_ptr<SceneObject> rootObject;
+		
 		Camera* mainCamera = nullptr;
 
 		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, SceneObject* parent);
