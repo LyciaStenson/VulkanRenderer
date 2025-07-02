@@ -45,12 +45,12 @@ void InstantiateModelWindow::OnRender()
 
 	static std::string selectedModel;
 	
-	ImGui::Text("Instantiate model from name set when loading.");
+	ImGui::Text("Instantiate model from path.");
 
-	for (const auto& [name, model] : m_ModelManager->GetModels())
+	for (const auto& [path, model] : m_ModelManager->GetModels())
 	{
-		if (ImGui::Selectable(name.c_str(), selectedModel == name, 0, ImVec2(0.0f, 30.0f)))
-			selectedModel = name;
+		if (ImGui::Selectable(path.c_str(), selectedModel == path, 0, ImVec2(0.0f, 30.0f)))
+			selectedModel = path;
 	}
 
 	ImGui::DragFloat3("Position", &transform.position[0], 0.01f, 0.0f, 0.0f, "%g");

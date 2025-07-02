@@ -6,6 +6,7 @@
 #include <Vulkan/StorageBuffer.h>
 #include <Vulkan/GlobalDescriptorSetManager.h>
 #include <Core/SceneObject.h>
+#include <Core/PrefabInstance.h>
 #include <Core/MeshInstance.h>
 #include <Core/ModelManager.h>
 #include <Core/Mesh.h>
@@ -119,7 +120,7 @@ SceneObject* Scene::CreateSceneObject(const std::string& name, const glm::vec3& 
 		parent = rootObject.get();
 
 	std::string instanceName = name;
-	int counter = 1;
+	//int counter = 1;
 	//while (objectNames.count(instanceName))
 	//{
 		//instanceName = name + std::to_string(counter);
@@ -208,6 +209,36 @@ PointLight* Scene::CreatePointLight(const std::string& name, const glm::vec3& po
 	return lightPtr;
 }
 
+PrefabInstance* Scene::CreatePrefabInstance(const std::string& name, const std::string& path, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent)
+{
+	if (!parent)
+		parent = rootObject.get();
+
+	std::string instanceName = name;
+	//int counter = 1;
+	//while (objectNames.count(instanceName))
+	//{
+		//instanceName = name + std::to_string(counter);
+		//++counter;
+	//}
+	//objectNames.insert(instanceName);
+
+	std::unique_ptr<PrefabInstance> prefab = std::make_unique<PrefabInstance>(instanceName, path);
+	prefab->transform.position = position;
+	prefab->transform.rotation = rotation;
+	prefab->transform.scale = scale;
+	prefab->SetParent(parent);
+
+	PrefabInstance* prefabPtr = prefab.get();
+
+	if (parent)
+		parent->AddChild(std::move(prefab));
+	else
+		rootObject->AddChild(std::move(prefab));
+
+	return prefabPtr;
+}
+
 MeshInstance* Scene::CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent, std::shared_ptr<Mesh> mesh)
 {
 	if (!parent)
@@ -281,19 +312,19 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 	}
 }
 
-SceneObject* Scene::InstantiateModel(const std::string& name, const Transform& transform)
+SceneObject* Scene::InstantiateModel(const std::string& path, const Transform& transform)
 {
-	const auto& model = modelManager->GetModel(name);
+	const auto& model = modelManager->GetModel(path);
 
 	if (!model)
 	{
-		std::cout << "Model " << name << " not found. Make sure model is loaded first." << std::endl;
+		std::cout << "Model at " << path << " not found. Make sure model is loaded first." << std::endl;
 		return nullptr;
 	}
 
 	const fastgltf::Scene& gltfScene = model->gltfAsset.scenes[0];
 
-	SceneObject* root = CreateSceneObject(name, transform.position, transform.rotation, transform.scale, nullptr);
+	PrefabInstance* root = CreatePrefabInstance("Model", path, transform.position, transform.rotation, transform.scale, nullptr);
 
 	for (size_t rootNodeIndex : gltfScene.nodeIndices)
 	{

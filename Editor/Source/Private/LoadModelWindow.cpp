@@ -14,11 +14,11 @@ LoadModelWindow::LoadModelWindow(ModelManager* modelManager, bool open)
 
 void LoadModelWindow::OnRender()
 {
-	static std::string name;
-	static char nameBuffer[1024];
+	//static std::string name;
+	//static char nameBuffer[1024];
 
-	strncpy_s(nameBuffer, name.c_str(), sizeof(nameBuffer));
-	nameBuffer[sizeof(nameBuffer) - 1] = '\0';
+	//strncpy_s(nameBuffer, name.c_str(), sizeof(nameBuffer));
+	//nameBuffer[sizeof(nameBuffer) - 1] = '\0';
 
 	static std::string path;
 	static char pathBuffer[1024];
@@ -28,20 +28,20 @@ void LoadModelWindow::OnRender()
 
 	ImGui::Text("Load a .glb format model.");
 
-	if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
-	{
-		name = std::string(nameBuffer);
-	}
+	//if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
+	//{
+		//name = std::string(nameBuffer);
+	//}
 
 	if (ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer)))
 	{
 		path = std::string(pathBuffer);
 	}
 
-	ImGui::BeginDisabled(name.size() < 1 || path.size() < 1);
+	ImGui::BeginDisabled(path.size() < 1);
 	if (ImGui::Button("Load Model"))
 	{
-		m_ModelManager->LoadModel(name, path);
+		m_ModelManager->LoadModel(path);
 		SetOpen(false);
 	}
 	ImGui::EndDisabled();

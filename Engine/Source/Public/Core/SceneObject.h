@@ -53,7 +53,7 @@ namespace VulkanRenderer
 
 		SceneObject* parent = nullptr;
 
-	private:
+	protected:
 		std::string name;
 		
 		std::vector<std::unique_ptr<SceneObject>> children;

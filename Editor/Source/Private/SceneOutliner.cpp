@@ -6,6 +6,7 @@
 
 #include <ImGuiOverlay.h>
 #include <Core/Scene.h>
+#include <Core/PrefabInstance.h>
 
 using namespace VulkanRenderer;
 
@@ -47,11 +48,14 @@ void SceneOutliner::OnRender()
 
 void SceneOutliner::DrawSceneNode(SceneObject* object)
 {
+	if (!object)
+		return;
+	
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 	if (object == m_Overlay->GetSelectedObject())
 		flags |= ImGuiTreeNodeFlags_Selected;
 
-	if (object->GetChildren().empty())
+	if (object->GetChildren().empty() || dynamic_cast<PrefabInstance*>(object))
 		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 	bool opened = ImGui::TreeNodeEx(object, flags, "%s", object->GetName().c_str());

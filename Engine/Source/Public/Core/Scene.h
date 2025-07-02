@@ -26,6 +26,7 @@ namespace VulkanRenderer
 	class VulkanStorageBuffer;
 	class GlobalDescriptorSetManager;
 	class SceneObject;
+	class PrefabInstance;
 	class MeshInstance;
 	class ModelManager;
 	class Mesh;
@@ -55,8 +56,8 @@ namespace VulkanRenderer
 		SceneObject* CreateSceneObject(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		PointLight* CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
-
-		SceneObject* InstantiateModel(const std::string& name, const Transform& transform);
+		
+		SceneObject* InstantiateModel(const std::string& path, const Transform& transform);
 
 		SceneObject* FindObject(const std::string& path, SceneObject* root = nullptr);
 
@@ -99,6 +100,7 @@ namespace VulkanRenderer
 
 		void InstantiateModelNode(const std::shared_ptr<Model>& model, const fastgltf::Node& node, SceneObject* parent);
 
+		PrefabInstance* CreatePrefabInstance(const std::string& name, const std::string& path, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent, std::shared_ptr<Mesh> mesh);
 	};
 }

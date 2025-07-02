@@ -31,14 +31,16 @@ const std::unordered_map<std::string, std::shared_ptr<Model>>& ModelManager::Get
 	return models;
 }
 
-std::shared_ptr<Model> ModelManager::GetModel(const std::string& name)
+std::shared_ptr<Model> ModelManager::GetModel(const std::string& path)
 {
-	return models[name];
+	return models[path];
 }
 
-std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const std::filesystem::path& path)
+std::shared_ptr<Model> ModelManager::LoadModel(const std::filesystem::path& path)
 {
-	auto it = models.find(name);
+	std::string pathKey = path.string();
+
+	auto it = models.find(pathKey);
 	if (it != models.end())
 	{
 		return it->second;
@@ -61,7 +63,7 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 	}
 	
 	std::shared_ptr<Model> model = std::make_shared<Model>();
-	model->name = name;
+	model->path = pathKey;
 	model->gltfAsset = std::move(asset.get());
 
 	auto& gltfAsset = model->gltfAsset;
@@ -272,7 +274,7 @@ std::shared_ptr<Model> ModelManager::LoadModel(const std::string& name, const st
 		model->meshes.push_back(mesh);
 	}
 	
-	models[name] = model;
+	models[pathKey] = model;
 
 	return model;
 }

@@ -10,7 +10,7 @@ namespace VulkanRenderer
 {
 	struct Model
 	{
-		std::string name;
+		std::string path;
 		fastgltf::Asset gltfAsset;
 		
 		std::unordered_map<size_t, std::shared_ptr<VulkanTexture>> textures;

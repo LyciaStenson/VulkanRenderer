@@ -26,7 +26,7 @@ namespace VulkanRenderer
 		
 		void UpdateUniformBuffer(uint32_t currentImage);
 
-	private:
+	protected:
 		VulkanDevice* device;
 
 		std::vector<VkDescriptorSet> uniformDescriptorSets;

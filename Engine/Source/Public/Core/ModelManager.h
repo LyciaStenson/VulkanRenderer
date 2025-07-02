@@ -34,9 +34,9 @@ namespace VulkanRenderer
 
 		const std::unordered_map<std::string, std::shared_ptr<Model>>& GetModels();
 		
-		std::shared_ptr<Model> GetModel(const std::string& name);
+		std::shared_ptr<Model> GetModel(const std::string& path);
 		
-		std::shared_ptr<Model> LoadModel(const std::string& name, const std::filesystem::path& path);
+		std::shared_ptr<Model> LoadModel(const std::filesystem::path& path);
 		
 		void LoadTextures(std::shared_ptr<Model>& model);
 
