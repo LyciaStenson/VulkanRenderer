@@ -20,7 +20,7 @@ const std::string& SceneObject::GetName() const
 
 std::string SceneObject::GetPath() const
 {
-	if (!parent)
+	if (!parent || !parent->parent)
 		return name;
 
 	return parent->GetPath() + '/' + name;
