@@ -43,6 +43,7 @@ namespace VulkanRenderer
 		~Scene();
 
 		const SceneObject* GetRootObject() const;
+		std::vector<SceneObject*> GetAllObjects();
 		
 		Camera* GetMainCamera() const;
 		void SetMainCamera(Camera* camera);
@@ -57,7 +58,8 @@ namespace VulkanRenderer
 		Camera* CreateCamera(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		PointLight* CreatePointLight(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		
-		SceneObject* InstantiateModel(const std::string& path, const Transform& transform);
+		void InstantiateModel(PrefabInstance* prefabInstance);
+		PrefabInstance* InstantiateModel(const std::string& path, const Transform& transform);
 
 		SceneObject* FindObject(const std::string& path, SceneObject* root = nullptr);
 
@@ -84,6 +86,16 @@ namespace VulkanRenderer
 			
 			if (!mainCameraPath.empty())
 				mainCamera = dynamic_cast<Camera*>(FindObject(mainCameraPath));
+
+			std::vector<SceneObject*> allObjects = GetAllObjects();
+			for (SceneObject* object : allObjects)
+			{
+				if (auto* prefab = dynamic_cast<PrefabInstance*>(object))
+				{
+					modelManager->LoadModel(prefab->GetPrefabPath());
+					InstantiateModel(prefab);
+				}
+			}
 		}
 
 	private:
@@ -102,5 +114,7 @@ namespace VulkanRenderer
 
 		PrefabInstance* CreatePrefabInstance(const std::string& name, const std::string& path, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent = nullptr);
 		MeshInstance* CreateMeshInstance(const std::string& name, const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale, SceneObject* parent, std::shared_ptr<Mesh> mesh);
+
+		void GetAllObjectsRecursive(SceneObject* root, std::vector<SceneObject*>& allObjects);
 	};
 }

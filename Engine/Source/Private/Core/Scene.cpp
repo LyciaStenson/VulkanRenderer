@@ -44,6 +44,22 @@ const SceneObject* Scene::GetRootObject() const
 	return rootObject.get();
 }
 
+std::vector<SceneObject*> Scene::GetAllObjects()
+{
+	std::vector<SceneObject*> allObjects;
+	GetAllObjectsRecursive(rootObject.get(), allObjects);
+	return allObjects;
+}
+
+void Scene::GetAllObjectsRecursive(SceneObject* root, std::vector<SceneObject*>& allObjects)
+{
+	allObjects.push_back(root);
+	for (const auto& child : root->GetChildren())
+	{
+		GetAllObjectsRecursive(child.get(), allObjects);
+	}
+}
+
 Camera* Scene::GetMainCamera() const
 {
 	return mainCamera;
@@ -312,7 +328,25 @@ void Scene::InstantiateModelNode(const std::shared_ptr<Model>& model, const fast
 	}
 }
 
-SceneObject* Scene::InstantiateModel(const std::string& path, const Transform& transform)
+void Scene::InstantiateModel(PrefabInstance* prefab)
+{
+	const auto& model = modelManager->GetModel(prefab->GetPrefabPath());
+
+	if (!model)
+	{
+		std::cout << "Model at " << prefab->GetPrefabPath() << " not found. Make sure model is loaded first." << std::endl;
+		return;
+	}
+
+	const fastgltf::Scene& gltfScene = model->gltfAsset.scenes[0];
+	
+	for (size_t rootNodeIndex : gltfScene.nodeIndices)
+	{
+		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], prefab);
+	}
+}
+
+PrefabInstance* Scene::InstantiateModel(const std::string& path, const Transform& transform)
 {
 	const auto& model = modelManager->GetModel(path);
 
@@ -331,7 +365,7 @@ SceneObject* Scene::InstantiateModel(const std::string& path, const Transform& t
 		InstantiateModelNode(model, model->gltfAsset.nodes[rootNodeIndex], root);
 	}
 
-	return nullptr;
+	return root;
 }
 
 SceneObject* Scene::FindObject(const std::string& path, SceneObject* root)
