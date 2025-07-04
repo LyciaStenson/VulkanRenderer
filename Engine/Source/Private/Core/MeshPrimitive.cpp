@@ -154,6 +154,10 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 	// Update the descriptor set for each frame in flight
 	for (size_t i = 0; i < VulkanConfig::MAX_FRAMES_IN_FLIGHT; i++)
 	{
+		VkDescriptorImageInfo baseColorInfo = GetBaseColorInfo();
+		VkDescriptorImageInfo metallicRoughnessInfo = GetMetallicRoughnessInfo();
+		VkDescriptorImageInfo normalInfo = GetNormalInfo();
+
 		std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
 		
 		VkDescriptorBufferInfo bufferInfo{};
@@ -175,7 +179,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &GetBaseColorInfo();
+		descriptorWrites[1].pImageInfo = &baseColorInfo;
 
 		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[2].dstSet = materialDescriptorSets[i];
@@ -183,7 +187,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[2].dstArrayElement = 0;
 		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &GetMetallicRoughnessInfo();
+		descriptorWrites[2].pImageInfo = &metallicRoughnessInfo;
 
 		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[3].dstSet = materialDescriptorSets[i];
@@ -191,7 +195,7 @@ void MeshPrimitive::CreateMaterialDescriptorSets(VkDescriptorPool descriptorPool
 		descriptorWrites[3].dstArrayElement = 0;
 		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[3].descriptorCount = 1;
-		descriptorWrites[3].pImageInfo = &GetNormalInfo();
+		descriptorWrites[3].pImageInfo = &normalInfo;
 		
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
