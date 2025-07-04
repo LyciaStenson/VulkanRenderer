@@ -103,15 +103,12 @@ namespace VulkanRenderer
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Load Scene"))
-				{
-					std::string path = "Assets/Scenes/Scene.tscene";
-					m_Scene->LoadSceneJSON(path);
-				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					std::string path = "Assets/Scenes/Scene.tscene";
-					m_Scene->SaveSceneJSON(path);
+					//std::string path = "Assets/Scenes/Scene.tscene";
+					std::string path = "Assets/Scenes/Scene.scene";
+					//m_Scene->SaveSceneJSON(path);
+					m_Scene->SaveSceneBIN(path);
 				}
 				if (ImGui::MenuItem("Quit"))
 					glfwSetWindowShouldClose(m_Window, true);

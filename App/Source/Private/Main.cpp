@@ -17,5 +17,8 @@ int main(int argc, char** argv)
 	AppRenderTarget renderTarget(engine.GetRenderer());
 	engine.GetRenderer()->SetRenderTarget(&renderTarget);
 	
+	//engine.GetScene()->LoadSceneJSON("Assets/Scenes/Scene.tscene");
+	engine.GetScene()->LoadSceneBIN("Assets/Scenes/Scene.scene");
+	
 	engine.Run();
 }
