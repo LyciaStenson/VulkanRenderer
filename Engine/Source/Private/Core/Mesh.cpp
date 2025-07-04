@@ -29,7 +29,7 @@ size_t Mesh::GetPrimitiveCount() const
 
 MeshPrimitive* Mesh::GetPrimitive(size_t index) const
 {
-	if (primitives[index])
+	if (index < primitives.size() && primitives[index])
 		return primitives[index].get();
 	return nullptr;
 }
