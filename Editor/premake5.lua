@@ -30,9 +30,9 @@ project "Editor"
 		"%{wks.location}/Engine/Vendor/stb",
 		"%{wks.location}/Engine/Vendor/fastgltf/include",
 		"%{wks.location}/Engine/Vendor/cereal",
-		"%{wks.location}/Engine/Vendor/imgui"
+		"%{wks.location}/Editor/Vendor/imgui"
 	}
 
 	defines { "EDITOR" }
 
-	links { "Engine" }
+	links { "Engine", "imgui" }
