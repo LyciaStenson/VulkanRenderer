@@ -8,6 +8,8 @@ project "Editor"
 	targetdir (outBinDir)
 	objdir ("%{wks.location}/out/obj/" .. outputdir .. "/%{prj.name}")
 
+	debugdir (outBinDir)
+
 	defines { "VK_NO_PROTOTYPES" }
 	defines { "GLFW_INCLUDE_VULKAN" }
 	defines { "IMGUI_IMPL_VULKAN_USE_VOLK" }
@@ -34,7 +36,3 @@ project "Editor"
 	defines { "EDITOR" }
 
 	links { "Engine" }
-
-	filter { "configurations:Debug" }
-		debugdir (outBinDir)
-	filter { }

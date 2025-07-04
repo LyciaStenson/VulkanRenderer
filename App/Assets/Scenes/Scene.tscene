@@ -1,0 +1,205 @@
+{
+    "rootObject": {
+        "polymorphic_id": 1073741824,
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "name": "Root",
+                "transform": {
+                    "position": {
+                        "vec.x": 0.0,
+                        "vec.y": 0.0,
+                        "vec.z": 0.0
+                    },
+                    "rotation": {
+                        "quat.x": 0.0,
+                        "quat.y": 0.0,
+                        "quat.z": 0.0,
+                        "quat.w": 0.0
+                    },
+                    "scale": {
+                        "vec.x": 1.0,
+                        "vec.y": 1.0,
+                        "vec.z": 1.0
+                    }
+                },
+                "children": [
+                    {
+                        "polymorphic_id": 2147483649,
+                        "polymorphic_name": "VulkanRenderer::Camera",
+                        "ptr_wrapper": {
+                            "valid": 1,
+                            "data": {
+                                "value0": {
+                                    "name": "Camera",
+                                    "transform": {
+                                        "position": {
+                                            "vec.x": 0.0,
+                                            "vec.y": 0.0,
+                                            "vec.z": 0.0
+                                        },
+                                        "rotation": {
+                                            "quat.x": 0.0,
+                                            "quat.y": 0.0,
+                                            "quat.z": 0.0,
+                                            "quat.w": 0.0
+                                        },
+                                        "scale": {
+                                            "vec.x": 1.0,
+                                            "vec.y": 1.0,
+                                            "vec.z": 1.0
+                                        }
+                                    },
+                                    "children": []
+                                },
+                                "fov": 50.0
+                            }
+                        }
+                    },
+                    {
+                        "polymorphic_id": 2147483650,
+                        "polymorphic_name": "VulkanRenderer::PointLight",
+                        "ptr_wrapper": {
+                            "valid": 1,
+                            "data": {
+                                "value0": {
+                                    "name": "Point Light Red",
+                                    "transform": {
+                                        "position": {
+                                            "vec.x": -8.0,
+                                            "vec.y": 2.0,
+                                            "vec.z": -5.0
+                                        },
+                                        "rotation": {
+                                            "quat.x": 0.0,
+                                            "quat.y": 0.0,
+                                            "quat.z": 0.0,
+                                            "quat.w": 0.0
+                                        },
+                                        "scale": {
+                                            "vec.x": 1.0,
+                                            "vec.y": 1.0,
+                                            "vec.z": 1.0
+                                        }
+                                    },
+                                    "children": []
+                                },
+                                "color": {
+                                    "vec.x": 1.0,
+                                    "vec.y": 0.0,
+                                    "vec.z": 0.0
+                                },
+                                "intensity": 3.0,
+                                "radius": 12.0
+                            }
+                        }
+                    },
+                    {
+                        "polymorphic_id": 2,
+                        "ptr_wrapper": {
+                            "valid": 1,
+                            "data": {
+                                "value0": {
+                                    "name": "Point Light Center",
+                                    "transform": {
+                                        "position": {
+                                            "vec.x": 0.0,
+                                            "vec.y": 2.0,
+                                            "vec.z": -5.0
+                                        },
+                                        "rotation": {
+                                            "quat.x": 0.0,
+                                            "quat.y": 0.0,
+                                            "quat.z": 0.0,
+                                            "quat.w": 0.0
+                                        },
+                                        "scale": {
+                                            "vec.x": 1.0,
+                                            "vec.y": 1.0,
+                                            "vec.z": 1.0
+                                        }
+                                    },
+                                    "children": []
+                                },
+                                "color": {
+                                    "vec.x": 1.0,
+                                    "vec.y": 1.0,
+                                    "vec.z": 1.0
+                                },
+                                "intensity": 0.5,
+                                "radius": 10.0
+                            }
+                        }
+                    },
+                    {
+                        "polymorphic_id": 2,
+                        "ptr_wrapper": {
+                            "valid": 1,
+                            "data": {
+                                "value0": {
+                                    "name": "Point Light Blue",
+                                    "transform": {
+                                        "position": {
+                                            "vec.x": 8.0,
+                                            "vec.y": 2.0,
+                                            "vec.z": -10.0
+                                        },
+                                        "rotation": {
+                                            "quat.x": 0.0,
+                                            "quat.y": 0.0,
+                                            "quat.z": 0.0,
+                                            "quat.w": 0.0
+                                        },
+                                        "scale": {
+                                            "vec.x": 1.0,
+                                            "vec.y": 1.0,
+                                            "vec.z": 1.0
+                                        }
+                                    },
+                                    "children": []
+                                },
+                                "color": {
+                                    "vec.x": 0.0,
+                                    "vec.y": 0.0,
+                                    "vec.z": 1.0
+                                },
+                                "intensity": 3.0,
+                                "radius": 12.0
+                            }
+                        }
+                    },
+                    {
+                        "polymorphic_id": 2147483651,
+                        "polymorphic_name": "VulkanRenderer::PrefabInstance",
+                        "ptr_wrapper": {
+                            "valid": 1,
+                            "data": {
+                                "name": "StylisedCar",
+                                "transform": {
+                                    "position": {
+                                        "vec.x": 0.0,
+                                        "vec.y": -2.0,
+                                        "vec.z": -10.0
+                                    },
+                                    "rotation": {
+                                        "quat.x": 0.0,
+                                        "quat.y": 0.0,
+                                        "quat.z": 0.0,
+                                        "quat.w": 0.0
+                                    },
+                                    "scale": {
+                                        "vec.x": 35.0,
+                                        "vec.y": 35.0,
+                                        "vec.z": 35.0
+                                    }
+                                },
+                                "prefabPath": "Assets/Models/StylisedCar/StylisedCar.glb"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "mainCameraPath": "Camera"
+}

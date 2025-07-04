@@ -8,6 +8,8 @@ project "App"
 	targetdir (outBinDir)
 	objdir ("%{wks.location}/out/obj/" .. outputdir .. "/%{prj.name}")
 
+	debugdir (outBinDir)
+
 	defines { "VK_NO_PROTOTYPES" }
 	defines { "GLFW_INCLUDE_VULKAN" }
 	defines { "IMGUI_IMPL_VULKAN_USE_VOLK" }
@@ -32,7 +34,3 @@ project "App"
 	}
 
 	links { "Engine" }
-
-	filter { "configurations:Debug" }
-		debugdir (outBinDir)
-	filter { }
